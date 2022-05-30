@@ -6,6 +6,6 @@ Cpu::Cpu() {
     std::cout << "Initializing CPU done." << std::endl;
 }
 
-void Cpu::Tick() {
+void Cpu::tick() {
 
 }

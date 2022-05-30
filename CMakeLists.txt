@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED False)
 configure_file(src/main.hpp.in generated_src/main.hpp)
 
 # Set a variable containing the list of source files, to avoid cluttering our add_executable() statement
-set(SOURCES src/main.cpp src/agc.hpp src/agc.cpp src/memory.hpp src/memory.cpp src/cpu.hpp src/cpu.cpp)
+set(SOURCES src/main.cpp src/globaldefs.hpp src/agc.hpp src/agc.cpp src/memory.hpp src/memory.cpp src/cpu.hpp src/cpu.cpp)
 
 # Define the project target
 add_executable(AGCPlusPlus ${SOURCES})

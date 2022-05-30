@@ -7,7 +7,7 @@
 class Agc {
 public:
     Agc();
-    void Run();
+    void run();
 
     Cpu cpu;
     Memory memory;

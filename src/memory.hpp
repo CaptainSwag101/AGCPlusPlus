@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <iostream>
 #include <random>
+#include "globaldefs.hpp"
 
 #pragma once
 
@@ -17,10 +18,10 @@ public:
     // Initializes the AGC's two sections of memory with the
     // specified initialization pattern.
     Memory(MemoryInitState initState = MemoryInitState::BitsClear);
-    uint16_t read_fixed(uint16_t address) const;
-    uint16_t write_erasable(uint16_t address) const;
-    void write_fixed(uint16_t address, uint16_t word);
-    void write_erasable(uint16_t address, uint16_t word);
+    word read_fixed(word address) const;
+    word read_erasable(word address) const;
+    void write_fixed(word address, word data);
+    void write_erasable(word address, word data);
 
     uint64_t random_seed;
     std::minstd_rand rand_gen;
@@ -29,6 +30,6 @@ private:
     static constexpr uint64_t FIXED_MEM_SIZE = 36864;
     static constexpr uint64_t ERASABLE_MEM_SIZE = 2048;
 
-    std::array<uint16_t, FIXED_MEM_SIZE> fixed;
-    std::array<uint16_t, ERASABLE_MEM_SIZE> erasable;
+    std::array<word, FIXED_MEM_SIZE> fixed;
+    std::array<word, ERASABLE_MEM_SIZE> erasable;
 };

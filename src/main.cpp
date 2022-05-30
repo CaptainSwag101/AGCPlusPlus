@@ -8,7 +8,7 @@ int main()
     
     Agc computer;
 
-    computer.Run();
+    computer.run();
     
     return 0;
 }

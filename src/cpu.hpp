@@ -5,5 +5,5 @@
 class Cpu {
 public:
     Cpu();
-    void Tick();
+    void tick();
 };
