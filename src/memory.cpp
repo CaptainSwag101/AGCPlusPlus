@@ -13,7 +13,7 @@ Memory::Memory(MemoryInitState initState) {
         if (initState == MemoryInitState::BitsClear) {
             erasable[i] = 0;
         } else if (initState == MemoryInitState::BitsSet) {
-            erasable[i] = 0xFFFF;
+            erasable[i] = 0177777;
         } else {
             erasable[i] = static_cast<uint16_t>(rand_gen());
         }
@@ -24,7 +24,7 @@ Memory::Memory(MemoryInitState initState) {
         if (initState == MemoryInitState::BitsClear) {
             fixed[i] = 0;
         } else if (initState == MemoryInitState::BitsSet) {
-            fixed[i] = 0xFFFF;
+            fixed[i] = 0177777;
         } else {
             fixed[i] = static_cast<uint16_t>(rand_gen());
         }
