@@ -1,11 +1,13 @@
 #include "cpu.hpp"
 
-Cpu::Cpu() {
-    std::cout << "Initializing CPU..." << std::endl;
+namespace agcplusplus {
+    Cpu::Cpu() {
+        std::cout << "Initializing CPU..." << std::endl;
 
-    std::cout << "Initializing CPU done." << std::endl;
-}
+        std::cout << "Initializing CPU done." << std::endl;
+    }
 
-void Cpu::tick() {
+    void Cpu::tick() {
 
+    }
 }

@@ -4,11 +4,13 @@
 
 #pragma once
 
-class Agc {
-public:
-    Agc();
-    void run();
+namespace agcplusplus {
+    class Agc {
+    public:
+        Agc();
+        void run();
 
-    Cpu cpu;
-    Memory memory;
-};
+        Cpu cpu;
+        Memory memory;
+    };
+}

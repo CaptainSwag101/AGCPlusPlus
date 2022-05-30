@@ -5,10 +5,10 @@
 int main()
 {
     std::cout << "AGCPlusPlus version v" << AGCPlusPlus_VERSION_MAJOR << "." << AGCPlusPlus_VERSION_MINOR << std::endl;
-    
-    Agc computer;
+
+    agcplusplus::Agc computer;
 
     computer.run();
-    
+
     return 0;
 }
