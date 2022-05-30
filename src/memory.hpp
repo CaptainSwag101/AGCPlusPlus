@@ -18,10 +18,12 @@ public:
     // Initializes the AGC's two sections of memory with the
     // specified initialization pattern.
     Memory(MemoryInitState initState = MemoryInitState::BitsClear);
-    word read_fixed(word address) const;
-    word read_erasable(word address) const;
-    void write_fixed(word address, word data);
-    void write_erasable(word address, word data);
+    word read_fixed_block(word address) const;
+    word read_erasable_block(word address) const;
+    word read_fixed_word(word address) const;
+    word read_erasable_word(word address) const;
+    void write_fixed_word(word address, word data);
+    void write_erasable_word(word address, word data);
 
     uint64_t random_seed;
     std::minstd_rand rand_gen;

@@ -15,7 +15,7 @@ Memory::Memory(MemoryInitState initState) {
         } else if (initState == MemoryInitState::BitsSet) {
             erasable[i] = 0177777;
         } else {
-            erasable[i] = static_cast<uint16_t>(rand_gen());
+            erasable[i] = static_cast<word>(rand_gen());
         }
     }
 
@@ -26,25 +26,25 @@ Memory::Memory(MemoryInitState initState) {
         } else if (initState == MemoryInitState::BitsSet) {
             fixed[i] = 0177777;
         } else {
-            fixed[i] = static_cast<uint16_t>(rand_gen());
+            fixed[i] = static_cast<word>(rand_gen());
         }
     }
 
     std::cout << "Initializing memory done." << std::endl;
 }
 
-word Memory::read_erasable(word address) const {
+word Memory::read_erasable_word(word address) const {
     return erasable[address];
 }
 
-word Memory::read_fixed(word address) const {
+word Memory::read_fixed_word(word address) const {
     return fixed[address];
 }
 
-void Memory::write_erasable(word address, word data) {
+void Memory::write_erasable_word(word address, word data) {
     erasable[address] = data;
 }
 
-void Memory::write_fixed(word address, word data) {
+void Memory::write_fixed_word(word address, word data) {
     fixed[address] = data;
 }
