@@ -3,7 +3,7 @@
 #pragma once
 
 class Cpu {
-    public:
+public:
     Cpu();
     void Tick();
 };
