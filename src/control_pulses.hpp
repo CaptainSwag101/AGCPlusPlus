@@ -25,7 +25,7 @@ static void b15x(Cpu& cpu) {
 
 // Insert carry into bit 1 of the adder.
 static void ci(Cpu& cpu) {
-    cpu.ci = true;
+    cpu.explicit_carry = true;
     cpu.update_adder();
 }
 

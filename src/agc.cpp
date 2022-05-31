@@ -1,7 +1,7 @@
 #include "agc.hpp"
 
 namespace agcplusplus {
-Agc::Agc() : cpu(), memory(MemoryInitState::BitsSet) {
+Agc::Agc() : cpu(), memory(MemoryInitState::Random) {
     std::cout << "Initializing computer state..." << std::endl;
 
     std::cout << "Assigning memory pointer for CPU...";
@@ -13,10 +13,13 @@ Agc::Agc() : cpu(), memory(MemoryInitState::BitsSet) {
 
 void Agc::run() {
     int64_t totalTicks = 0;
-    for (int t = 1; t <= 12; ++t)
-    {
-        cpu.tick();
-        ++totalTicks;
+    while (true) {
+        for (int t = 1; t <= 12; ++t)
+        {
+            cpu.tick();
+            ++totalTicks;
+            cpu.print_state_info(std::cout);
+        }
     }
 }
 }
