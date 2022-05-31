@@ -5,12 +5,12 @@
 #pragma once
 
 namespace agcplusplus {
-    class Agc {
-    public:
-        Agc();
-        void run();
+class Agc {
+public:
+    Agc();
+    void run();
 
-        Cpu cpu;
-        Memory memory;
-    };
+    Cpu cpu;
+    Memory memory;
+};
 }
