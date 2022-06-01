@@ -51,7 +51,7 @@ public:
     uint64_t night_watchman;
 
     // Instruction data
-    uint8_t current_timepulse;
+    uint8_t current_timepulse = 1;
     subinstruction current_subinstruction;
 };
 }
