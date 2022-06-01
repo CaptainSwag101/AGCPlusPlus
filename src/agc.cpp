@@ -13,12 +13,10 @@ Agc::Agc() : cpu(), memory(MemoryInitState::Random) {
 
 void Agc::run() {
     int64_t totalTicks = 0;
-    while (true) {
-        for (int t = 1; t <= 12; ++t)
-        {
+    while (totalTicks <= 120) {
+        for (uint8_t t = 1; t <= 12; ++t) {
             cpu.tick();
             ++totalTicks;
-            cpu.print_state_info(std::cout);
         }
     }
 }
