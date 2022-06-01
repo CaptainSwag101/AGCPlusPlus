@@ -30,21 +30,29 @@ void Cpu::print_state_info(std::ostream& output) const {
 
     std::oct(output);
 
-    output << " A = " << std::setw(6) << std::setfill('0') << a;
-    output << " L = " << std::setw(6) << std::setfill('0') << l;
-    output << " G = " << std::setw(6) << std::setfill('0') << g;
-    output << " B = " << std::setw(6) << std::setfill('0') << b;
-    output << " Z = " << std::setw(6) << std::setfill('0') << z;
-    output << " Q = " << std::setw(6) << std::setfill('0') << q;
+    output << " A = " << std::setw(6) << a;
+    output << " L = " << std::setw(6) << l;
+    output << " G = " << std::setw(6) << g;
+    output << " B = " << std::setw(6) << b;
+    output << " Z = " << std::setw(6) << z;
+    output << " Q = " << std::setw(6) << q;
     output << std::endl;
 
-    output << " S = " << std::setw(6) << std::setfill('0') << s;
-    output << " SQ = " << std::setw(2) << std::setfill('0') << sq;
+    output << " S = " << std::setw(6) << s;
+    output << " SQ = " << std::setw(2) << sq;
     output << " ST = " << (word)st; // Cast from char to integer
     output << " BR = " << (br & 1) << ((br & 2) >> 1);
-    output << " EB = " << std::setw(2) << std::setfill('0') << eb;
-    output << " FB = " << std::setw(2) << std::setfill('0') << fb;
-    output << " BB = " << std::setw(6) << std::setfill('0') << bb;
+    output << " EB = " << std::setw(2) << eb;
+    output << " FB = " << std::setw(2) << fb;
+    output << " BB = " << std::setw(6) << bb;
+    output << std::endl;
+
+    output << " EXTEND = " << (word)extend;
+    output << " INHINT = " << (word)inhibit_interrupts;
+    output << " X = " << std::setw(6) << x;
+    output << " Y = " << std::setw(6) << y;
+    output << " U = " << std::setw(6) << u;
+    output << " WL = " << std::setw(6) << write_bus;
     output << std::endl;
 
     std::dec(output);
