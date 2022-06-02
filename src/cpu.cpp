@@ -80,7 +80,7 @@ void Cpu::tick() {
         // Populate current_subinstruction based on the contents of SQ, ST, and EXTEND
         bool found_implemented_subinstruction = false;
         for (auto& subinst : subinstruction_list) {
-            if (extend == subinst.sequence_extend && st == subinst.stage && (sq & subinst.sequence_mask) >= subinst.sequence_minval) {
+            if (extend == subinst.sequence_extend && st == subinst.stage && (sq & subinst.sequence_mask) == subinst.sequence_opcode) {
                 current_subinstruction = subinst;
                 found_implemented_subinstruction = true;
                 break;

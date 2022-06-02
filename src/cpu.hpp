@@ -15,7 +15,7 @@ struct subinstruction {
     uint8_t stage;
     bool sequence_extend;
     uint8_t sequence_mask;
-    uint8_t sequence_minval;
+    uint8_t sequence_opcode;
     std::string name;
     std::function<void(Cpu&)> function;
 };
