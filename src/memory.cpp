@@ -6,7 +6,7 @@ Memory::Memory(MemoryInitState initState) {
 
     // Seed the RNG
     random_seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::cout << "Random seed set to " << random_seed << "." << std::endl;
+    std::cout << "Random seed set to " << random_seed << "." << '\n';
     rand_gen = std::minstd_rand(random_seed);
 
     // Populate erasable memory with desired data pattern
@@ -31,7 +31,7 @@ Memory::Memory(MemoryInitState initState) {
         }
     }
 
-    std::cout << "Initializing memory done." << std::endl;
+    std::cout << "Initializing memory done." << '\n';
 }
 
 word Memory::read_erasable_word(word address) {

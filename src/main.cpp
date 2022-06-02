@@ -4,7 +4,7 @@
 
 int main()
 {
-    std::cout << "AGCPlusPlus version v" << AGCPlusPlus_VERSION_MAJOR << "." << AGCPlusPlus_VERSION_MINOR << std::endl;
+    std::cout << "AGCPlusPlus version v" << AGCPlusPlus_VERSION_MAJOR << "." << AGCPlusPlus_VERSION_MINOR << '\n';
 
     agcplusplus::Agc computer;
 

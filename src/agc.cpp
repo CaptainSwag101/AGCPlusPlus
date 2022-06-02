@@ -1,24 +1,32 @@
 #include "agc.hpp"
+#include <chrono>
 
 namespace agcplusplus {
-Agc::Agc() : cpu(), memory(MemoryInitState::Random) {
-    std::cout << "Initializing computer state..." << std::endl;
+Agc::Agc() : cpu(), memory(MemoryInitState::BitsClear) {
+    std::cout << "Initializing computer state..." << '\n';
 
     std::cout << "Assigning memory pointer for CPU...";
     cpu.assign_mem(memory);
-    std::cout << " done!" << std::endl;
+    std::cout << " done!" << '\n';
 
-    std::cout << "Initializing computer state done." << std::endl;
+    std::cout << "Initializing computer state done." << '\n';
 }
 
 void Agc::run() {
     int64_t totalTicks = 0;
-    while (totalTicks <= 120) {
+
+    std::cout << "Target time per MCT: " << ((1.0 / (FREQUENCY_CPU / 12.0)) * 1000.0) << " milliseconds." << '\n';
+
+    while (totalTicks <= 12 * 4) {
         // Perform MCT
+        auto start = std::chrono::high_resolution_clock::now();
         for (uint8_t t = 1; t <= 12; ++t) {
             cpu.tick();
             ++totalTicks;
         }
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count();
+        std::cout << "MCT completed in " << (duration / 1000000.0) << " milliseconds." << '\n';
     }
 }
 }

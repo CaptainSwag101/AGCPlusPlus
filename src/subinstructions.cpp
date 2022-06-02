@@ -24,4 +24,8 @@ void std2(Cpu& cpu) {
             break;
     }
 }
+
+void tc0(Cpu& cpu) {
+
+}
 }

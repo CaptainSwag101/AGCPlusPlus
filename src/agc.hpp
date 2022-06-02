@@ -1,4 +1,5 @@
 #include "cpu.hpp"
+#include "globaldefs.hpp"
 #include "memory.hpp"
 #include <iostream>
 

@@ -24,4 +24,6 @@ constexpr word MEM_FIXED_START = 02000;
 constexpr word MEM_FIXED_END = 07777;
 constexpr word MEM_FIXED_BANKED_START = 02000;
 constexpr word MEM_FIXED_BANKED_END = 03777;
+
+constexpr double FREQUENCY_CPU = 1024000.0;
 }

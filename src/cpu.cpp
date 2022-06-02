@@ -3,12 +3,12 @@
 
 namespace agcplusplus {
 Cpu::Cpu() {
-    std::cout << "Initializing CPU..." << std::endl;
+    std::cout << "Initializing CPU..." << '\n';
 
     z = 04000;
     current_subinstruction = subinstruction_list[0];
 
-    std::cout << "Initializing CPU done." << std::endl;
+    std::cout << "Initializing CPU done." << '\n';
 }
 
 void Cpu::assign_mem(Memory& mem) {
@@ -89,7 +89,7 @@ void Cpu::tick() {
 
         if (!found_implemented_subinstruction) {
             std::oct(std::cout);
-            std::cout << "Unimplemented subinstruction at Z = " << std::setw(6) << std::setfill('0') << z << std::endl;
+            std::cout << "Unimplemented subinstruction at Z = " << std::setw(6) << std::setfill('0') << z << '\n';
             std::dec(std::cout);
             current_subinstruction = subinstruction_list[0];    // Force STD2
         }
@@ -99,7 +99,7 @@ void Cpu::tick() {
 }
 
 void Cpu::print_state_info(std::ostream& output) const {
-    output << current_subinstruction.name << " (T" << std::setw(2) << std::setfill('0') << (word)current_timepulse <<")" << std::endl;
+    output << current_subinstruction.name << " (T" << std::setw(2) << std::setfill('0') << (word)current_timepulse <<")" << '\n';
 
     std::oct(output);
 
@@ -109,7 +109,7 @@ void Cpu::print_state_info(std::ostream& output) const {
     output << " B = " << std::setw(6) << b;
     output << " Z = " << std::setw(6) << z;
     output << " Q = " << std::setw(6) << q;
-    output << std::endl;
+    output << '\n';
 
     output << " S = " << std::setw(6) << s;
     output << " SQ = " << std::setw(2) << sq;
@@ -118,7 +118,7 @@ void Cpu::print_state_info(std::ostream& output) const {
     output << " EB = " << std::setw(2) << (eb >> 8);
     output << " FB = " << std::setw(2) << (fb >> 11);
     output << " BB = " << std::setw(6) << bb;
-    output << std::endl;
+    output << '\n';
 
     output << " EXTEND = " << (word)extend;
     output << " INHINT = " << (word)inhibit_interrupts;
@@ -126,7 +126,7 @@ void Cpu::print_state_info(std::ostream& output) const {
     output << " Y = " << std::setw(6) << y;
     output << " U = " << std::setw(6) << u;
     output << " WL = " << std::setw(6) << write_bus;
-    output << std::endl;
+    output << '\n';
 
     std::dec(output);
 }
