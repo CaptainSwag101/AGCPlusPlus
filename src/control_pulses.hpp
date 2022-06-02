@@ -74,6 +74,9 @@ static void rq(Cpu& cpu);
 // Central store bits 1-16 are copied to WL1-16.
 static void rsc(Cpu& cpu);
 
+// Place octal 004000 = Block 2 start address on the WL's.
+static void rstrt(Cpu& cpu);
+
 // Read U1-16 to WL1-16.
 static void ru(Cpu& cpu);
 
@@ -92,6 +95,9 @@ static void wb(Cpu& cpu);
 // Clear and write WL1-16 into G1-16 except
 // for addresses octal 20-23, which cause editing.
 static void wg(Cpu& cpu);
+
+// Clear and write WL1-16 into Q1-16.
+static void wq(Cpu& cpu);
 
 // Clear and write WL1-12 into S1-12.
 static void ws(Cpu& cpu);

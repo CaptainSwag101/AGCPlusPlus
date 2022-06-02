@@ -127,6 +127,10 @@ static void rsc(Cpu& cpu) {
     }
 }
 
+static void rstrt(Cpu& cpu) {
+    cpu.write_bus |= 04000;
+}
+
 static void ru(Cpu& cpu) {
     cpu.write_bus |= cpu.u;
 }
@@ -174,6 +178,10 @@ static void wg(Cpu& cpu) {
     {
         cpu.g = cpu.write_bus;
     }
+}
+
+static void wq(Cpu& cpu) {
+    cpu.q = cpu.write_bus;
 }
 
 static void ws(Cpu& cpu) {

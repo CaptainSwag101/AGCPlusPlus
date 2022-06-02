@@ -5,8 +5,7 @@ namespace agcplusplus {
 Cpu::Cpu() {
     std::cout << "Initializing CPU..." << '\n';
 
-    z = 04000;
-    current_subinstruction = subinstruction_list[0];
+    current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
 
     std::cout << "Initializing CPU done." << '\n';
 }
