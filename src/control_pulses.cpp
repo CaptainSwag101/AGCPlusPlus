@@ -166,7 +166,7 @@ static void wg(Cpu& cpu) {
             cpu.g = (cpu.write_bus << 1) | top_to_bottom;
             break;
         case 023:  // EDOP, move 7 bits right
-            cpu.g = (cpu.write_bus & 0b0011111110000000) >> 7;
+            cpu.g = (cpu.write_bus & BITMASK_7_14) >> 7;
             break;
         }
     }
@@ -204,6 +204,7 @@ static void wsc(Cpu& cpu) {
             break;
         case 6:
             cpu.bb = cpu.write_bus;
+            cpu.update_eb_fb();
             break;
     };
 }

@@ -14,6 +14,7 @@ Agc::Agc() : cpu(), memory(MemoryInitState::Random) {
 void Agc::run() {
     int64_t totalTicks = 0;
     while (totalTicks <= 120) {
+        // Perform MCT
         for (uint8_t t = 1; t <= 12; ++t) {
             cpu.tick();
             ++totalTicks;

@@ -34,8 +34,10 @@ Memory::Memory(MemoryInitState initState) {
     std::cout << "Initializing memory done." << std::endl;
 }
 
-word Memory::read_erasable_word(word address) const {
-    return erasable[address];
+word Memory::read_erasable_word(word address) {
+    word temp = erasable[address];
+    erasable[address] = 0;
+    return temp;
 }
 
 word Memory::read_fixed_word(word address) const {

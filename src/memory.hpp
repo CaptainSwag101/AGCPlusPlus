@@ -22,7 +22,7 @@ public:
     word read_fixed_block(word address) const;
     word read_erasable_block(word address) const;
     word read_fixed_word(word address) const;
-    word read_erasable_word(word address) const;
+    word read_erasable_word(word address);
     void write_fixed_word(word address, word data);
     void write_erasable_word(word address, word data);
 
