@@ -65,9 +65,8 @@ void Cpu::tick() {
     // Clear the write bus after every timepulse
     write_bus = 0;
 
-    // After T12, perform subinstruction cleanup and fetch the next subinstruction if needed
-    if (current_timepulse == 12) {
-        current_timepulse = 1;
+    // Perform cleanup and fetch the next subinstruction if needed after T12 (or T3 during division)
+    if ((!dv && current_timepulse == 12) || (dv && current_timepulse == 3)) {
         st = st_next;
         st_next = 0;
 
@@ -93,6 +92,11 @@ void Cpu::tick() {
             std::dec(std::cout);
             current_subinstruction = subinstruction_list[0];    // Force STD2
         }
+    }
+
+    // Increment or reset timepulse count
+    if (current_timepulse == 12) {
+        current_timepulse = 1;
     } else {
         ++current_timepulse;
     }
