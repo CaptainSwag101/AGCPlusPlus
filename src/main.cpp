@@ -85,9 +85,8 @@ int main(int argc, char* argv[])
         if (in_rope.eof()) {
             rope_data[words_read] = 0;
         } else {
-            char word_raw[2];
-            in_rope.read(word_raw, 2);
-            word w = *((word*)word_raw);
+            word w = 0;
+            in_rope.read(reinterpret_cast<char*>(&w), 2);
             word w_swapped = swap_endian<word>(w);
             rope_data[words_read] = w_swapped;
         }
