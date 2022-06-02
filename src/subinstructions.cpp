@@ -1,6 +1,72 @@
 #include "subinstructions.hpp"
 
 namespace agcplusplus {
+void ca0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+        case 2:
+            rsc(cpu);
+            wg(cpu);
+            break;
+        case 7:
+            rg(cpu);
+            wb(cpu);
+            break;
+        case 8:
+            rz(cpu);
+            ws(cpu);
+            st2(cpu);
+            break;
+        case 9:
+            rb(cpu);
+            wg(cpu);
+            break;
+        case 10:
+            rb(cpu);
+            wa(cpu);
+            break;
+    }
+}
+
+void cs0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+        case 2:
+            rsc(cpu);
+            wg(cpu);
+            break;
+        case 7:
+            rg(cpu);
+            wb(cpu);
+            break;
+        case 8:
+            rz(cpu);
+            ws(cpu);
+            st2(cpu);
+            break;
+        case 9:
+            rb(cpu);
+            wg(cpu);
+            break;
+        case 10:
+            rc(cpu);
+            wa(cpu);
+            break;
+    }
+}
+
+void goj1(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+        case 2:
+            rsc(cpu);
+            wg(cpu);
+            break;
+        case 8:
+            rstrt(cpu);
+            ws(cpu);
+            wb(cpu);
+            break;
+    }
+}
+
 void std2(Cpu& cpu) {
     switch (cpu.current_timepulse) {
         case 1:
@@ -49,20 +115,6 @@ void tc0(Cpu& cpu) {
             rad(cpu);
             wb(cpu);
             ws(cpu);
-            break;
-    }
-}
-
-void goj1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
-        case 2:
-            rsc(cpu);
-            wg(cpu);
-            break;
-        case 8:
-            rstrt(cpu);
-            ws(cpu);
-            wb(cpu);
             break;
     }
 }

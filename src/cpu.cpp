@@ -89,7 +89,7 @@ void Cpu::tick() {
 
         if (!found_implemented_subinstruction) {
             std::oct(std::cout);
-            std::cout << "Unimplemented subinstruction at Z = " << std::setw(6) << std::setfill('0') << z << '\n';
+            std::cout << "Unimplemented subinstruction at Z = " << std::setw(6) << std::setfill('0') << z << ", replacing with STD2.\n";
             std::dec(std::cout);
             current_subinstruction = subinstruction_list[0];    // Force STD2
         }
@@ -131,7 +131,7 @@ void Cpu::print_state_info(std::ostream& output) const {
     output << " Y = " << std::setw(6) << y;
     output << " U = " << std::setw(6) << u;
     output << " WL = " << std::setw(6) << write_bus;
-    output << '\n';
+    output << std::endl;
 
     std::dec(output);
 }
