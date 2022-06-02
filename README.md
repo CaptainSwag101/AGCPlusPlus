@@ -1,4 +1,4 @@
-# AGC-Sharp
+# AGCPlusPlus
 An attempt at creating a control pulse-level emulator of the Block II Apollo guidance computer.
 
 ## Why the AGC?
