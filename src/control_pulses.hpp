@@ -24,16 +24,28 @@ static void clxc(Cpu& cpu);
 
 // Cause divide staging by a simple rule.
 // Also permit staging to occur at Time3 of
-// divide cycles (not emulated in AGCPlusPlus).
+// divide cycles.
 static void dvst(Cpu& cpu);
 
 // Set the Extend flip flop.
 static void ext(Cpu& cpu);
 
+// Set bits 2-16 of X to ones.
+static void monex(Cpu& cpu);
+
 // Next instruction is to be loaded into SQ. Also
 // frees certain restrictions- permits increments and
 // interrupts.
 static void nisq(Cpu& cpu);
+
+// Set bit 1 of X to 1.
+static void ponex(Cpu& cpu);
+
+// Set bit 2 of X to 1.
+static void ptwox(Cpu& cpu);
+
+// Place octal 177776 = -1 on the WL's.
+static void r1c(Cpu& cpu);
 
 // Read A1-16 to WL1-16.
 static void ra(Cpu& cpu);
@@ -47,6 +59,16 @@ static void rad(Cpu& cpu);
 
 // Read B1-16 to WL1-16.
 static void rb(Cpu& cpu);
+
+// Place octal 000001 on the WL's.
+static void rb1(Cpu& cpu);
+
+// Place octal 000001 on the WL's conditional on the
+// outcome of TSGU. RB1F if BR1=1.
+static void rb1f(Cpu& cpu);
+
+// Place octal 000002 on the WL's.
+static void rb2(Cpu& cpu);
 
 // Read the content of B inverted: C1-16 to WL1-16.
 static void rc(Cpu& cpu);
@@ -85,6 +107,23 @@ static void rz(Cpu& cpu);
 
 // Set Stage2 flip flop next T12.
 static void st2(Cpu& cpu);
+
+// Test WL1-16 for all ones (-0). Set BR2 if true.
+static void tmz(Cpu& cpu);
+
+// Test for + or - overflow.
+// Set BR1,2 to 00 if no overflow,
+// 01 if + overflow, 10 if - overflow.
+static void tov(Cpu& cpu);
+
+// Test content of G for plus zero. If true set BR2=1.
+static void tpzg(Cpu& cpu);
+
+// Test sign. Copy WL16 to BR1.
+static void tsgn(Cpu& cpu);
+
+// Test sign. Copy WL16 to BR2.
+static void tsgn2(Cpu& cpu);
 
 // Clear and write WL1-16 into A1-16.
 static void wa(Cpu& cpu);

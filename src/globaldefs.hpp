@@ -8,12 +8,14 @@ namespace agcplusplus {
 // Simplify our terminology by using "words" just like the AGC
 using word = uint16_t;
 
+constexpr word BITMASK_1_10 = ((1 << 10) - 1);
 constexpr word BITMASK_1_12 = ((1 << 12) - 1);
 constexpr word BITMASK_1_14 = ((1 << 14) - 1);
 constexpr word BITMASK_1_16 = ((1 << 16) - 1);
-constexpr word BITMASK_8_14 = 037400;
-constexpr word BITMASK_10_14 = 037000;
-constexpr word BITMASK_11_15 = 076000;
+constexpr word BITMASK_8_14  = 0037400;
+constexpr word BITMASK_10_14 = 0037000;
+constexpr word BITMASK_11_15 = 0076000;
+constexpr word BITMASK_15_16 = 0140000;
 constexpr word BITMASK_16 = (1 << 15);
 
 constexpr uint64_t SIZE_ERASABLE_MEM = 2048;

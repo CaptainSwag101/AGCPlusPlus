@@ -35,10 +35,29 @@ static void ext(Cpu& cpu) {
     cpu.extend_next = true;
 }
 
+static void monex(Cpu& cpu) {
+    cpu.x |= 0177776;
+    cpu.update_adder();
+}
+
 static void nisq(Cpu& cpu) {
     cpu.fetch_next_instruction = true;
     cpu.inhibit_interrupts = false;
     // TODO: Permit increments from counters when implemented
+}
+
+static void ponex(Cpu& cpu) {
+    cpu.x |= 1;
+    cpu.update_adder();
+}
+
+static void ptwox(Cpu& cpu) {
+    cpu.x |= 2;
+    cpu.update_adder();
+}
+
+static void r1c(Cpu& cpu) {
+    cpu.write_bus |= 0177776;
 }
 
 static void ra(Cpu& cpu) {
@@ -73,6 +92,20 @@ static void rb(Cpu& cpu) {
     cpu.write_bus |= cpu.b;
 }
 
+static void rb1(Cpu& cpu) {
+    cpu.write_bus |= 1;
+}
+
+static void rb1f(Cpu& cpu) {
+    if (cpu.br & 0b10) {
+        cpu.write_bus |= 1;
+    }
+}
+
+static void rb2(Cpu& cpu) {
+    cpu.write_bus |= 2;
+}
+
 static void rc(Cpu& cpu) {
     cpu.write_bus |= (cpu.b ^ BITMASK_1_16);
 }
@@ -95,6 +128,10 @@ static void rl(Cpu& cpu) {
     cpu.write_bus |= cpu.l & BITMASK_1_14;
     cpu.write_bus |= (cpu.l & BITMASK_16) >> 1;
     cpu.write_bus |= cpu.l & BITMASK_16;
+}
+
+static void rl10bb(Cpu& cpu) {
+    cpu.write_bus |= cpu.b & BITMASK_1_10;
 }
 
 static void rq(Cpu& cpu) {
@@ -141,6 +178,42 @@ static void rz(Cpu& cpu) {
 
 static void st2(Cpu& cpu) {
     cpu.st_next |= 2;
+}
+
+static void tmz(Cpu& cpu) {
+    if (cpu.write_bus == 0177777) {
+        cpu.br |= 0b01; // Set BR2
+    }
+}
+
+static void tov(Cpu& cpu) {
+    switch ((cpu.write_bus & BITMASK_15_16) >> 14) {
+    case 0b01:
+        cpu.br = 0b01;
+        break;
+    case 0b10:
+        cpu.br = 0b10;
+        break;
+    default:
+        cpu.br = 0b00;
+        break;
+    }
+}
+
+static void tpzg(Cpu& cpu) {
+    if (cpu.g == 0) {
+        cpu.br |= 0b01; // Set BR2
+    }
+}
+
+static void tsgn(Cpu& cpu) {
+    cpu.br &= 0b01; // BR1 is bit 2, mask it clear
+    cpu.br |= (cpu.write_bus & BITMASK_16) ? 0b10 : 0b00;
+}
+
+static void tsgn2(Cpu& cpu) {
+    cpu.br &= 0b10; // BR2 is bit 1, mask it clear
+    cpu.br |= (cpu.write_bus & BITMASK_16) ? 0b01 : 0b00;
 }
 
 static void wa(Cpu& cpu) {
