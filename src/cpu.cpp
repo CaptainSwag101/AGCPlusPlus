@@ -42,10 +42,12 @@ void Cpu::tick() {
     // Memory reads are done after T4
     if (current_timepulse == 4) {
         // Determine whether we are targeting fixed or erasable memory
-        if (s >= 010 && s < MEM_ERASABLE_END) {    // Erasable memory, but not a register
-            s_temp = s; // Preserve S in case it's changed before the writeback
-            word erasable_addr = get_erasable_absolute_addr();
-            g = memory->read_erasable_word(erasable_addr);
+        if (s < MEM_ERASABLE_END) {    // Erasable memory
+            if (s >= 010) {
+                s_temp = s; // Preserve S in case it's changed before the writeback
+                word erasable_addr = get_erasable_absolute_addr();
+                g = memory->read_erasable_word(erasable_addr);
+            }
         } else {    // Fixed memory
             // Don't read from fixed memory during division steps 3, 7, 6, or 4.
             // Based on SBF being inhibited by hardware logic during those phases.
