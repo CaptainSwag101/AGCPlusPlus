@@ -2,7 +2,7 @@
 #include <chrono>
 
 namespace agcplusplus {
-Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope) : cpu(), memory(MemoryInitState::BitsClear) {
+Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope, bool verbose) : cpu(verbose), memory(MemoryInitState::BitsClear) {
     std::cout << "Initializing computer state..." << '\n';
 
     std::cout << "Loading rope into fixed memory...";

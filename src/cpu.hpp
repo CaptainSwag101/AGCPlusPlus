@@ -23,7 +23,7 @@ struct subinstruction {
 class Cpu {
 public:
     // Init functions
-    Cpu();
+    Cpu(bool verbose);
     void assign_mem(Memory& mem);
 
     // Activity functions
@@ -38,6 +38,9 @@ public:
 
     // Debug functions
     void print_state_info(std::ostream& output) const;
+
+    // Helper data
+    bool verbose_logging = false;
 
     // Pointers
     std::unique_ptr<Memory> memory;
