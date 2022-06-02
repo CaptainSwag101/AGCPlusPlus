@@ -10,7 +10,7 @@ Memory::Memory(MemoryInitState initState) {
     rand_gen = std::minstd_rand(random_seed);
 
     // Populate erasable memory with desired data pattern
-    for (uint64_t i = 0; i < ERASABLE_MEM_SIZE; ++i) {
+    for (uint64_t i = 0; i < SIZE_ERASABLE_MEM; ++i) {
         if (initState == MemoryInitState::BitsClear) {
             erasable[i] = 0;
         } else if (initState == MemoryInitState::BitsSet) {
@@ -21,7 +21,7 @@ Memory::Memory(MemoryInitState initState) {
     }
 
     // Populate fixed memory with desired data pattern
-    for (uint64_t i = 0; i < FIXED_MEM_SIZE; ++i) {
+    for (uint64_t i = 0; i < SIZE_FIXED_MEM; ++i) {
         if (initState == MemoryInitState::BitsClear) {
             fixed[i] = 0;
         } else if (initState == MemoryInitState::BitsSet) {

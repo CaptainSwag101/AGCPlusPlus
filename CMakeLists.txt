@@ -6,7 +6,7 @@ project(AGCPlusPlus VERSION 0.1)
 
 # Let's try to take advantage of the latest C++ standards
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED False)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Generate the "main.h" file with #defines for the version numbers
 configure_file(src/main.hpp.in generated_src/main.hpp)

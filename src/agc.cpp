@@ -2,8 +2,15 @@
 #include <chrono>
 
 namespace agcplusplus {
-Agc::Agc() : cpu(), memory(MemoryInitState::BitsClear) {
+Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope) : cpu(), memory(MemoryInitState::BitsClear) {
     std::cout << "Initializing computer state..." << '\n';
+
+    std::cout << "Loading rope into fixed memory...";
+    for (word w : rope) {
+        static int fixed_addr = 0;
+        memory.write_fixed_word(fixed_addr++, w);
+    }
+    std::cout << " done!" << '\n';
 
     std::cout << "Assigning memory pointer for CPU...";
     cpu.assign_mem(memory);
@@ -17,7 +24,7 @@ void Agc::run() {
 
     std::cout << "Target time per MCT: " << ((1.0 / (FREQUENCY_CPU / 12.0)) * 1000.0) << " milliseconds." << '\n';
 
-    while (totalTicks <= 12 * 4) {
+    while (totalTicks <= 12 * 10) {
         // Perform MCT
         auto start = std::chrono::high_resolution_clock::now();
         for (uint8_t t = 1; t <= 12; ++t) {
