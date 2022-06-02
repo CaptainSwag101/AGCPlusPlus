@@ -20,10 +20,16 @@ struct subinstruction {
     std::function<void(Cpu&)> function;
 };
 
+enum class LoggingVerbosity {
+    None,
+    CpuStatePerMCT,
+    CpuStatePerTimepulse,
+};
+
 class Cpu {
 public:
     // Init functions
-    Cpu(bool verbose);
+    Cpu(bool logMCT, bool logTimepulse);
     void assign_mem(Memory& mem);
 
     // Activity functions
@@ -40,7 +46,7 @@ public:
     void print_state_info(std::ostream& output) const;
 
     // Helper data
-    bool verbose_logging = false;
+    LoggingVerbosity verbosity;
 
     // Pointers
     std::unique_ptr<Memory> memory;

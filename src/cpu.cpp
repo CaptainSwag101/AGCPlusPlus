@@ -2,10 +2,12 @@
 #include "subinstructions.hpp"
 
 namespace agcplusplus {
-Cpu::Cpu(bool verbose) {
+Cpu::Cpu(bool logMCT, bool logTimepulse) {
     std::cout << "Initializing CPU..." << '\n';
 
-    verbose_logging = verbose;
+    if (logTimepulse) verbosity = LoggingVerbosity::CpuStatePerTimepulse;
+    else if (logMCT) verbosity = LoggingVerbosity::CpuStatePerMCT;
+    else verbosity = LoggingVerbosity::None;
 
     current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
 
@@ -61,7 +63,9 @@ void Cpu::tick() {
     }
 
     // Print CPU state information before we clear the write bus
-    if (verbose_logging) print_state_info(std::cout);
+    if ((verbosity == LoggingVerbosity::CpuStatePerMCT && current_timepulse == 12) || verbosity == LoggingVerbosity::CpuStatePerTimepulse) {
+        print_state_info(std::cout);
+    }
 
     // Clear the write bus after every timepulse
     write_bus = 0;

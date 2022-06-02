@@ -39,8 +39,12 @@ int main(int argc, char* argv[])
     argparse::ArgumentParser program("AGCPlusPlus");
     program.add_argument("rope")
             .help("The core rope program to load into fixed memory at startup");
-    program.add_argument("--verbose", "-v")
+    program.add_argument("--log-timepulse")
             .help("Whether to print CPU state information every timepulse.")
+            .default_value(false)
+            .implicit_value(true);
+    program.add_argument("--log-mct")
+            .help("Whether to print CPU state information every MCT (twelfth timepulse).")
             .default_value(false)
             .implicit_value(true);
 
@@ -92,7 +96,7 @@ int main(int argc, char* argv[])
     in_rope.close();
 
     // Initialize the computer with the rope data
-    Agc computer(rope_data, (program["--verbose"] == true));
+    Agc computer(rope_data, (program["--log-mct"] == true), (program["--log-timepulse"] == true));
 
     // Start running
     computer.run();

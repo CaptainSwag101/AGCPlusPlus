@@ -9,7 +9,7 @@
 namespace agcplusplus {
 class Agc {
 public:
-    Agc(std::array<word, SIZE_FIXED_MEM> rope, bool verbose);
+    Agc(std::array<word, SIZE_FIXED_MEM> rope, bool logMCT, bool logTimepulse);
     void run();
 
     Cpu cpu;
