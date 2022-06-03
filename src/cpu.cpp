@@ -96,8 +96,10 @@ void Cpu::tick() {
         if (!found_implemented_subinstruction) {
             std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
             print_state_info(std::cout);
-            current_subinstruction = subinstruction_list[0];    // Force STD2
-            s = z;  // Reset the location we read the next instruction data from
+
+            subinstruction std2 = subinstruction_list[0];
+            current_subinstruction = std2;
+            s = z & BITMASK_1_12;
         }
     }
 

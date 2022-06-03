@@ -237,6 +237,18 @@ static void wb(Cpu& cpu) {
     cpu.b = cpu.write_bus;
 }
 
+static void wch(Cpu& cpu) {
+    if (cpu.s == 1) {
+        wl(cpu);
+    } else if (cpu.s == 2) {
+        wq(cpu);
+    } else {
+        word temp = cpu.write_bus & ~BITMASK_15;    // Mask out bit 15
+        temp |= (cpu.write_bus & BITMASK_16) >> 1;  // Bit 16 into bit 15
+        cpu.io_channels[cpu.s & 077] = temp;
+    }
+}
+
 static void wg(Cpu& cpu) {
     if (cpu.s >= 020 && cpu.s <= 023) {
         switch (cpu.s) {
@@ -264,6 +276,10 @@ static void wg(Cpu& cpu) {
     {
         cpu.g = cpu.write_bus;
     }
+}
+
+static void wl(Cpu& cpu) {
+    cpu.l = cpu.write_bus;
 }
 
 static void wq(Cpu& cpu) {

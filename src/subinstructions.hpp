@@ -14,10 +14,12 @@ void cs0(Cpu& cpu);
 void goj1(Cpu& cpu);
 void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
+void qxch0(Cpu& cpu);
 void std2(Cpu& cpu);
 void tc0(Cpu& cpu);
 void tcf0(Cpu& cpu);
 void ts0(Cpu& cpu);
+void wand0(Cpu& cpu);
 void xch0(Cpu& cpu);
 
 // Stage, Extend, BitMask, Opcode+QuarterCode, Name, Function
@@ -36,8 +38,11 @@ const static subinstruction subinstruction_list[] {
     {0, false, 076, 054, "TS0", ts0},
     {0, false, 076, 056, "XCH0", xch0},
     {0, false, 070, 060, "AD0", ad0},
-    {0, true, 076, 012, "BZMF0", bzf0},
-    {0, true, 076, 014, "BZMF0", bzf0},
-    {0, true, 076, 016, "BZMF0", bzf0},
+    {0, true,  077, 003, "WAND0", wand0},
+    {0, true,  076, 012, "BZF0", bzf0},
+    {0, true,  076, 014, "BZF0", bzf0},
+    {0, true,  076, 016, "BZF0", bzf0},
+    {0, true,  076, 022, "QXCH0", qxch0},
+    {2, true,  000, 000, "STD2", std2}, // Catch-all
 };
 }

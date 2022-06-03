@@ -137,9 +137,18 @@ static void wa(Cpu& cpu);
 // Clear and write WL1-16 into B1-16.
 static void wb(Cpu& cpu);
 
+// Clear and write WL1-14,16,parity into channel bits
+// 1-14,16,parity. Channels 1 and 2 write as WL and WQ.
+// The channel to be loaded is specified by the
+// current content of S.
+static void wch(Cpu& cpu);
+
 // Clear and write WL1-16 into G1-16 except
 // for addresses octal 20-23, which cause editing.
 static void wg(Cpu& cpu);
+
+// Clear and write WL1-16 into L1-16.
+static void wl(Cpu& cpu);
 
 // Clear and write WL1-16 into Q1-16.
 static void wq(Cpu& cpu);
