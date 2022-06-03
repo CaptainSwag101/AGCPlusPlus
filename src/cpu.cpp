@@ -98,6 +98,7 @@ void Cpu::tick() {
             std::cout << "Unimplemented subinstruction at Z = " << std::setw(6) << std::setfill('0') << z << ", replacing with STD2.\n";
             std::dec(std::cout);
             current_subinstruction = subinstruction_list[0];    // Force STD2
+            s = z;  // Reset the location we read the next instruction data from
         }
     }
 
