@@ -105,6 +105,9 @@ static void ru(Cpu& cpu);
 // Read Z1-16 to WL1-16.
 static void rz(Cpu& cpu);
 
+// Set Stage1 flip flop next T12.
+static void st1(Cpu& cpu);
+
 // Set Stage2 flip flop next T12.
 static void st2(Cpu& cpu);
 

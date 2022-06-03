@@ -197,6 +197,30 @@ void tc0(Cpu& cpu) {
     }
 }
 
+void tcf0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rb(cpu);
+        wy12(cpu);
+        ci(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        nisq(cpu);
+        break;
+    case 6:
+        ru(cpu);
+        wz(cpu);
+        break;
+    case 8:
+        rad(cpu);
+        wb(cpu);
+        ws(cpu);
+        break;
+    }
+}
+
 void ts0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 1:
@@ -253,6 +277,36 @@ void ts0(Cpu& cpu) {
         ws(cpu);
         st2(cpu);
         break;
+    }
+}
+
+void xch0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rl10bb(cpu);
+        ws(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 3:
+        ra(cpu);
+        wb(cpu);
+        break;
+    case 5:
+        rg(cpu);
+        wa(cpu);
+        break;
+    case 7:
+        rb(cpu);
+        wsc(cpu);
+        wb(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
     }
 }
 }

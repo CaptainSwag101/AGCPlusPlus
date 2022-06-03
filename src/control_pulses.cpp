@@ -179,6 +179,10 @@ static void rz(Cpu& cpu) {
     cpu.write_bus |= cpu.z;
 }
 
+static void st1(Cpu& cpu) {
+    cpu.st_next |= 1;
+}
+
 static void st2(Cpu& cpu) {
     cpu.st_next |= 2;
 }
