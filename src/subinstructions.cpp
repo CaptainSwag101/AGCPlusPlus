@@ -32,6 +32,59 @@ void ad0(Cpu& cpu) {
     }
 }
 
+void ads0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rl10bb(cpu);
+        ws(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 5:
+        rb(cpu);
+        wy(cpu);
+        a2x(cpu);
+        break;
+    case 6:
+        ru(cpu);
+        wsc(cpu);
+        wg(cpu);
+        tov(cpu);
+        break;
+    case 7:
+        switch (cpu.br) {
+        case 0b00:
+        case 0b11:
+            wa(cpu);
+            break;
+        case 0b01:
+            rb1(cpu);
+            wa(cpu);
+            break;
+        case 0b10:
+            r1c(cpu);
+            wa(cpu);
+            break;
+        }
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    case 9:
+        rc(cpu);
+        tmz(cpu);
+        break;
+    case 11:
+        ru(cpu);
+        wa(cpu);
+        break;
+    }
+}
+
 void bzf0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 1:
@@ -216,6 +269,190 @@ void cs0(Cpu& cpu) {
     }
 }
 
+void dca0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rb(cpu);
+        wy12(cpu);
+        monex(cpu);
+        ci(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 7:
+        rg(cpu);
+        wb(cpu);
+        break;
+    case 8:
+        ru(cpu);
+        ws(cpu);
+        break;
+    case 9:
+        rb(cpu);
+        wg(cpu);
+        break;
+    case 10:
+        rb(cpu);
+        wl(cpu);
+        st1(cpu);
+        break;
+    }
+}
+
+void dca1(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 7:
+        rg(cpu);
+        wb(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    case 9:
+        rb(cpu);
+        wg(cpu);
+        break;
+    case 10:
+        rb(cpu);
+        wa(cpu);
+        break;
+    }
+}
+
+void dcs0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rb(cpu);
+        wy12(cpu);
+        monex(cpu);
+        ci(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 7:
+        rg(cpu);
+        wb(cpu);
+        break;
+    case 8:
+        ru(cpu);
+        ws(cpu);
+        break;
+    case 9:
+        rb(cpu);
+        wg(cpu);
+        break;
+    case 10:
+        rc(cpu);
+        wl(cpu);
+        st1(cpu);
+        break;
+    }
+}
+
+void dcs1(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 7:
+        rg(cpu);
+        wb(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    case 9:
+        rb(cpu);
+        wg(cpu);
+        break;
+    case 10:
+        rc(cpu);
+        wa(cpu);
+        break;
+    }
+}
+
+void dxch0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rl10bb(cpu);
+        ws(cpu);
+        wy12(cpu);
+        monex(cpu);
+        ci(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 3:
+        rl(cpu);
+        wb(cpu);
+        break;
+    case 5:
+        rg(cpu);
+        wl(cpu);
+        break;
+    case 7:
+        rb(cpu);
+        wsc(cpu);
+        wg(cpu);
+        break;
+    case 8:
+        ru(cpu);
+        ws(cpu);
+        wb(cpu);
+        break;
+    case 10:
+        st1(cpu);
+        break;
+    }
+}
+
+void dxch1(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rl10bb(cpu);
+        ws(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 3:
+        ra(cpu);
+        wb(cpu);
+        break;
+    case 5:
+        rg(cpu);
+        wa(cpu);
+        break;
+    case 7:
+        rb(cpu);
+        wsc(cpu);
+        wg(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    }
+}
+
 void goj1(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 2:
@@ -226,6 +463,45 @@ void goj1(Cpu& cpu) {
         rstrt(cpu);
         ws(cpu);
         wb(cpu);
+        break;
+    }
+}
+
+void msk0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 3:
+        ra(cpu);
+        wb(cpu);
+        break;
+    case 4:
+        rc(cpu);
+        wa(cpu);
+        break;
+    case 7:
+        rg(cpu);
+        wb(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    case 9:
+        rc(cpu);
+        ra(cpu);
+        wy(cpu);
+        break;
+    case 10:
+        ru(cpu);
+        wb(cpu);
+        break;
+    case 11:
+        rc(cpu);
+        wa(cpu);
         break;
     }
 }
