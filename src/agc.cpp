@@ -24,8 +24,9 @@ void Agc::run() {
 
     std::cout << "Target time per MCT: " << ((1.0 / (FREQUENCY_CPU / 12.0)) * 1000.0) << " milliseconds." << '\n';
 
-    // DEBUG: Only execute 10 subinstructions
-    while (totalTicks <= 12 * 10) {
+    // DEBUG: Only execute 14 subinstructions
+    //while (totalTicks <= 12 * 14) {
+    while (true) {
         // Perform MCT
         auto start = std::chrono::high_resolution_clock::now();
         for (uint8_t t = 1; t <= 12; ++t) {
