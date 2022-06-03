@@ -42,7 +42,10 @@ static void monex(Cpu& cpu) {
 
 static void nisq(Cpu& cpu) {
     cpu.fetch_next_instruction = true;
-    //cpu.inhibit_interrupts = false;   // I really doubt this is how it's supposed to function
+    // TODO: This simply allows interrupts (if not inhibited) to occur
+    // between whole instructions that would otherwise be prevented
+    // between subinstructions of the same operation, i.e. between MP1 and MP3.
+    //cpu.permit_interrupts = true;
     // TODO: Permit increments from counters when implemented
 }
 

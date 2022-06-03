@@ -65,7 +65,7 @@ void Cpu::tick() {
     }
 
     // Print CPU state information before we clear the write bus
-    if ((verbosity == LoggingVerbosity::CpuStatePerMCT && current_timepulse == 12) || verbosity == LoggingVerbosity::CpuStatePerTimepulse) {
+    if ((verbosity == LoggingVerbosity::CpuStatePerMCT && current_timepulse == 1) || verbosity == LoggingVerbosity::CpuStatePerTimepulse) {
         print_state_info(std::cout);
     }
 
