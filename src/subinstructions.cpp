@@ -32,6 +32,60 @@ void ad0(Cpu& cpu) {
     }
 }
 
+void bzf0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        ra(cpu);
+        wg(cpu);
+        tsgn(cpu);
+        tmz(cpu);
+        break;
+    case 2:
+        tpzg(cpu);
+        break;
+    case 3:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 5:
+        switch (cpu.br) {
+        case 0b01:
+        case 0b11:
+            rb(cpu);
+            wy12(cpu);
+            ci(cpu);
+            break;
+        }
+        break;
+    case 6:
+        switch (cpu.br) {
+        case 0b01:
+        case 0b11:
+            ru(cpu);
+            wz(cpu);
+            break;
+        }
+        break;
+    case 8:
+        switch (cpu.br) {
+        case 0b00:
+        case 0b10:
+            rz(cpu);
+            ws(cpu);
+            st2(cpu);
+            break;
+        case 0b01:
+        case 0b11:
+            rad(cpu);
+            wb(cpu);
+            ws(cpu);
+            nisq(cpu);
+            break;
+        }
+        break;
+    }
+}
+
 void ca0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 2:
@@ -171,6 +225,81 @@ void goj1(Cpu& cpu) {
     case 8:
         rstrt(cpu);
         ws(cpu);
+        wb(cpu);
+        break;
+    }
+}
+
+void ndx0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 5:
+        trsm(cpu);
+        break;
+    case 7:
+        rg(cpu);
+        wb(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        break;
+    case 9:
+        rb(cpu);
+        wg(cpu);
+        break;
+    case 10:
+        st1(cpu);
+        break;
+    }
+}
+
+void ndx1(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rz(cpu);
+        wy12(cpu);
+        ci(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        nisq(cpu);
+        break;
+    case 3:
+        rb(cpu);
+        wz(cpu);
+        break;
+    case 4:
+        ra(cpu);
+        wb(cpu);
+        break;
+    case 5:
+        rz(cpu);
+        wa(cpu);
+        break;
+    case 6:
+        ru(cpu);
+        wz(cpu);
+        break;
+    case 7:
+        rg(cpu);
+        wy(cpu);
+        a2x(cpu);
+        break;
+    case 8:
+        ru(cpu);
+        ws(cpu);
+        break;
+    case 9:
+        rb(cpu);
+        wa(cpu);
+        break;
+    case 10:
+        ru(cpu);
         wb(cpu);
         break;
     }

@@ -213,6 +213,12 @@ static void tpzg(Cpu& cpu) {
     }
 }
 
+static void trsm(Cpu& cpu) {
+    if (cpu.s == 017) {
+        st2(cpu);
+    }
+}
+
 static void tsgn(Cpu& cpu) {
     cpu.br &= 0b01; // BR1 is bit 2, mask it clear
     cpu.br |= (cpu.write_bus & BITMASK_16) ? 0b10 : 0b00;

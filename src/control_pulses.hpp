@@ -122,6 +122,9 @@ static void tov(Cpu& cpu);
 // Test content of G for plus zero. If true set BR2=1.
 static void tpzg(Cpu& cpu);
 
+// Test for RESUME address on INDEX. ST2 if (S)=0017;
+static void trsm(Cpu& cpu);
+
 // Test sign. Copy WL16 to BR1.
 static void tsgn(Cpu& cpu);
 
