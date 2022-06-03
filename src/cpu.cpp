@@ -79,7 +79,7 @@ void Cpu::tick() {
 
         if (fetch_next_instruction) {
             sq = (b & BITMASK_10_14) >> 9;  // B10-14 to SQ1-5
-            sq |= (b & BITMASK_16) >> 15;   // B16 to SQ6
+            sq |= (b & BITMASK_16) >> 10;   // B16 to SQ6
             extend = extend_next;
         }
 
