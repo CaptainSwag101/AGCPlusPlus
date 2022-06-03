@@ -35,14 +35,14 @@ Memory::Memory(MemoryInitState initState) {
 }
 
 word Memory::read_erasable_word(word address) {
-    word temp = erasable[address];
+    word temp = erasable[address] & ~BITMASK_15;    // Mask out bit 15
     temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 into bit 15
     erasable[address] = 0;
     return temp;
 }
 
 word Memory::read_fixed_word(word address) const {
-    word temp = fixed[address];
+    word temp = fixed[address] & ~BITMASK_15;   // Mask out bit 15
     temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 into bit 15
     return temp;
 }
