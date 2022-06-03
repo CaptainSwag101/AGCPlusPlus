@@ -1,6 +1,37 @@
 #include "subinstructions.hpp"
 
 namespace agcplusplus {
+void ad0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 7:
+        rg(cpu);
+        wb(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    case 9:
+        rb(cpu);
+        wg(cpu);
+        break;
+    case 10:
+        rb(cpu);
+        wy(cpu);
+        a2x(cpu);
+        break;
+    case 11:
+        ru(cpu);
+        wa(cpu);
+        break;
+    }
+}
+
 void ca0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 2:

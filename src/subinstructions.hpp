@@ -6,6 +6,7 @@
 #pragma once
 
 namespace agcplusplus {
+void ad0(Cpu& cpu);
 void ca0(Cpu& cpu);
 void ccs0(Cpu& cpu);
 void cs0(Cpu& cpu);
@@ -29,5 +30,6 @@ const static subinstruction subinstruction_list[] {
     {0, false, 070, 040, "CS0", cs0},
     {0, false, 076, 054, "TS0", ts0},
     {0, false, 076, 056, "XCH0", xch0},
+    {0, false, 070, 060, "AD0", ad0},
 };
 }
