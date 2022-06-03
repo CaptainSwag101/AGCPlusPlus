@@ -42,7 +42,7 @@ static void monex(Cpu& cpu) {
 
 static void nisq(Cpu& cpu) {
     cpu.fetch_next_instruction = true;
-    cpu.inhibit_interrupts = false;
+    //cpu.inhibit_interrupts = false;   // I really doubt this is how it's supposed to function
     // TODO: Permit increments from counters when implemented
 }
 
