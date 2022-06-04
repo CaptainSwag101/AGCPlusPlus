@@ -2,7 +2,7 @@
 #include <chrono>
 
 namespace agcplusplus {
-Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope, bool logMCT, bool logTimepulse) : cpu(logMCT, logTimepulse), memory(MemoryInitState::BitsClear) {
+Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope, bool logMCT, bool logTimepulse) : cpu(logMCT, logTimepulse), memory(MemoryInitState::BitsClear), timer() {
     std::cout << "Initializing computer state..." << '\n';
 
     std::cout << "Loading rope into fixed memory...";
@@ -13,29 +13,21 @@ Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope, bool logMCT, bool logTimepulse) 
     std::cout << " done!" << '\n';
 
     std::cout << "Assigning memory pointer for CPU...";
-    cpu.assign_mem(memory);
+    cpu.assign_memory(memory);
     std::cout << " done!" << '\n';
+
+    std::cout << "Assigning CPU pointer for timer...";
+    timer.assign_cpu(cpu);
+    std::cout << " done!\n";
+
+    std::cout << "Assigning memory pointer for timer...";
+    timer.assign_memory(memory);
+    std::cout << " done!\n";
 
     std::cout << "Initializing computer state done." << '\n';
 }
 
 void Agc::run() {
-    int64_t totalTicks = 0;
-
-    std::cout << "Target time per MCT: " << ((1.0 / (FREQUENCY_CPU / 12.0)) * 1000.0) << " milliseconds." << '\n';
-
-    // DEBUG: Only execute 14 subinstructions
-    //while (totalTicks <= 12 * 14) {
-    while (true) {
-        // Perform MCT
-        auto start = std::chrono::high_resolution_clock::now();
-        for (uint8_t t = 1; t <= 12; ++t) {
-            cpu.tick();
-            ++totalTicks;
-        }
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count();
-        std::cout << "MCT completed in " << (duration / 1000000.0) << " milliseconds." << '\n';
-    }
+    timer.start_timer();
 }
 }

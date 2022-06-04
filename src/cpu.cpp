@@ -14,8 +14,8 @@ Cpu::Cpu(bool logMCT, bool logTimepulse) {
     std::cout << "Initializing CPU done." << '\n';
 }
 
-void Cpu::assign_mem(Memory& mem) {
-    memory = std::make_unique<Memory>(mem);
+void Cpu::assign_memory(Memory& mem) {
+    memory = std::make_shared<Memory>(mem);
 }
 
 void Cpu::tick() {

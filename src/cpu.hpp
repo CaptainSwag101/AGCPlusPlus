@@ -30,7 +30,7 @@ class Cpu {
 public:
     // Init functions
     Cpu(bool logMCT, bool logTimepulse);
-    void assign_mem(Memory& mem);
+    void assign_memory(Memory& mem);
 
     // Activity functions
     void tick();
@@ -49,7 +49,7 @@ public:
     LoggingVerbosity verbosity;
 
     // Pointers
-    std::unique_ptr<Memory> memory;
+    std::shared_ptr<Memory> memory;
 
     // Registers
     word a, l, g, b, z, q, s, s_temp, sq, eb, fb, bb, u, x, y;
