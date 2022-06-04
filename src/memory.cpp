@@ -35,6 +35,9 @@ Memory::Memory(MemoryInitState initState) {
 }
 
 word Memory::read_erasable_word(word address) {
+    // Special case for address 7, which is hard-wired to 0.
+    if (address == 7) return 0;
+
     word temp = erasable[address] & ~BITMASK_15;    // Mask out bit 15
     temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 into bit 15
     erasable[address] = 0;
@@ -48,6 +51,9 @@ word Memory::read_fixed_word(word address) const {
 }
 
 void Memory::write_erasable_word(word address, word data) {
+    // Discard values written to address 7 because it should always be 0.
+    if (address == 7) return;
+
     erasable[address] = data;
 }
 
