@@ -60,6 +60,8 @@ public:
     word counters[20];  // Can be 0, +1, -1, or both in the case of a freak accident
 
     // I/O
+    word read_io_channel(word address);
+    void write_io_channel(word address, word data);
     std::unordered_map<word, word> io_channels;
 
     // Internal CPU data

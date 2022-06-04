@@ -9,6 +9,12 @@ Cpu::Cpu(bool logMCT, bool logTimepulse) {
     else if (logMCT) verbosity = LoggingVerbosity::CpuStatePerMCT;
     else verbosity = LoggingVerbosity::None;
 
+    // Prepare I/O channels
+    std::cout << "Initializing I/O channels...";
+    io_channels.emplace(9, 0);
+    io_channels.emplace(10, 0);
+    std::cout << " done!" << std::endl;
+
     current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
 
     std::cout << "Initializing CPU done." << std::endl;
@@ -222,5 +228,23 @@ word Cpu::get_fixed_absolute_addr() const {
     }
 
     return abs_addr;
+}
+
+word Cpu::read_io_channel(word address) {
+    word temp;
+
+    switch (address) {
+    default:
+        temp = io_channels[address];
+    }
+
+    return temp;
+}
+
+void Cpu::write_io_channel(word address, word data) {
+    switch (address) {
+    default:
+        io_channels[address] = data;    // TODO: Copy bit 16 to 15
+    }
 }
 }

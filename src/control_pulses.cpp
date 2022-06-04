@@ -123,7 +123,7 @@ static void rch(Cpu& cpu) {
     } else if (cpu.s == 2) {
         rq(cpu);
     } else {
-        cpu.write_bus |= cpu.io_channels[cpu.s & 077];  // TODO: Copy bit 16 to 15
+        cpu.write_bus |= cpu.read_io_channel(cpu.s & 077);
     }
 }
 
@@ -261,7 +261,7 @@ static void wch(Cpu& cpu) {
     } else {
         word temp = cpu.write_bus & ~BITMASK_15;    // Mask out bit 15
         temp |= (cpu.write_bus & BITMASK_16) >> 1;  // Bit 16 into bit 15
-        cpu.io_channels[cpu.s & 077] = temp;
+        cpu.write_io_channel(cpu.s & 077, temp);
     }
 }
 
