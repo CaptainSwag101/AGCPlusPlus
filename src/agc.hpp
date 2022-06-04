@@ -1,6 +1,7 @@
 #include "cpu.hpp"
 #include "globaldefs.hpp"
 #include "memory.hpp"
+#include "scaler.hpp"
 #include "timer.hpp"
 #include <array>
 #include <iostream>
@@ -16,6 +17,7 @@ public:
 private:
     Cpu cpu;
     Memory memory;
+    Scaler scaler;
     Timer timer;
 };
 }

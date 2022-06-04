@@ -3,7 +3,7 @@
 
 namespace agcplusplus {
 Cpu::Cpu(bool logMCT, bool logTimepulse) {
-    std::cout << "Initializing CPU..." << '\n';
+    std::cout << "Initializing CPU..." << std::endl;
 
     if (logTimepulse) verbosity = LoggingVerbosity::CpuStatePerTimepulse;
     else if (logMCT) verbosity = LoggingVerbosity::CpuStatePerMCT;
@@ -11,7 +11,7 @@ Cpu::Cpu(bool logMCT, bool logTimepulse) {
 
     current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
 
-    std::cout << "Initializing CPU done." << '\n';
+    std::cout << "Initializing CPU done." << std::endl;
 }
 
 void Cpu::assign_memory(Memory& mem) {
@@ -114,7 +114,7 @@ void Cpu::tick() {
 void Cpu::print_state_info(std::ostream& output) const {
     std::dec(output);
 
-    output << current_subinstruction.name << " (T" << std::setw(2) << std::setfill('0') << (word)current_timepulse <<")" << '\n';
+    output << current_subinstruction.name << " (T" << std::setw(2) << std::setfill('0') << (word)current_timepulse <<")" << std::endl;
 
     std::oct(output);
 
