@@ -14,9 +14,9 @@ public:
     Timer();
     void start_timer();
     void stop_timer();
-    void assign_cpu(Cpu& cpu);
-    void assign_memory(Memory& mem);
-    void assign_scaler(Scaler& scaler);
+    void assign_cpu(std::shared_ptr<Cpu> cpu);
+    void assign_memory(std::shared_ptr<Memory> mem);
+    void assign_scaler(std::shared_ptr<Scaler> scaler);
 
 private:
     bool stop = false;

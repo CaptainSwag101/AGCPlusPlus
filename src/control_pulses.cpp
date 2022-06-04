@@ -72,20 +72,24 @@ static void rad(Cpu& cpu) {
     {
     case 3:     // RELINT
         cpu.inhibit_interrupts = false;
+        cpu.sudo = true;
         rz(cpu);
         st2(cpu);
         break;
     case 4:     // INHINT
         cpu.inhibit_interrupts = true;
+        cpu.sudo = true;
         rz(cpu);
         st2(cpu);
         break;
     case 6:     // EXTEND
         cpu.extend_next = true;
+        cpu.sudo = true;
         rz(cpu);
         st2(cpu);
         break;
     default:    // ANYTHING ELSE
+        cpu.sudo = false;
         rg(cpu);
         break;
     }
@@ -164,6 +168,18 @@ static void rsc(Cpu& cpu) {
     case 6:
         cpu.write_bus |= cpu.bb;
         break;
+    }
+}
+
+static void rsct(Cpu& cpu) {
+    for (word c = 0; c < 20; ++c)
+    {
+        if (cpu.counters[c] != COUNTER_DIRECTION_NONE) {
+            cpu.write_bus |= c + 024;
+            // Reset the counter request
+            cpu.counters[c] = COUNTER_DIRECTION_NONE;
+            break;
+        }
     }
 }
 
@@ -280,6 +296,23 @@ static void wg(Cpu& cpu) {
 
 static void wl(Cpu& cpu) {
     cpu.l = cpu.write_bus;
+}
+
+static void wovr(Cpu& cpu) {
+    // Check for positive overflow on the counters
+    if (((cpu.write_bus & BITMASK_15_16) >> 14) == 0b01)
+    {
+        switch (cpu.s - 024) {
+        case COUNTER_TIME1:
+            cpu.counters[COUNTER_TIME2] |= COUNTER_DIRECTION_UP;
+            break;
+        case COUNTER_TIME3:
+        case COUNTER_TIME4:
+        case COUNTER_TIME5:
+            // TODO: Generate interrupt
+            break;
+        }
+    }
 }
 
 static void wq(Cpu& cpu) {

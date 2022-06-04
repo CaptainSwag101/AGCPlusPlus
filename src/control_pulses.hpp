@@ -96,6 +96,9 @@ static void rq(Cpu& cpu);
 // Central store bits 1-16 are copied to WL1-16.
 static void rsc(Cpu& cpu);
 
+// Read the address of the highest priority counter request.
+static void rsct(Cpu& cpu);
+
 // Place octal 004000 = Block 2 start address on the WL's.
 static void rstrt(Cpu& cpu);
 
@@ -149,6 +152,11 @@ static void wg(Cpu& cpu);
 
 // Clear and write WL1-16 into L1-16.
 static void wl(Cpu& cpu);
+
+// Test for overflow during counter increments and
+// program initiated increments (INCR and AUG). RUPT if
+// overflow occurs when addressing certain counters.
+static void wovr(Cpu& cpu);
 
 // Clear and write WL1-16 into Q1-16.
 static void wq(Cpu& cpu);

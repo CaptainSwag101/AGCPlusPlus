@@ -11,23 +11,25 @@ Scaler::Scaler()
     std::cout << "Initializing scaler done." << std::endl;
 }
 
-void Scaler::assign_cpu(Cpu& cpu) {
-    cpu_ref = std::make_shared<Cpu>(cpu);
+void Scaler::assign_cpu(std::shared_ptr<Cpu> cpu)
+{
+    cpu_ref = cpu;
 }
 
 void Scaler::tick() {
     if (!cpu_ref) {
-        std::cerr << "Timer CPU reference has not been assigned." << std::endl;
+        std::cerr << "Scaler CPU reference has not been assigned." << std::endl;
         return;
     }
 
     prev_state = cur_state;
     ++cur_state;
 
-    //bool F05A = ((cur_state & BITMASK_5) ^ (prev_state & BITMASK_5)) && (cur_state & BITMASK_5) == 0;
-    bool F09B = ((cur_state & BITMASK_9) ^ (prev_state & BITMASK_9)) && (cur_state & BITMASK_9) == 1;
-    bool F10A = ((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) == 0;
-    bool F10B = ((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) == 1;
+    //bool F01B = (((cur_state & 1) ^ (prev_state & 1)) && (cur_state & 1) != 0);
+    //bool F05A = (((cur_state & BITMASK_5) ^ (prev_state & BITMASK_5)) && (cur_state & BITMASK_5) == 0);
+    bool F09B = (((cur_state & BITMASK_9) ^ (prev_state & BITMASK_9)) && (cur_state & BITMASK_9) != 0);
+    bool F10A = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) == 0);
+    bool F10B = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) != 0);
 
     // Process timer counts
     if (F09B) {

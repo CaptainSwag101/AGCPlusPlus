@@ -8,8 +8,8 @@ class Scaler
 {
 public:
     Scaler();
-    void assign_cpu(Cpu& cpu);
     void tick();
+    void assign_cpu(std::shared_ptr<Cpu> cpu);
 
 private:
     uint64_t cur_state;

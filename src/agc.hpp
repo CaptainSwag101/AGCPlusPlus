@@ -15,9 +15,9 @@ public:
     void run();
 
 private:
-    Cpu cpu;
-    Memory memory;
-    Scaler scaler;
-    Timer timer;
+    std::shared_ptr<Cpu> cpu;
+    std::shared_ptr<Memory> memory;
+    std::shared_ptr<Scaler> scaler;
+    std::shared_ptr<Timer> timer;
 };
 }

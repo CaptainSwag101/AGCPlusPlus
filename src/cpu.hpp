@@ -30,7 +30,7 @@ class Cpu {
 public:
     // Init functions
     Cpu(bool logMCT, bool logTimepulse);
-    void assign_memory(Memory& mem);
+    void assign_memory(std::shared_ptr<Memory> mem);
 
     // Activity functions
     void tick();
@@ -64,11 +64,12 @@ public:
 
     // Internal CPU data
     word write_bus;
-    bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv, shinc, pifl, extend, extend_next;
+    bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv, inkl, sudo, shinc, pifl, extend, extend_next;
     uint64_t night_watchman;
 
     // Instruction data
     uint8_t current_timepulse = 1;
     subinstruction current_subinstruction;
+    subinstruction pending_subinstruction;
 };
 }

@@ -11,16 +11,16 @@ Timer::Timer() {
     std::cout << "Initializing timer done." << std::endl;
 }
 
-void Timer::assign_cpu(Cpu& cpu) {
-    cpu_ref = std::make_shared<Cpu>(cpu);
+void Timer::assign_cpu(std::shared_ptr<Cpu> cpu) {
+    cpu_ref = cpu;
 }
 
-void Timer::assign_memory(Memory& mem) {
-    memory_ref = std::make_shared<Memory>(mem);
+void Timer::assign_memory(std::shared_ptr<Memory> mem) {
+    memory_ref = mem;
 }
 
-void Timer::assign_scaler(Scaler& scaler) {
-    scaler_ref = std::make_shared<Scaler>(scaler);
+void Timer::assign_scaler(std::shared_ptr<Scaler> scaler) {
+    scaler_ref = scaler;
 }
 
 void Timer::start_timer() {
@@ -33,11 +33,6 @@ void Timer::start_timer() {
 
     if (!memory_ref) {
         std::cerr << "Timer memory reference has not been assigned." << std::endl;
-        return;
-    }
-
-    if (!scaler_ref) {
-        std::cerr << "Timer scaler reference has not been assigned." << std::endl;
         return;
     }
 
@@ -63,7 +58,7 @@ void Timer::start_timer() {
         }
 
         // DEBUG: Stop timer after 9 batched tick periods
-        if ((total_ticks % (TIMEPULSES_PER_MILLISECOND * 9)) == 0) {
+        if ((total_ticks % (TIMEPULSES_PER_MILLISECOND * 1000)) == 0) {
             stop_timer();
         }
 

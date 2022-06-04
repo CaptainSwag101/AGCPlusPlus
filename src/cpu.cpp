@@ -14,8 +14,8 @@ Cpu::Cpu(bool logMCT, bool logTimepulse) {
     std::cout << "Initializing CPU done." << std::endl;
 }
 
-void Cpu::assign_memory(Memory& mem) {
-    memory = std::make_shared<Memory>(mem);
+void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
+    memory = mem;
 }
 
 void Cpu::tick() {
@@ -24,7 +24,21 @@ void Cpu::tick() {
 
     // Before pulse 1, do INKBT1
     if (current_timepulse == 1) {
-        // TODO: Add INKL handling once we fully implement I/O
+        // Service INKL
+        if (inkl) {
+            // Remember what we wanted to do, so we can come back to it later
+            pending_subinstruction = current_subinstruction;
+
+            for (int c = 0; c < 20; ++c) {
+                if (counters[c] & COUNTER_DIRECTION_UP) {
+                    if (c >= COUNTER_TIME2 && c <= COUNTER_TIME5) {
+                        current_subinstruction = COUNT_SUBINST_PINC;
+                    }
+                    break;
+                }
+            }
+        }
+
         if (st != 2) {
             fetch_next_instruction = false;
             extend_next = false;
@@ -78,6 +92,21 @@ void Cpu::tick() {
         st_next = 0;
 
         if (fetch_next_instruction) {
+            // Check for pending counter requests
+            bool prev_inkl = inkl;
+            inkl = false;
+            for (word w : counters) {
+                if (w != COUNTER_DIRECTION_NONE && !sudo) {
+                    inkl = true;
+                    break;
+                }
+            }
+
+            // If no counters need servicing and we have a pending subinstruction, get back to it.
+            if (!inkl && prev_inkl) {
+                current_subinstruction = pending_subinstruction;
+            }
+
             sq = (b & BITMASK_10_14) >> 9;  // B10-14 to SQ1-5
             sq |= (b & BITMASK_16) >> 10;   // B16 to SQ6
             extend = extend_next;

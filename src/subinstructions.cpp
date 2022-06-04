@@ -581,6 +581,39 @@ void ndx1(Cpu& cpu) {
     }
 }
 
+void pinc(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rsct(cpu);
+        ws(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 5:
+        rg(cpu);
+        wy(cpu);
+        tsgn(cpu);
+        tmz(cpu);
+        tpzg(cpu);
+        break;
+    case 6:
+        ponex(cpu);
+        break;
+    case 7:
+        ru(cpu);
+        wsc(cpu);
+        wg(cpu);
+        wovr(cpu);
+        break;
+    case 8:
+        rb(cpu);
+        ws(cpu);
+        break;
+    }
+}
+
 void qxch0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 1:

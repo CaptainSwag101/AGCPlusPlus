@@ -22,6 +22,7 @@ void goj1(Cpu& cpu);
 void msk0(Cpu& cpu);
 void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
+void pinc(Cpu& cpu);
 void qxch0(Cpu& cpu);
 void std2(Cpu& cpu);
 void tc0(Cpu& cpu);
@@ -61,4 +62,8 @@ const static subinstruction subinstruction_list[] {
     {1, true,  070, 040, "DCS1", dcs1},
     {2, true,  000, 000, "STD2", std2}, // Catch-all
 };
+
+const static subinstruction COUNT_SUBINST_PINC
+    {0, false, 000, 000, "PINC", pinc};
+
 }
