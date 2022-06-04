@@ -16,6 +16,9 @@ constexpr word BITMASK_8_14  = 0037400;
 constexpr word BITMASK_10_14 = 0037000;
 constexpr word BITMASK_11_15 = 0076000;
 constexpr word BITMASK_15_16 = 0140000;
+constexpr word BITMASK_5 = (1 << 4);
+constexpr word BITMASK_9 = (1 << 8);
+constexpr word BITMASK_10 = (1 << 9);
 constexpr word BITMASK_15 = (1 << 14);
 constexpr word BITMASK_16 = (1 << 15);
 
@@ -30,4 +33,39 @@ constexpr word MEM_FIXED_START = 02000;
 constexpr word MEM_FIXED_END = 07777;
 constexpr word MEM_FIXED_BANKED_START = 02000;
 constexpr word MEM_FIXED_BANKED_END = 03777;
+
+constexpr word COUNTER_TIME2 = 0;
+constexpr word COUNTER_TIME1 = 1;
+constexpr word COUNTER_TIME3 = 2;
+constexpr word COUNTER_TIME4 = 3;
+constexpr word COUNTER_TIME5 = 4;
+constexpr word COUNTER_TIME6 = 5;
+constexpr word COUNTER_CDUX = 6;
+constexpr word COUNTER_CDUY = 7;
+constexpr word COUNTER_CDUZ = 8;
+constexpr word COUNTER_TRN = 9;
+constexpr word COUNTER_SHFT = 10;
+constexpr word COUNTER_PIPAX = 11;
+constexpr word COUNTER_PIPAY = 12;
+constexpr word COUNTER_PIPAZ = 13;
+constexpr word COUNTER_BMAGX = 14;
+constexpr word COUNTER_BMAGY = 15;
+constexpr word COUNTER_BMAGZ = 16;
+constexpr word COUNTER_INLINK = 17;
+constexpr word COUNTER_RNRAD = 18;
+constexpr word COUNTER_GYROD = 19;
+constexpr word COUNTER_CDUXD = 20;
+constexpr word COUNTER_CDUYD = 21;
+constexpr word COUNTER_CDUZD = 22;
+constexpr word COUNTER_TRUND = 23;
+constexpr word COUNTER_SHAFTD = 24;
+constexpr word COUNTER_THRSTD = 25;
+constexpr word COUNTER_EMSD = 26;
+constexpr word COUNTER_OTLNK = 27;
+constexpr word COUNTER_ALT = 28;
+
+
+constexpr word COUNTER_DIRECTION_NONE = 0;
+constexpr word COUNTER_DIRECTION_UP = 1;
+constexpr word COUNTER_DIRECTION_DOWN = 2;
 }

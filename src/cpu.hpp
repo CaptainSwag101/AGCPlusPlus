@@ -56,6 +56,9 @@ public:
     uint8_t st, st_next, br;
     bool explicit_carry;
 
+    // Counter cells
+    word counters[20];  // Can be 0, +1, -1, or both in the case of a freak accident
+
     // I/O
     std::unordered_map<word, word> io_channels;
 
