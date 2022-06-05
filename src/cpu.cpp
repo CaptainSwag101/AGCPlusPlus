@@ -22,11 +22,6 @@ Cpu::Cpu(bool logMCT, bool logTimepulse) {
 
 void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
     memory = mem;
-
-    // DEBUG: Hack large values into timers
-    memory->write_erasable_word(024 + COUNTER_TIME5, 0037770);
-    memory->write_erasable_word(024 + COUNTER_TIME4, 0037770);
-    memory->write_erasable_word(024 + COUNTER_TIME3, 0037770);
 }
 
 void Cpu::tick() {
