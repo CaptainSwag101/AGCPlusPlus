@@ -16,6 +16,7 @@ void dca0(Cpu& cpu);
 void dca1(Cpu& cpu);
 void dcs0(Cpu& cpu);
 void dcs1(Cpu& cpu);
+//void dinc(Cpu& cpu);
 void dxch0(Cpu& cpu);
 void dxch1(Cpu& cpu);
 void goj1(Cpu& cpu);
@@ -24,6 +25,8 @@ void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
 void pinc(Cpu& cpu);
 void qxch0(Cpu& cpu);
+void rupt0(Cpu& cpu);
+void rupt1(Cpu& cpu);
 void std2(Cpu& cpu);
 void tc0(Cpu& cpu);
 void tcf0(Cpu& cpu);
@@ -60,10 +63,14 @@ const static subinstruction subinstruction_list[] {
     {1, true,  070, 030, "DCA1", dca1},
     {0, true,  070, 040, "DCS0", dcs0},
     {1, true,  070, 040, "DCS1", dcs1},
+    {0, true,  077, 007, "RUPT0", rupt0},
+    {1, true,  077, 007, "RUPT1", rupt1},
     {2, true,  000, 000, "STD2", std2}, // Catch-all
 };
 
 const static subinstruction COUNT_SUBINST_PINC
     {0, false, 000, 000, "PINC", pinc};
 
+//const static subinstruction COUNT_SUBINST_DINC
+//    {0, false, 000, 000, "DINC", dinc};
 }

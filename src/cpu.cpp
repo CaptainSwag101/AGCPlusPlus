@@ -22,6 +22,11 @@ Cpu::Cpu(bool logMCT, bool logTimepulse) {
 
 void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
     memory = mem;
+
+    // DEBUG: Hack large values into timers
+    memory->write_erasable_word(024 + COUNTER_TIME5, 0037770);
+    memory->write_erasable_word(024 + COUNTER_TIME4, 0037770);
+    memory->write_erasable_word(024 + COUNTER_TIME3, 0037770);
 }
 
 void Cpu::tick() {
@@ -36,12 +41,13 @@ void Cpu::tick() {
             pending_subinstruction = current_subinstruction;
 
             for (int c = 0; c < 20; ++c) {
-                if (counters[c] & COUNTER_DIRECTION_UP) {
+                if (counters[c] & COUNT_DIRECTION_UP) {
                     if (c >= COUNTER_TIME2 && c <= COUNTER_TIME5) {
                         current_subinstruction = COUNT_SUBINST_PINC;
                     }
                     break;
                 }
+
             }
         }
 
@@ -102,7 +108,7 @@ void Cpu::tick() {
             bool prev_inkl = inkl;
             inkl = false;
             for (word w : counters) {
-                if (w != COUNTER_DIRECTION_NONE && !sudo) {
+                if (w != COUNT_DIRECTION_NONE && !sudo) {
                     inkl = true;
                     break;
                 }
@@ -113,9 +119,26 @@ void Cpu::tick() {
                 current_subinstruction = pending_subinstruction;
             }
 
-            sq = (b & BITMASK_10_14) >> 9;  // B10-14 to SQ1-5
-            sq |= (b & BITMASK_16) >> 10;   // B16 to SQ6
-            extend = extend_next;
+            // Check for pending interrupts
+            bool should_rupt = false;
+            for (bool r : interrupts) {
+                if (r == true) {
+                    should_rupt = true;
+                    break;
+                }
+            }
+
+            uint8_t a_signs = (a & BITMASK_15_16) >> 14;
+            bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
+            if (should_rupt && !inhibit_interrupts && !iip && !extend_next && !sudo && !a_overflow) {
+                subinstruction rupt0 = subinstruction_list[27];
+                sq = rupt0.sequence_opcode;
+                extend = rupt0.sequence_extend;
+            } else {
+                sq = (b & BITMASK_10_14) >> 9;  // B10-14 to SQ1-5
+                sq |= (b & BITMASK_16) >> 10;   // B16 to SQ6
+                extend = extend_next;
+            }
         }
 
         // Populate current_subinstruction based on the contents of SQ, ST, and EXTEND
@@ -130,7 +153,7 @@ void Cpu::tick() {
 
         if (!found_implemented_subinstruction) {
             std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
-            print_state_info(std::cout);
+            //print_state_info(std::cout);
 
             subinstruction std2 = subinstruction_list[0];
             current_subinstruction = std2;

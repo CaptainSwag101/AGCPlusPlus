@@ -17,6 +17,7 @@ constexpr word BITMASK_10_14 = 0037000;
 constexpr word BITMASK_11_15 = 0076000;
 constexpr word BITMASK_15_16 = 0140000;
 constexpr word BITMASK_5 = (1 << 4);
+constexpr word BITMASK_6 = (1 << 5);
 constexpr word BITMASK_9 = (1 << 8);
 constexpr word BITMASK_10 = (1 << 9);
 constexpr word BITMASK_15 = (1 << 14);
@@ -64,8 +65,20 @@ constexpr word COUNTER_EMSD = 26;
 constexpr word COUNTER_OTLNK = 27;
 constexpr word COUNTER_ALT = 28;
 
+constexpr word COUNT_DIRECTION_NONE = 0;
+constexpr word COUNT_DIRECTION_UP = 1;
+constexpr word COUNT_DIRECTION_DOWN = 2;
 
-constexpr word COUNTER_DIRECTION_NONE = 0;
-constexpr word COUNTER_DIRECTION_UP = 1;
-constexpr word COUNTER_DIRECTION_DOWN = 2;
+constexpr word RUPT_GO = 0;
+constexpr word RUPT_T6RUPT = 1;
+constexpr word RUPT_T5RUPT = 2;
+constexpr word RUPT_T3RUPT = 3;
+constexpr word RUPT_T4RUPT = 4;
+constexpr word RUPT_KEYRUPT1 = 5;
+constexpr word RUPT_KEYRUPT2 = 6;
+constexpr word RUPT_MARKRUPT = 6;   // Same code as RUPT_KEYRUPT_NAVI
+constexpr word RUPT_UPRUPT = 7;
+constexpr word RUPT_DOWNRUPT = 8;
+constexpr word RUPT_RADARRUPT = 9;
+constexpr word RUPT_RUPT10L = 10;
 }

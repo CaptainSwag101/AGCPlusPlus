@@ -60,10 +60,10 @@ void Timer::start_timer() {
         auto ended_at = std::chrono::steady_clock::now();
         auto batch_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(ended_at - started_at);
 
-        std::cout << "Batched ticks took " << (batch_duration.count() / 1000000.0) << " milliseconds." << std::endl;
+        //std::cout << "Batched ticks took " << (batch_duration.count() / 1000000.0) << " milliseconds." << std::endl;
 
-        // DEBUG: Stop timer after 9 batched tick periods
-        if ((total_ticks % (TIMEPULSES_PER_MILLISECOND * 1000)) == 0) {
+        // DEBUG: Stop timer after 1 second
+        if ((total_ticks % (TIMEPULSES_PER_MILLISECOND * 10000)) == 0) {
             stop_timer();
         }
 

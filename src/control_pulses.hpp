@@ -30,8 +30,14 @@ static void dvst(Cpu& cpu);
 // Set the Extend flip flop.
 static void ext(Cpu& cpu);
 
+// Reset interrupt priority cell.
+static void krpt(Cpu& cpu);
+
 // Set bits 2-16 of X to ones.
 static void monex(Cpu& cpu);
+
+// Negative rate output pulse.
+static void mout(Cpu& cpu);
 
 // Next instruction is to be loaded into SQ. Also
 // frees certain restrictions- permits increments and
@@ -41,8 +47,14 @@ static void nisq(Cpu& cpu);
 // Set bit 1 of X to 1.
 static void ponex(Cpu& cpu);
 
+// Positive rate output pulse
+static void pout(Cpu& cpu);
+
 // Set bit 2 of X to 1.
 static void ptwox(Cpu& cpu);
+
+// Place octal 000015 on the WL's.
+static void r15(Cpu& cpu);
 
 // Place octal 177776 = -1 on the WL's.
 static void r1c(Cpu& cpu);
@@ -87,6 +99,10 @@ static void rl(Cpu& cpu);
 
 // Read low bits of B to WL1-10.
 static void rl10bb(Cpu& cpu);
+
+// Read the address of the highest priority
+// interrupt requested.
+static void rrpa(Cpu& cpu);
 
 // Read Q1-16 to WL1-16.
 static void rq(Cpu& cpu);
@@ -177,4 +193,7 @@ static void wy12(Cpu& cpu);
 
 // Clear and write WL1-16 into Z1-16.
 static void wz(Cpu& cpu);
+
+// No rate output pulse. Reset outbit requesting DINC.
+static void zout(Cpu& cpu);
 }

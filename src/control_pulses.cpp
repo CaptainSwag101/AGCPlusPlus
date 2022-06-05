@@ -35,6 +35,16 @@ static void ext(Cpu& cpu) {
     cpu.extend_next = true;
 }
 
+static void krpt(Cpu& cpu) {
+    for (int r = 0; r < 11; ++r) {
+        if (cpu.interrupts[r] == true) {
+            cpu.interrupts[r] = false;
+            cpu.iip = true;
+            break;
+        }
+    }
+}
+
 static void monex(Cpu& cpu) {
     cpu.x |= 0177776;
     cpu.update_adder();
@@ -57,6 +67,10 @@ static void ponex(Cpu& cpu) {
 static void ptwox(Cpu& cpu) {
     cpu.x |= 2;
     cpu.update_adder();
+}
+
+static void r15(Cpu& cpu) {
+    cpu.write_bus |= 0000015;
 }
 
 static void r1c(Cpu& cpu) {
@@ -145,6 +159,15 @@ static void rq(Cpu& cpu) {
     cpu.write_bus |= cpu.q;
 }
 
+static void rrpa(Cpu& cpu) {
+    for (int r = 0; r < 11; ++r) {
+        if (cpu.interrupts[r] == true) {
+            cpu.write_bus |= 04000 + (r * 4);   // Interrupt handlers located at octal 4000 + (4r)
+            break;
+        }
+    }
+}
+
 static void rsc(Cpu& cpu) {
     switch (cpu.s) {
     case 0:
@@ -174,10 +197,10 @@ static void rsc(Cpu& cpu) {
 static void rsct(Cpu& cpu) {
     for (word c = 0; c < 20; ++c)
     {
-        if (cpu.counters[c] != COUNTER_DIRECTION_NONE) {
+        if (cpu.counters[c] != COUNT_DIRECTION_NONE) {
             cpu.write_bus |= c + 024;
             // Reset the counter request
-            cpu.counters[c] = COUNTER_DIRECTION_NONE;
+            cpu.counters[c] = COUNT_DIRECTION_NONE;
             break;
         }
     }
@@ -304,12 +327,16 @@ static void wovr(Cpu& cpu) {
     {
         switch (cpu.s - 024) {
         case COUNTER_TIME1:
-            cpu.counters[COUNTER_TIME2] |= COUNTER_DIRECTION_UP;
+            cpu.counters[COUNTER_TIME2] |= COUNT_DIRECTION_UP;
             break;
         case COUNTER_TIME3:
+            cpu.interrupts[RUPT_T3RUPT] = true;
+            break;
         case COUNTER_TIME4:
+            cpu.interrupts[RUPT_T4RUPT] = true;
+            break;
         case COUNTER_TIME5:
-            // TODO: Generate interrupt
+            cpu.interrupts[RUPT_T5RUPT] = true;
             break;
         }
     }

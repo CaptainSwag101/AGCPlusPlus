@@ -56,7 +56,8 @@ public:
     uint8_t st, st_next, br;
     bool explicit_carry;
 
-    // Counter cells
+    // Interrupt/Counter cells
+    bool interrupts[11];    // Interrupt request cells
     word counters[20];  // Can be 0, +1, -1, or both in the case of a freak accident
 
     // I/O
@@ -66,7 +67,8 @@ public:
 
     // Internal CPU data
     word write_bus;
-    bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv, inkl, sudo, shinc, pifl, extend, extend_next;
+    bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv;
+    bool inkl, iip, sudo, shinc, pifl, extend, extend_next;
     uint64_t night_watchman;
 
     // Instruction data
