@@ -25,6 +25,7 @@ void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
 void pinc(Cpu& cpu);
 void qxch0(Cpu& cpu);
+void rsm3(Cpu& cpu);
 void rupt0(Cpu& cpu);
 void rupt1(Cpu& cpu);
 void std2(Cpu& cpu);
@@ -48,6 +49,7 @@ const static subinstruction subinstruction_list[] {
     {0, false, 070, 040, "CS0", cs0},
     {0, false, 076, 050, "NDX0", ndx0},
     {1, false, 076, 050, "NDX1", ndx1},
+    {3, false, 076, 050, "RSM3", rsm3},
     {0, false, 076, 052, "DXCH0", dxch0},
     {1, false, 076, 052, "DXCH1", dxch1},
     {0, false, 076, 054, "TS0", ts0},

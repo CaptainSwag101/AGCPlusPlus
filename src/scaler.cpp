@@ -42,6 +42,7 @@ void Scaler::tick() {
         }
 
         // Generate KEYRUPT1, KEYRUPT2, or MARKRUPT if keys are pending
+        // Read
     }
 
     if (F10A) {

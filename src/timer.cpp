@@ -36,6 +36,11 @@ void Timer::start_timer() {
         return;
     }
 
+    // Set up the socket to connect to the DSKY server
+    sockpp::socket_initializer sock_init;
+    in_port_t port = 19697;
+    sockpp::tcp_acceptor dsky_conn(port);
+
     // Start ticking our various functions at their given intervals
     std::cout << "Starting CPU clock." << std::endl;
     while (!stop) {
@@ -49,9 +54,21 @@ void Timer::start_timer() {
             // Perform CPU timepulse every tick
             cpu_ref->tick();
 
-            // Tick the scaler every 10 ticks
+            // Tick the scaler every 10 ticks (every 10 milliseconds)
             if ((total_ticks % 10) == 0) {
                 scaler_ref->tick();
+            }
+
+            // Update the DSKY client connection
+            sockpp::inet_address peer;
+            sockpp::tcp_socket sock = dsky_conn.accept(&peer);
+            std::cout << "DSKY connection from " << peer << std::endl;
+
+            if (!sock) {
+                std::cerr << "Error accepting connection!" << std::endl;
+            } else {
+                std::thread dsky_thread(read_dsky, std::move(sock));
+                dsky_thread.detach();
             }
 
             // Other ticks go here
@@ -64,7 +81,7 @@ void Timer::start_timer() {
 
         // DEBUG: Stop timer after 1 second
         if ((total_ticks % (TIMEPULSES_PER_MILLISECOND * 10000)) == 0) {
-            stop_timer();
+            //stop_timer();
         }
 
         // Wait the remaining amount of time before ticking the clock again
@@ -75,5 +92,28 @@ void Timer::start_timer() {
 void Timer::stop_timer() {
     std::cout << "Stopping main clock after " << total_ticks << " ticks." << std::endl;
     stop = true;
+}
+
+void Timer::read_dsky(sockpp::tcp_socket sock) {
+    while (true) {
+        if (sock.is_open()) {
+            char buf[4];
+            size_t result = sock.read(buf, 4);
+            if (result == -1 || result == 0) {
+                std::cout << "Read fail, disconnecting..." << std::endl;
+                sock.close();
+                break;
+            } else {
+                uint8_t channel = (buf[1] >> 3);
+                uint8_t keycode = (buf[3] & 037);
+                std::cout << "Read success (result = " << result << "), packet data is:" << std::endl;
+                std::oct(std::cout);
+                std::cout << " channel = " << std::setw(2) << std::setfill('0') << (word)channel;
+                std::cout << " misc = " << (word)(buf[1] & 7);
+                std::cout << " keycode = " << std::setw(2) << (word)keycode;
+                std::cout << std::endl;
+            }
+        }
+    }
 }
 }

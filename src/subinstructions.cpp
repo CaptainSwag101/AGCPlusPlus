@@ -693,6 +693,34 @@ void qxch0(Cpu& cpu) {
     }
 }
 
+void rsm3(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        r15(cpu);
+        ws(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        nisq(cpu);
+        break;
+    case 5:
+        rg(cpu);
+        wz(cpu);
+        break;
+    case 6:
+        rb(cpu);
+        wg(cpu);
+        break;
+    case 8:
+        rad(cpu);
+        wb(cpu);
+        ws(cpu);
+        cpu.iip = false;
+        break;
+    }
+}
+
 void rupt0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 1:

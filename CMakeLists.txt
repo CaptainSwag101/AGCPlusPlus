@@ -17,6 +17,10 @@ set(SOURCES src/main.cpp src/globaldefs.hpp src/agc.hpp src/agc.cpp src/memory.h
 # Define the project target
 add_executable(AGCPlusPlus ${SOURCES})
 
+# Search for the sockpp library
+find_library(LIBSOCKPP sockpp)
+target_link_libraries(AGCPlusPlus PUBLIC "${LIBSOCKPP}")
+
 # Add the extra generated header file for our version number
 target_include_directories(AGCPlusPlus PUBLIC
                            "${PROJECT_BINARY_DIR}/generated_src"

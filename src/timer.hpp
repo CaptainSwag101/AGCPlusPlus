@@ -2,6 +2,9 @@
 #include "globaldefs.hpp"
 #include "memory.hpp"
 #include "scaler.hpp"
+
+#include "sockpp/tcp_acceptor.h"
+#include "sockpp/socket.h"
 #include <chrono>
 #include <thread>
 
@@ -19,6 +22,8 @@ public:
     void assign_scaler(std::shared_ptr<Scaler> scaler);
 
 private:
+    static void read_dsky(sockpp::tcp_socket sock);
+
     bool stop = false;
 
     std::shared_ptr<Cpu> cpu_ref;
