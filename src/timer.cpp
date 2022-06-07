@@ -36,10 +36,8 @@ void Timer::start_timer() {
         return;
     }
 
-    // Set up the socket to connect to the DSKY server
-    sockpp::socket_initializer sock_init;
-    in_port_t port = 19697;
-    sockpp::tcp_acceptor dsky_conn(port);
+    // Start a thread where we can look for incoming connections
+    std::thread socket_thread(&Timer::accept_dsky_connections, *this);
 
     // Start ticking our various functions at their given intervals
     std::cout << "Starting CPU clock." << std::endl;
@@ -57,18 +55,6 @@ void Timer::start_timer() {
             // Tick the scaler every 10 ticks (every 10 milliseconds)
             if ((total_ticks % 10) == 0) {
                 scaler_ref->tick();
-            }
-
-            // Update the DSKY client connection
-            sockpp::inet_address peer;
-            sockpp::tcp_socket sock = dsky_conn.accept(&peer);
-            std::cout << "DSKY connection from " << peer << std::endl;
-
-            if (!sock) {
-                std::cerr << "Error accepting connection!" << std::endl;
-            } else {
-                std::thread dsky_thread(read_dsky, std::move(sock));
-                dsky_thread.detach();
             }
 
             // Other ticks go here
@@ -94,6 +80,25 @@ void Timer::stop_timer() {
     stop = true;
 }
 
+void Timer::accept_dsky_connections() {
+    // Set up the socket to connect to the DSKY server
+    sockpp::socket_initializer sock_init;
+    in_port_t port = 19697;
+    sockpp::tcp_acceptor dsky_conn(port);
+
+    // Update the DSKY client connection
+    sockpp::inet_address peer;
+    sockpp::tcp_socket sock = dsky_conn.accept(&peer);
+    std::cout << "DSKY connection from " << peer << std::endl;
+
+    if (!sock) {
+        std::cerr << "Error accepting connection!" << std::endl;
+    } else {
+        std::thread dsky_thread(&Timer::read_dsky, *this, std::move(sock));
+        dsky_thread.detach();
+    }
+}
+
 void Timer::read_dsky(sockpp::tcp_socket sock) {
     while (true) {
         if (sock.is_open()) {
@@ -105,13 +110,21 @@ void Timer::read_dsky(sockpp::tcp_socket sock) {
                 break;
             } else {
                 uint8_t channel = (buf[1] >> 3);
+                uint8_t misc = (buf[1] & 7) >> 1;   // if 1, PRO key state is pressed, if 0, released.
                 uint8_t keycode = (buf[3] & 037);
                 std::cout << "Read success (result = " << result << "), packet data is:" << std::endl;
                 std::oct(std::cout);
                 std::cout << " channel = " << std::setw(2) << std::setfill('0') << (word)channel;
-                std::cout << " misc = " << (word)(buf[1] & 7);
+                std::cout << " misc = " << (word)misc;
                 std::cout << " keycode = " << std::setw(2) << (word)keycode;
                 std::cout << std::endl;
+                std::dec(std::cout);
+
+                if (channel == 015) {
+                    scaler_ref->queue_dsky_update(channel, keycode);
+                } else if (channel == 012) {
+                    scaler_ref->queue_dsky_update(channel, misc);
+                }
             }
         }
     }

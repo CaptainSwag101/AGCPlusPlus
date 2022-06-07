@@ -22,7 +22,8 @@ public:
     void assign_scaler(std::shared_ptr<Scaler> scaler);
 
 private:
-    static void read_dsky(sockpp::tcp_socket sock);
+    void accept_dsky_connections();
+    void read_dsky(sockpp::tcp_socket sock);
 
     bool stop = false;
 

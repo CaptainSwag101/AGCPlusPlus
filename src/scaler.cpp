@@ -16,6 +16,10 @@ void Scaler::assign_cpu(std::shared_ptr<Cpu> cpu)
     cpu_ref = cpu;
 }
 
+void Scaler::queue_dsky_update(word channel, word data) {
+    dsky_queue.push({channel, data});
+}
+
 void Scaler::tick() {
     if (!cpu_ref) {
         std::cerr << "Scaler CPU reference has not been assigned." << std::endl;
@@ -42,7 +46,23 @@ void Scaler::tick() {
         }
 
         // Generate KEYRUPT1, KEYRUPT2, or MARKRUPT if keys are pending
-        // Read
+        // Read the DSKY queue
+        if (!dsky_queue.empty()) {
+            std::tuple<word, word> dsky_update = dsky_queue.front();
+            word channel = std::get<0>(dsky_update);
+            word data = std::get<1>(dsky_update);
+            if (channel == 015){
+                cpu_ref->write_io_channel(channel, data);
+                cpu_ref->interrupts[RUPT_KEYRUPT1] = true;
+                dsky_queue.pop();
+                std::cout << "DSKY channel 15 update" << std::endl;
+            } else {
+                // TODO: handle channel 012
+                dsky_queue.pop();
+            }
+        } else {
+            cpu_ref->write_io_channel(015, 0);  // Clear DSKY keys
+        }
     }
 
     if (F10A) {

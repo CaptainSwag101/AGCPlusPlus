@@ -70,6 +70,9 @@ const static subinstruction subinstruction_list[] {
     {2, true,  000, 000, "STD2", std2}, // Catch-all
 };
 
+const static subinstruction RUPT_SUBINST_RUPT0
+    {0, true,  077, 007, "RUPT0", rupt0};
+
 const static subinstruction COUNT_SUBINST_PINC
     {0, false, 000, 000, "PINC", pinc};
 

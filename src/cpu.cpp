@@ -126,7 +126,7 @@ void Cpu::tick() {
             uint8_t a_signs = (a & BITMASK_15_16) >> 14;
             bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
             if (should_rupt && !inhibit_interrupts && !iip && !extend_next && !sudo && !a_overflow) {
-                subinstruction rupt0 = subinstruction_list[27];
+                subinstruction rupt0 = RUPT_SUBINST_RUPT0;
                 sq = rupt0.sequence_opcode;
                 extend = rupt0.sequence_extend;
             } else {
@@ -147,7 +147,7 @@ void Cpu::tick() {
         }
 
         if (!found_implemented_subinstruction) {
-            std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
+            //std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
             //print_state_info(std::cout);
 
             subinstruction std2 = subinstruction_list[0];
