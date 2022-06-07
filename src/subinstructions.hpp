@@ -20,6 +20,7 @@ void dcs1(Cpu& cpu);
 void dxch0(Cpu& cpu);
 void dxch1(Cpu& cpu);
 void goj1(Cpu& cpu);
+void incr0(Cpu& cpu);
 void msk0(Cpu& cpu);
 void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
@@ -44,6 +45,7 @@ const static subinstruction subinstruction_list[] {
     {0, false, 076, 012, "TCF0", tcf0},
     {0, false, 076, 014, "TCF0", tcf0},
     {0, false, 076, 016, "TCF0", tcf0},
+    {0, false, 076, 024, "INCR0", incr0},
     {0, false, 076, 026, "ADS0", ads0},
     {0, false, 070, 030, "CA0", ca0},
     {0, false, 070, 040, "CS0", cs0},

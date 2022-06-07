@@ -515,6 +515,37 @@ void goj1(Cpu& cpu) {
     }
 }
 
+void incr0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rl10bb(cpu);
+        ws(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 3:
+        rl(cpu);
+        wb(cpu);
+        break;
+    case 5:
+        rg(cpu);
+        wl(cpu);
+        break;
+    case 7:
+        rb(cpu);
+        wsc(cpu);
+        wg(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    }
+}
+
 void msk0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 2:
