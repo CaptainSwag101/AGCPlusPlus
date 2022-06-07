@@ -147,8 +147,8 @@ void Cpu::tick() {
         }
 
         if (!found_implemented_subinstruction) {
-            //std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
-            //print_state_info(std::cout);
+            std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
+            print_state_info(std::cout);
 
             subinstruction std2 = subinstruction_list[0];
             current_subinstruction = std2;

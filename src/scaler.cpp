@@ -61,7 +61,7 @@ void Scaler::tick() {
                 dsky_queue.pop();
             }
         } else {
-            cpu_ref->write_io_channel(015, 0);  // Clear DSKY keys
+            //cpu_ref->write_io_channel(015, 0);  // Clear DSKY keys
         }
     }
 

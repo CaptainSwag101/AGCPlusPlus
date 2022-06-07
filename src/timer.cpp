@@ -81,21 +81,25 @@ void Timer::stop_timer() {
 }
 
 void Timer::accept_dsky_connections() {
-    // Set up the socket to connect to the DSKY server
-    sockpp::socket_initializer sock_init;
-    in_port_t port = 19697;
-    sockpp::tcp_acceptor dsky_conn(port);
+    while (true) {
+        // Set up the socket to connect to the DSKY server
+        sockpp::socket_initializer sock_init;
+        in_port_t port = 19697;
+        sockpp::tcp_acceptor dsky_conn(port);
 
-    // Update the DSKY client connection
-    sockpp::inet_address peer;
-    sockpp::tcp_socket sock = dsky_conn.accept(&peer);
-    std::cout << "DSKY connection from " << peer << std::endl;
+        // Update the DSKY client connection
+        sockpp::inet_address peer;
+        sockpp::tcp_socket sock = dsky_conn.accept(&peer);
+        std::cout << "DSKY connection from " << peer << std::endl;
 
-    if (!sock) {
-        std::cerr << "Error accepting connection!" << std::endl;
-    } else {
-        std::thread dsky_thread(&Timer::read_dsky, *this, std::move(sock));
-        dsky_thread.detach();
+        if (!sock) {
+            std::cerr << "Error accepting connection!" << std::endl;
+        } else {
+            std::thread dsky_thread(&Timer::read_dsky, *this, std::move(sock));
+            dsky_thread.detach();
+        }
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 
