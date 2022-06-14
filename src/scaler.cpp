@@ -55,12 +55,14 @@ void Scaler::tick() {
                 cpu_ref->write_io_channel(channel, data);
                 cpu_ref->interrupts[RUPT_KEYRUPT1] = true;
                 dsky_queue.pop();
-                std::cout << "DSKY channel 15 update" << std::endl;
             } else {
                 // TODO: handle channel 012
                 dsky_queue.pop();
             }
         } else {
+            // Doing this may be unnecessary because we only check the key state when a
+            // KEYRUPT happens, so clearing the previous state will always happen implicitly
+            // upon a new key press event, I think.
             //cpu_ref->write_io_channel(015, 0);  // Clear DSKY keys
         }
     }

@@ -116,9 +116,15 @@ void Cpu::tick() {
 
             // Check for pending interrupts
             bool should_rupt = false;
-            for (bool r : interrupts) {
-                if (r == true) {
+            for (int r = 0; r < 11; ++r) {
+                if (interrupts[r] == true) {
                     should_rupt = true;
+                    switch (r) {
+                    case RUPT_KEYRUPT1:
+                        std::cout << "KEYRUPT1 triggered" << std::endl;
+                        break;
+                    }
+
                     break;
                 }
             }
