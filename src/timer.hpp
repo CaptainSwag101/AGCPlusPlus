@@ -23,7 +23,7 @@ public:
 
 private:
     void accept_dsky_connections();
-    void read_dsky(sockpp::tcp_socket sock);
+    void process_dsky(sockpp::tcp_socket sock);
 
     bool stop = false;
 

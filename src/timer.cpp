@@ -95,7 +95,7 @@ void Timer::accept_dsky_connections() {
         if (!sock) {
             std::cerr << "Error accepting connection!" << std::endl;
         } else {
-            std::thread dsky_thread(&Timer::read_dsky, *this, std::move(sock));
+            std::thread dsky_thread(&Timer::process_dsky, *this, std::move(sock));
             dsky_thread.detach();
         }
 
@@ -103,9 +103,11 @@ void Timer::accept_dsky_connections() {
     }
 }
 
-void Timer::read_dsky(sockpp::tcp_socket sock) {
+void Timer::process_dsky(sockpp::tcp_socket sock) {
     while (!stop) {
         if (sock.is_open()) {
+
+            // Read from the DSKY first to check its state
             char buf[4];
             size_t result = sock.read(buf, 4);
             if (result == -1 || result == 0) {
@@ -113,23 +115,49 @@ void Timer::read_dsky(sockpp::tcp_socket sock) {
                 sock.close();
                 break;
             } else {
-                uint8_t channel = (buf[1] >> 3);
-                uint8_t misc = (buf[1] & 7) >> 1;   // if 1, PRO key state is pressed, if 0, released.
-                uint8_t keycode = (buf[3] & 037);
+                // Read the packet, form of:
+                // 00utpppp 01pppddd 10dddddd 11dddddd
+                // where p are I/O channel bits, d are data bits,
+                // u is the bitmask flag, and t is the counter request flag.
+
+                // First, verify the signature of the packet by checking
+                // the 2 most significant bits in each byte.
+                uint8_t signature = 0;
+                signature |= buf[0] & 0b11000000;
+                signature |= (buf[1] & 0b11000000) >> 2;
+                signature |= (buf[2] & 0b11000000) >> 4;
+                signature |= (buf[3] & 0b11000000) >> 6;
+                if (signature != 0b00011011) {  // should be 00 01 10 11
+                    std::cerr << "DSKY packet signature invalid, discarding." << std::endl;
+                    continue;
+                }
+
+                // If the signature is valid, parse the data
+                bool bitmask = ((buf[0] & 0b00100000) != 0);
+                bool unprogrammed_sequence = ((buf[0] & 0b00010000) != 0);
+                uint8_t channel = ((buf[0] & 0b00001111) << 3) |
+                                  ((buf[1] & 0b00111000) >> 3);
+                uint16_t data = ((buf[1] & 0b00000111) << 11) |
+                                ((buf[2] & 0b00111111) << 5) |
+                                (buf[3] & 0b00111111);
                 std::cout << "DSKY read success (result = " << result << "), packet data is:" << std::endl;
                 std::oct(std::cout);
+                std::cout << " u = " << bitmask;
+                std::cout << " t = " << unprogrammed_sequence;
                 std::cout << " channel = " << std::setw(2) << std::setfill('0') << (word)channel;
-                std::cout << " misc = " << (word)misc;
-                std::cout << " keycode = " << std::setw(2) << (word)keycode;
+                std::cout << " data = " << std::setw(6) << (word)data;
                 std::cout << std::endl;
                 std::dec(std::cout);
 
                 if (channel == 015) {
-                    scaler_ref->queue_dsky_update(channel, keycode);
+                    scaler_ref->queue_dsky_update(channel, data);
                 } else if (channel == 012) {
-                    scaler_ref->queue_dsky_update(channel, misc);
+
                 }
             }
+
+            // If we're in a good state, write any new updated I/O channel data to it
+
         }
     }
 }
