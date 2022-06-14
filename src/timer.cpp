@@ -81,7 +81,7 @@ void Timer::stop_timer() {
 }
 
 void Timer::accept_dsky_connections() {
-    while (true) {
+    while (!stop) {
         // Set up the socket to connect to the DSKY server
         sockpp::socket_initializer sock_init;
         in_port_t port = 19697;
@@ -104,19 +104,19 @@ void Timer::accept_dsky_connections() {
 }
 
 void Timer::read_dsky(sockpp::tcp_socket sock) {
-    while (true) {
+    while (!stop) {
         if (sock.is_open()) {
             char buf[4];
             size_t result = sock.read(buf, 4);
             if (result == -1 || result == 0) {
-                std::cout << "Read fail, disconnecting..." << std::endl;
+                std::cout << "DSKY connection closed" << std::endl;
                 sock.close();
                 break;
             } else {
                 uint8_t channel = (buf[1] >> 3);
                 uint8_t misc = (buf[1] & 7) >> 1;   // if 1, PRO key state is pressed, if 0, released.
                 uint8_t keycode = (buf[3] & 037);
-                std::cout << "Read success (result = " << result << "), packet data is:" << std::endl;
+                std::cout << "DSKY read success (result = " << result << "), packet data is:" << std::endl;
                 std::oct(std::cout);
                 std::cout << " channel = " << std::setw(2) << std::setfill('0') << (word)channel;
                 std::cout << " misc = " << (word)misc;
