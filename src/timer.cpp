@@ -108,8 +108,8 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
         if (sock.is_open()) {
 
             // Read from the DSKY first to check its state
-            char buf[4];
-            size_t result = sock.read(buf, 4);
+            char read_buf[4];
+            size_t result = sock.read(read_buf, 4);
             if (result == -1 || result == 0) {
                 std::cout << "DSKY connection closed" << std::endl;
                 sock.close();
@@ -123,23 +123,23 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
                 // First, verify the signature of the packet by checking
                 // the 2 most significant bits in each byte.
                 uint8_t signature = 0;
-                signature |= buf[0] & 0b11000000;
-                signature |= (buf[1] & 0b11000000) >> 2;
-                signature |= (buf[2] & 0b11000000) >> 4;
-                signature |= (buf[3] & 0b11000000) >> 6;
+                signature |= read_buf[0] & 0b11000000;
+                signature |= (read_buf[1] & 0b11000000) >> 2;
+                signature |= (read_buf[2] & 0b11000000) >> 4;
+                signature |= (read_buf[3] & 0b11000000) >> 6;
                 if (signature != 0b00011011) {  // should be 00 01 10 11
                     std::cerr << "DSKY packet signature invalid, discarding." << std::endl;
                     continue;
                 }
 
                 // If the signature is valid, parse the data
-                bool bitmask = ((buf[0] & 0b00100000) != 0);
-                bool unprogrammed_sequence = ((buf[0] & 0b00010000) != 0);
-                uint8_t channel = ((buf[0] & 0b00001111) << 3) |
-                                  ((buf[1] & 0b00111000) >> 3);
-                uint16_t data = ((buf[1] & 0b00000111) << 11) |
-                                ((buf[2] & 0b00111111) << 5) |
-                                (buf[3] & 0b00111111);
+                bool bitmask = ((read_buf[0] & 0b00100000) != 0);
+                bool unprogrammed_sequence = ((read_buf[0] & 0b00010000) != 0);
+                uint8_t channel = ((read_buf[0] & 0b00001111) << 3) |
+                                  ((read_buf[1] & 0b00111000) >> 3);
+                uint16_t data = ((read_buf[1] & 0b00000111) << 11) |
+                                ((read_buf[2] & 0b00111111) << 5) |
+                                (read_buf[3] & 0b00111111);
                 std::cout << "DSKY read success (result = " << result << "), packet data is:" << std::endl;
                 std::oct(std::cout);
                 std::cout << " u = " << bitmask;
@@ -158,6 +158,16 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
 
             // If we're in a good state, write any new updated I/O channel data to it
 
+            // Do a test write to turn on the RESTART lamp and flash OPR ERR
+            uint8_t write_channel = 0163;
+            uint16_t write_data = 0b11000000;   // OPR ERR and RESTART
+            char write_buf[4] = {0, 0, 0, 0};
+            write_buf[0] |= write_channel >> 3;
+            write_buf[1] |= (0b01000000 | ((write_channel & 7) << 3));
+            write_buf[2] |= (0b10000000 | ((write_data >> 6)));
+            write_buf[3] |= 0b11000000;
+
+            sock.write(write_buf, 4);
         }
     }
 }
