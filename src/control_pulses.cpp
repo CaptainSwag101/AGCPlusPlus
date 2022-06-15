@@ -36,13 +36,15 @@ static void ext(Cpu& cpu) {
 }
 
 static void krpt(Cpu& cpu) {
-    for (int r = 0; r < 11; ++r) {
-        if (cpu.interrupts[r] == true) {
-            cpu.interrupts[r] = false;
-            cpu.iip = true;
-            break;
-        }
+    if (cpu.interrupt_being_serviced == 0177777) {
+        std::cerr << "ERROR: Processing an interrupt when none were pending! Something has gone horribly wrong." << std::endl;
+        return;
     }
+    if (cpu.interrupts[cpu.interrupt_being_serviced] == false) {
+        std::cerr << "WARNING: Attempting to service an inactive interrupt" << std::endl;
+    }
+    cpu.interrupts[cpu.interrupt_being_serviced] = false;
+    cpu.iip = true;
 }
 
 static void monex(Cpu& cpu) {

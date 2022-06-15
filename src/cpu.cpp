@@ -116,9 +116,11 @@ void Cpu::tick() {
 
             // Check for pending interrupts
             bool should_rupt = false;
+            interrupt_being_serviced = 0177777; // -0 to indicate no interrupt being actively serviced
             for (int r = 0; r < 11; ++r) {
                 if (interrupts[r] == true) {
                     should_rupt = true;
+                    interrupt_being_serviced = r;
                     switch (r) {
                     case RUPT_KEYRUPT1:
                         std::cout << "KEYRUPT1 triggered" << std::endl;
