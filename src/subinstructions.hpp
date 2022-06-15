@@ -26,6 +26,7 @@ void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
 void pinc(Cpu& cpu);
 void qxch0(Cpu& cpu);
+void read0(Cpu& cpu);
 void rsm3(Cpu& cpu);
 void rupt0(Cpu& cpu);
 void rupt1(Cpu& cpu);
@@ -34,6 +35,7 @@ void tc0(Cpu& cpu);
 void tcf0(Cpu& cpu);
 void ts0(Cpu& cpu);
 void wand0(Cpu& cpu);
+void write0(Cpu& cpu);
 void xch0(Cpu& cpu);
 
 // Stage, Extend, BitMask, Opcode+QuarterCode, Name, Function
@@ -58,6 +60,8 @@ const static subinstruction subinstruction_list[] {
     {0, false, 076, 056, "XCH0", xch0},
     {0, false, 070, 060, "AD0", ad0},
     {0, false, 070, 070, "MSK0", msk0},
+    {0, true,  077, 000, "READ0", read0},
+    {0, true,  077, 001, "WRITE0", write0},
     {0, true,  077, 003, "WAND0", wand0},
     {0, true,  076, 012, "BZF0", bzf0},
     {0, true,  076, 014, "BZF0", bzf0},
