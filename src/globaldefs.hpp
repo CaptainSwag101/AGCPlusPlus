@@ -22,6 +22,7 @@ constexpr word BITMASK_9 = (1 << 8);
 constexpr word BITMASK_10 = (1 << 9);
 constexpr word BITMASK_15 = (1 << 14);
 constexpr word BITMASK_16 = (1 << 15);
+constexpr uint64_t BITMASK_17 = (1 << 16);
 
 constexpr uint64_t SIZE_ERASABLE_MEM = 2048;
 constexpr uint64_t SIZE_FIXED_MEM = 36864;

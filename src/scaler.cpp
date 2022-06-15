@@ -34,6 +34,8 @@ void Scaler::tick() {
     bool F09B = (((cur_state & BITMASK_9) ^ (prev_state & BITMASK_9)) && (cur_state & BITMASK_9) != 0);
     bool F10A = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) == 0);
     bool F10B = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) != 0);
+    bool FS16 = ((cur_state & BITMASK_16) != 0);
+    bool FS17 = ((cur_state & BITMASK_17) != 0);
 
     // Process timer counts
     if (F06B) {
@@ -78,5 +80,15 @@ void Scaler::tick() {
         cpu_ref->counters[COUNTER_TIME1] |= COUNT_DIRECTION_UP;
         cpu_ref->counters[COUNTER_TIME3] |= COUNT_DIRECTION_UP;
     }
+
+    if (!FS16 && !FS17) {
+        dsky_flash_on = false;
+    } else {
+        dsky_flash_on = true;
+    }
+}
+
+bool Scaler::dsky_flash_state() {
+    return dsky_flash_on;
 }
 }
