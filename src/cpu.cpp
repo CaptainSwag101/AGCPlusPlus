@@ -183,8 +183,8 @@ void Cpu::print_state_info(std::ostream& output) const {
     output << " L = " << std::setw(6) << l;
     output << " G = " << std::setw(6) << g;
     output << " B = " << std::setw(6) << b;
-    output << " Z = " << std::setw(6) << z;
     output << " Q = " << std::setw(6) << q;
+    output << " Z = " << std::setw(6) << z;
     output << '\n';
 
     output << " S = " << std::setw(6) << s;
