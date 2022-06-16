@@ -157,17 +157,34 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
 
             // Do a test write to turn on the RESTART lamp and flash OPR ERR
             uint8_t write_channel = 0163;
-            uint16_t write_data = scaler_ref->dsky_flash_state() ? 0b10000000 : 0;   // RESTART, flashing
-            char write_buf[4] = {0, 0, 0, 0};
-            write_buf[0] |= write_channel >> 3;
-            write_buf[1] |= (0b01000000 | ((write_channel & 7) << 3));
-            write_buf[2] |= (0b10000000 | ((write_data >> 6)));
-            write_buf[3] |= 0b11000000;
+            word write_data = scaler_ref->dsky_flash_state() ? 0b10000000 : 0;   // RESTART, flashing
+            std::array<char, 4> write_buf = generate_dsky_packet(write_channel, write_data);
+            sock.write(write_buf.data(), 4);
 
-            sock.write(write_buf, 4);
+            // Write the contents of channel 9 and 10
+            write_channel = 9;
+            write_data = cpu_ref->read_io_channel(write_channel);
+            write_buf = generate_dsky_packet(write_channel, write_data);
+            sock.write(write_buf.data(), 4);
+
+            write_channel = 10;
+            write_data = cpu_ref->read_io_channel(write_channel);
+            write_buf = generate_dsky_packet(write_channel, write_data);
+            sock.write(write_buf.data(), 4);
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+}
+
+std::array<char, 4> Timer::generate_dsky_packet(uint8_t channel, word data) {
+    std::array<char, 4> write_buf = {0, 0, 0, 0};
+
+    write_buf[0] |= channel >> 3;
+    write_buf[1] |= (0b01000000 | ((channel & 7) << 3));
+    write_buf[2] |= (0b10000000 | ((data >> 6)));
+    write_buf[3] |= 0b11000000 | ((uint8_t)(data));
+
+    return write_buf;
 }
 }

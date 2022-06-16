@@ -24,6 +24,7 @@ public:
 private:
     void accept_dsky_connections();
     void process_dsky(sockpp::tcp_socket sock);
+    std::array<char, 4> generate_dsky_packet(uint8_t channel, word data);
 
     bool stop = false;
 
