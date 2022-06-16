@@ -43,7 +43,7 @@ void ads0(Cpu& cpu) {
         wg(cpu);
         break;
     case 5:
-        rb(cpu);
+        rg(cpu);
         wy(cpu);
         a2x(cpu);
         break;
