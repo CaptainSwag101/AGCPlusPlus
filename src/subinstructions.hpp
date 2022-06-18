@@ -28,6 +28,7 @@ void goj1(Cpu& cpu);
 void incr0(Cpu& cpu);
 void lxch0(Cpu& cpu);
 void msk0(Cpu& cpu);
+void msu0(Cpu& cpu);
 void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
 void ndxx0(Cpu& cpu);
@@ -86,6 +87,7 @@ const static subinstruction subinstruction_list[] {
     {0, true,  076, 012, "BZF0", bzf0},
     {0, true,  076, 014, "BZF0", bzf0},
     {0, true,  076, 016, "BZF0", bzf0},
+    {0, true,  076, 020, "MSU0", msu0},
     {0, true,  076, 022, "QXCH0", qxch0},
     {0, true,  076, 024, "AUG0", aug0},
     {0, true,  076, 026, "DIM0", dim0},

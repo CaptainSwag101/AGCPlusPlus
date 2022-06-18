@@ -216,6 +216,13 @@ static void ru(Cpu& cpu) {
     cpu.write_bus |= cpu.u;
 }
 
+static void rus(Cpu& cpu) {
+    word temp = (cpu.u & BITMASK_1_14); // Bits 1-14 to 1-14
+    temp |= (cpu.u & BITMASK_15);   // Bit 15 to 15
+    temp |= ((cpu.u & BITMASK_15) << 1); // Bit 15 to 16
+    cpu.write_bus |= temp;
+}
+
 static void rz(Cpu& cpu) {
     cpu.write_bus |= cpu.z;
 }

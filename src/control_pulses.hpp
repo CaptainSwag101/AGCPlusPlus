@@ -121,6 +121,9 @@ static void rstrt(Cpu& cpu);
 // Read U1-16 to WL1-16.
 static void ru(Cpu& cpu);
 
+// Read U1-14 to WL1-14, and U15 to WL15 and 16.
+static void rus(Cpu& cpu);
+
 // Read Z1-16 to WL1-16.
 static void rz(Cpu& cpu);
 
