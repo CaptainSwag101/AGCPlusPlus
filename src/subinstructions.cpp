@@ -449,16 +449,19 @@ void das1(Cpu& cpu) {
     case 10:
         switch (cpu.br) {
         case 0b00:
-        case 0b01:
+        case 0b10:
             wl(cpu);
             break;
-        case 0b10:
+        }
+        break;
+    case 11:
+        switch (cpu.br) {
+        case 0b01:
         case 0b11:
             ru(cpu);
             wa(cpu);
             break;
         }
-        break;
     }
 }
 
