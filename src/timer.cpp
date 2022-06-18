@@ -156,7 +156,7 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
             // If we're in a good state, write any new updated I/O channel data to it
             uint8_t write_channel = 0;
             word write_data = 0;
-            std::array<char, 4> write_buf = {};
+            std::array<uint8_t, 4> write_buf = {};
 
             // Write the contents of channel 10, 11 and 12
             write_channel = 010;
@@ -184,17 +184,36 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
             sock.write(write_buf.data(), 4);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 
-std::array<char, 4> Timer::generate_dsky_packet(uint8_t channel, word data) {
-    std::array<char, 4> write_buf = {0, 0, 0, 0};
+std::array<uint8_t, 4> Timer::generate_dsky_packet(uint8_t channel, word data) {
+    uint32_t packet_data = 0b00000000010000001000000011000000;  // pre-load the signature
+    packet_data |= ((channel & 0b01111000) << 21);  // Upper bits of channel
+    packet_data |= ((channel & 0b00000111) << 19);  // Lower bits of channel
+    packet_data |= ((data & 0b0111000000000000) << 4);  // Upper bits of data
+    packet_data |= ((data & 0b0000111111000000) << 2);  // Middle bits of data
+    packet_data |= ((data & 0b0000000000111111));  // Lower bits of data
 
-    write_buf[0] |= channel >> 3;
-    write_buf[1] |= (0b01000000 | ((channel & 7) << 3));
-    write_buf[2] |= (0b10000000 | ((data >> 6)));
-    write_buf[3] |= 0b11000000 | ((uint8_t)(data));
+    std::array<uint8_t, 4> write_buf = {0, 0, 0, 0};
+    write_buf[0] = (uint8_t)(packet_data >> 24);
+    write_buf[1] = (uint8_t)(packet_data >> 16);
+    write_buf[2] = (uint8_t)(packet_data >> 8);
+    write_buf[3] = (uint8_t)(packet_data);
+
+    if (channel != 0163 && data > 0) {
+        std::oct(std::cout);
+        std::cout << "from data " << std::setfill('0') << std::setw(6) << (word)channel << " " << std::setw(6) << data << std::endl;
+        std::cout << "intermediary data " << std::setw(12) << packet_data << std::endl;
+        std::cout << "generated packet";
+        std::cout << " " << std::setw(3) << (word)write_buf[0];
+        std::cout << " " << std::setw(3) << (word)write_buf[1];
+        std::cout << " " << std::setw(3) << (word)write_buf[2];
+        std::cout << " " << std::setw(3) << (word)write_buf[3];
+        std::cout << std::endl;
+        std::dec(std::cout);
+    }
 
     return write_buf;
 }

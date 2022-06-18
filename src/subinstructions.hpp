@@ -8,6 +8,7 @@
 namespace agcplusplus {
 void ad0(Cpu& cpu);
 void ads0(Cpu& cpu);
+void aug0(Cpu& cpu);
 void bzf0(Cpu& cpu);
 void bzmf0(Cpu& cpu);
 void ca0(Cpu& cpu);
