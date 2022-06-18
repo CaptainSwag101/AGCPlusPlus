@@ -1297,7 +1297,7 @@ void su0(Cpu& cpu) {
         wg(cpu);
         break;
     case 10:
-        rg(cpu);
+        rc(cpu);
         wy(cpu);
         a2x(cpu);
         break;
