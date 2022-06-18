@@ -583,18 +583,21 @@ void incr0(Cpu& cpu) {
         rsc(cpu);
         wg(cpu);
         break;
-    case 3:
-        rl(cpu);
-        wb(cpu);
-        break;
     case 5:
         rg(cpu);
-        wl(cpu);
+        wy(cpu);
+        tsgn(cpu);
+        tmz(cpu);
+        tpzg(cpu);
+        break;
+    case 6:
+        ponex(cpu);
         break;
     case 7:
-        rb(cpu);
+        ru(cpu);
         wsc(cpu);
         wg(cpu);
+        wovr(cpu);
         break;
     case 8:
         rz(cpu);
