@@ -9,6 +9,7 @@ namespace agcplusplus {
 void ad0(Cpu& cpu);
 void ads0(Cpu& cpu);
 void bzf0(Cpu& cpu);
+void bzmf0(Cpu& cpu);
 void ca0(Cpu& cpu);
 void ccs0(Cpu& cpu);
 void cs0(Cpu& cpu);
@@ -73,6 +74,9 @@ const static subinstruction subinstruction_list[] {
     {1, true,  070, 040, "DCS1", dcs1},
     {0, true,  077, 007, "RUPT0", rupt0},
     {1, true,  077, 007, "RUPT1", rupt1},
+    {0, true,  076, 062, "BZMF0", bzmf0},
+    {0, true,  076, 064, "BZMF0", bzmf0},
+    {0, true,  076, 066, "BZMF0", bzmf0},
     {2, true,  000, 000, "STD2", std2}, // Catch-all
 };
 
