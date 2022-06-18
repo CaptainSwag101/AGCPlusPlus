@@ -364,11 +364,11 @@ static void wsc(Cpu& cpu) {
             cpu.q = cpu.write_bus;
             break;
         case 3:
-            cpu.eb = cpu.write_bus;
+            cpu.eb = (cpu.write_bus & BITMASK_8_10);
             cpu.update_bb();
             break;
         case 4:
-            cpu.fb = cpu.write_bus;
+            cpu.fb = (cpu.write_bus & BITMASK_11_15);
             cpu.update_bb();
             break;
         case 5:
