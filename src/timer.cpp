@@ -145,7 +145,7 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
                     std::cout << std::endl;
                     std::dec(std::cout);
 
-                    if (channel == 015) {
+                    if (channel == 015 || channel == 016) {
                         scaler_ref->queue_dsky_update(channel, data);
                     } else if (channel == 012) {
 
@@ -154,21 +154,32 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
             }
 
             // If we're in a good state, write any new updated I/O channel data to it
+            uint8_t write_channel = 0;
+            word write_data = 0;
+            std::array<char, 4> write_buf = {};
 
-            // Do a test write to turn on the RESTART lamp and flash OPR ERR
-            uint8_t write_channel = 0163;
-            word write_data = scaler_ref->dsky_flash_state() ? 0b10000000 : 0;   // RESTART, flashing
-            std::array<char, 4> write_buf = generate_dsky_packet(write_channel, write_data);
-            sock.write(write_buf.data(), 4);
-
-            // Write the contents of channel 9 and 10
-            write_channel = 9;
+            // Write the contents of channel 10, 11 and 12
+            write_channel = 010;
             write_data = cpu_ref->read_io_channel(write_channel);
             write_buf = generate_dsky_packet(write_channel, write_data);
             sock.write(write_buf.data(), 4);
 
-            write_channel = 10;
+            write_channel = 011;
             write_data = cpu_ref->read_io_channel(write_channel);
+            write_buf = generate_dsky_packet(write_channel, write_data);
+            sock.write(write_buf.data(), 4);
+
+            write_channel = 012;
+            write_data = cpu_ref->read_io_channel(write_channel);
+            write_buf = generate_dsky_packet(write_channel, write_data);
+            sock.write(write_buf.data(), 4);
+
+            // Write channel 163 stuff for RESTART, OPR ERR, etc.
+            write_channel = 0163;
+            write_data = 0;
+            if (cpu_ref->restart) {
+                write_data |= 0b010000000;
+            }
             write_buf = generate_dsky_packet(write_channel, write_data);
             sock.write(write_buf.data(), 4);
         }

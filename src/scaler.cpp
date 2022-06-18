@@ -53,7 +53,7 @@ void Scaler::tick() {
             std::tuple<word, word> dsky_update = dsky_queue.front();
             word channel = std::get<0>(dsky_update);
             word data = std::get<1>(dsky_update);
-            if (channel == 015){
+            if (channel == 015 || channel == 016) {
                 cpu_ref->write_io_channel(channel, data);
                 cpu_ref->interrupts[RUPT_KEYRUPT1] = true;
                 dsky_queue.pop();

@@ -11,11 +11,15 @@ Cpu::Cpu(bool logMCT, bool logTimepulse) {
 
     // Prepare I/O channels
     std::cout << "Initializing I/O channels...";
-    io_channels.emplace(9, 0);
-    io_channels.emplace(10, 0);
+    io_channels.emplace(010, 0);
+    io_channels.emplace(011, 0);
+    io_channels.emplace(012, 0);
+    io_channels.emplace(015, 0);
+    io_channels.emplace(016, 0);
     std::cout << " done!" << std::endl;
 
-    current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
+    // Perform GOJAM to initialize state
+    gojam();
 
     std::cout << "Initializing CPU done." << std::endl;
 }
@@ -170,6 +174,17 @@ void Cpu::tick() {
     } else {
         ++current_timepulse;
     }
+}
+
+void Cpu::gojam() {
+    current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
+    sq = 0;
+    extend = false;
+    extend_next = false;
+    st = 1;
+    st_next = 1;
+    br = 0;
+    restart = true;
 }
 
 void Cpu::print_state_info(std::ostream& output) const {

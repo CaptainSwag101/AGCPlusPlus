@@ -34,6 +34,7 @@ public:
 
     // Activity functions
     void tick();
+    void gojam();
     void update_adder();
     void update_bb();
     void update_eb_fb();
@@ -68,7 +69,7 @@ public:
     // Internal CPU data
     word write_bus;
     bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv;
-    bool inkl, iip, sudo, shinc, pifl, extend, extend_next;
+    bool inkl, iip, sudo, shinc, pifl, extend, extend_next, restart;
     uint64_t night_watchman;
     word interrupt_being_serviced;
 

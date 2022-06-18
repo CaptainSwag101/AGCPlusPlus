@@ -28,17 +28,23 @@ void lxch0(Cpu& cpu);
 void msk0(Cpu& cpu);
 void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
+void ndxx0(Cpu& cpu);
+void ndxx1(Cpu& cpu);
 void pinc(Cpu& cpu);
 void qxch0(Cpu& cpu);
+void rand0(Cpu& cpu);
 void read0(Cpu& cpu);
+void ror0(Cpu& cpu);
 void rsm3(Cpu& cpu);
 void rupt0(Cpu& cpu);
 void rupt1(Cpu& cpu);
 void std2(Cpu& cpu);
+void su0(Cpu& cpu);
 void tc0(Cpu& cpu);
 void tcf0(Cpu& cpu);
 void ts0(Cpu& cpu);
 void wand0(Cpu& cpu);
+void wor0(Cpu& cpu);
 void write0(Cpu& cpu);
 void xch0(Cpu& cpu);
 
@@ -69,7 +75,12 @@ const static subinstruction subinstruction_list[] {
     {0, false, 070, 070, "MSK0", msk0},
     {0, true,  077, 000, "READ0", read0},
     {0, true,  077, 001, "WRITE0", write0},
+    {0, true,  077, 002, "RAND0", rand0},
     {0, true,  077, 003, "WAND0", wand0},
+    {0, true,  077, 004, "ROR0", ror0},
+    {0, true,  077, 005, "WOR0", wor0},
+    {0, true,  077, 007, "RUPT0", rupt0},
+    {1, true,  077, 007, "RUPT1", rupt1},
     {0, true,  076, 012, "BZF0", bzf0},
     {0, true,  076, 014, "BZF0", bzf0},
     {0, true,  076, 016, "BZF0", bzf0},
@@ -78,8 +89,9 @@ const static subinstruction subinstruction_list[] {
     {1, true,  070, 030, "DCA1", dca1},
     {0, true,  070, 040, "DCS0", dcs0},
     {1, true,  070, 040, "DCS1", dcs1},
-    {0, true,  077, 007, "RUPT0", rupt0},
-    {1, true,  077, 007, "RUPT1", rupt1},
+    {0, true,  070, 050, "NDXX0", ndxx0},
+    {1, true,  070, 050, "NDXX1", ndxx1},
+    {0, true,  076, 060, "SU0", su0},
     {0, true,  076, 062, "BZMF0", bzmf0},
     {0, true,  076, 064, "BZMF0", bzmf0},
     {0, true,  076, 066, "BZMF0", bzmf0},
