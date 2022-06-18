@@ -35,6 +35,16 @@ static void ext(Cpu& cpu) {
     cpu.extend_next = true;
 }
 
+static void g2ls(Cpu& cpu) {
+    word temp = ((cpu.g & BITMASK_4_15) >> 3);
+    temp |= (cpu.g & BITMASK_16);
+    temp |= ((cpu.g & 1) << 14);
+
+    cpu.l &= ~BITMASK_1_12;
+    cpu.l &= ~BITMASK_15_16;
+    cpu.l |= temp;
+}
+
 static void krpt(Cpu& cpu) {
     if (cpu.interrupt_being_serviced == 0177777) {
         std::cerr << "ERROR: Processing an interrupt when none were pending! Something has gone horribly wrong." << std::endl;
@@ -47,8 +57,28 @@ static void krpt(Cpu& cpu) {
     cpu.iip = true;
 }
 
+static void l16(Cpu& cpu) {
+    cpu.l |= BITMASK_16;
+}
+
+static void l2gd(Cpu& cpu) {
+    cpu.g = ((cpu.l & BITMASK_1_14) << 1);  // L1-14 into G2-15
+    cpu.g |= (cpu.l & BITMASK_16);  // L16 into G16
+    cpu.g |= (cpu.mcro ? 1 : 0);    // MCRO into G1, bit 1 is cleared by the first step of this control pulse
+}
+
 static void monex(Cpu& cpu) {
     cpu.x |= 0177776;
+    cpu.update_adder();
+}
+
+static void neacof(Cpu& cpu) {
+    cpu.no_eac = false;
+    cpu.update_adder();
+}
+
+static void neacon(Cpu& cpu) {
+    cpu.no_eac = true;
     cpu.update_adder();
 }
 
@@ -235,6 +265,11 @@ static void st2(Cpu& cpu) {
     cpu.st_next |= 2;
 }
 
+static void tl15(Cpu& cpu) {
+    cpu.br &= 0b01; // Mask out BR1
+    cpu.br |= ((cpu.l & BITMASK_15) != 0) ? 0b10 : 0b00;
+}
+
 static void tmz(Cpu& cpu) {
     if (cpu.write_bus == 0177777) {
         cpu.br |= 0b01; // Set BR2 if -0
@@ -281,6 +316,22 @@ static void tsgn2(Cpu& cpu) {
 
 static void wa(Cpu& cpu) {
     cpu.a = cpu.write_bus;
+}
+
+static void wals(Cpu& cpu) {
+    word a_temp = (cpu.write_bus >> 2);
+    if ((cpu.g & 1) != 0) {
+        a_temp |= ((cpu.g & BITMASK_16) >> 1);
+        a_temp |= (cpu.g & BITMASK_16);
+    } else {
+        a_temp |= ((cpu.write_bus & BITMASK_16) >> 1);
+        a_temp |= (cpu.write_bus & BITMASK_16);
+    }
+    cpu.a = a_temp;
+
+    word l_temp = ((cpu.write_bus & BITMASK_1_2) << 12);
+    cpu.l &= ~BITMASK_1_2;
+    cpu.l |= l_temp;
 }
 
 static void wb(Cpu& cpu) {
@@ -397,6 +448,18 @@ static void wy(Cpu& cpu) {
     cpu.update_adder();
 }
 
+static void wyd(Cpu& cpu) {
+    cpu.explicit_carry = false;
+    cpu.x = 0;
+    cpu.y = ((cpu.write_bus & BITMASK_1_14) << 1);  // WL1-14 into Y2-15
+    cpu.y |= (cpu.write_bus & BITMASK_16);  // WL16 into Y16
+    // WL16 into Y1 if circumstances allow
+    if (!cpu.no_eac && !cpu.shinc && !(cpu.pifl && ((cpu.l & BITMASK_15) != 0))) {
+        cpu.y |= ((cpu.write_bus & BITMASK_16) >> 15);
+    }
+    cpu.update_adder();
+}
+
 static void wy12(Cpu& cpu) {
     cpu.explicit_carry = false;
     cpu.x = 0;
@@ -406,5 +469,61 @@ static void wy12(Cpu& cpu) {
 
 static void wz(Cpu& cpu) {
     cpu.z = cpu.write_bus;
+}
+
+static void zap(Cpu& cpu) {
+    ru(cpu);
+    g2ls(cpu);
+    wals(cpu);
+}
+
+static void zip(Cpu& cpu) {
+    // Do complicated state stuff first
+    word state_bits;
+    state_bits |= (((cpu.l >> 14) & 1) << 2);   // L bit 15 into state bit 3
+    state_bits |= (cpu.l & 3);                  // L bits 1,2 into state bits 1,2
+
+    // Clear MCRO, it will be re-set if necessary below
+    cpu.mcro = false;
+    switch (state_bits) {
+    case 0b000:
+        wy(cpu);
+        break;
+    case 0b001:
+        rb(cpu);
+        wy(cpu);
+        break;
+    case 0b010:
+        rb(cpu);
+        wyd(cpu);
+        break;
+    case 0b011:
+        rc(cpu);
+        wy(cpu);
+        ci(cpu);
+        cpu.mcro = true;
+        break;
+    case 0b100:
+        rb(cpu);
+        wy(cpu);
+        break;
+    case 0b101:
+        rb(cpu);
+        wyd(cpu);
+        break;
+    case 0b110:
+        rc(cpu);
+        wy(cpu);
+        ci(cpu);
+        cpu.mcro = true;
+        break;
+    case 0b111:
+        wy(cpu);
+        cpu.mcro = true;
+        break;
+    }
+
+    a2x(cpu);
+    l2gd(cpu);
 }
 }

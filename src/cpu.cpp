@@ -229,7 +229,7 @@ void Cpu::update_adder()
 
     // Handle carries
     uint32_t carry = explicit_carry ? 1 : 0;    // Explicit carry
-    if (!no_eac)
+    if (!no_eac && current_subinstruction.name != "MP3")    // Hardware hack to prolong NOEAC through MP3
         carry |= ((temp >> 16) & 1);    // End-around carry if not inhibited
     temp += carry;
 

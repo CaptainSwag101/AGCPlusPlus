@@ -27,6 +27,9 @@ void dxch1(Cpu& cpu);
 void goj1(Cpu& cpu);
 void incr0(Cpu& cpu);
 void lxch0(Cpu& cpu);
+void mp0(Cpu& cpu);
+void mp1(Cpu& cpu);
+void mp3(Cpu& cpu);
 void msk0(Cpu& cpu);
 void msu0(Cpu& cpu);
 void ndx0(Cpu& cpu);
@@ -101,6 +104,9 @@ const static subinstruction subinstruction_list[] {
     {0, true,  076, 062, "BZMF0", bzmf0},
     {0, true,  076, 064, "BZMF0", bzmf0},
     {0, true,  076, 066, "BZMF0", bzmf0},
+    {0, true,  070, 070, "MP0", mp0},
+    {1, true,  070, 070, "MP1", mp1},
+    {3, true,  070, 070, "MP3", mp3},
     {2, true,  000, 000, "STD2", std2}, // Catch-all
 };
 
