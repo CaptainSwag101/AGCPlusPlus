@@ -13,6 +13,8 @@ void bzmf0(Cpu& cpu);
 void ca0(Cpu& cpu);
 void ccs0(Cpu& cpu);
 void cs0(Cpu& cpu);
+void das0(Cpu& cpu);
+void das1(Cpu& cpu);
 void dca0(Cpu& cpu);
 void dca1(Cpu& cpu);
 void dcs0(Cpu& cpu);
@@ -22,6 +24,7 @@ void dxch0(Cpu& cpu);
 void dxch1(Cpu& cpu);
 void goj1(Cpu& cpu);
 void incr0(Cpu& cpu);
+void lxch0(Cpu& cpu);
 void msk0(Cpu& cpu);
 void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
@@ -48,6 +51,9 @@ const static subinstruction subinstruction_list[] {
     {0, false, 076, 012, "TCF0", tcf0},
     {0, false, 076, 014, "TCF0", tcf0},
     {0, false, 076, 016, "TCF0", tcf0},
+    {0, false, 076, 020, "DAS0", das0},
+    {1, false, 076, 020, "DAS1", das1},
+    {0, false, 076, 022, "LXCH0", lxch0},
     {0, false, 076, 024, "INCR0", incr0},
     {0, false, 076, 026, "ADS0", ads0},
     {0, false, 070, 030, "CA0", ca0},
