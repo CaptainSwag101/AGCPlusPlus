@@ -272,20 +272,38 @@ word Cpu::get_fixed_absolute_addr() const {
 }
 
 word Cpu::read_io_channel(word address) {
-    word temp;
+    word result;
 
     switch (address) {
+    case 1:
+        result = l;
+        break;
+    case 2:
+        result = q;
+        break;
     default:
-        temp = io_channels[address];
+        result = io_channels[address] & ~BITMASK_16;    // Mask out bit 16, since erasable words are only 15 bits wide
+        result |= ((result & BITMASK_15) << 1);   // Copy bit 15 into bit 16
+        break;
     }
 
-    return temp;
+    return result;
 }
 
 void Cpu::write_io_channel(word address, word data) {
     switch (address) {
+    case 1:
+        l = data;
+        break;
+    case 2:
+        q = data;
+        break;
     default:
-        io_channels[address] = data;    // TODO: Copy bit 16 to 15
+        word temp = data & ~BITMASK_15; // Mask out bit 15
+        temp |= ((temp & BITMASK_16) >> 1); // Copy bit 16 into bit 15
+        temp &= ~BITMASK_16;    // Mask out bit 16 since erasable words are only 15 bits wide
+        io_channels[address] = temp;
+        break;
     }
 }
 }
