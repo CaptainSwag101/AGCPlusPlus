@@ -202,6 +202,7 @@ std::array<uint8_t, 4> Timer::generate_dsky_packet(uint8_t channel, word data) {
     write_buf[2] = (uint8_t)(packet_data >> 8);
     write_buf[3] = (uint8_t)(packet_data);
 
+    /*
     if (channel != 0163 && data > 0) {
         std::oct(std::cout);
         std::cout << "from data " << std::setfill('0') << std::setw(6) << (word)channel << " " << std::setw(6) << data << std::endl;
@@ -214,6 +215,7 @@ std::array<uint8_t, 4> Timer::generate_dsky_packet(uint8_t channel, word data) {
         std::cout << std::endl;
         std::dec(std::cout);
     }
+    */
 
     return write_buf;
 }

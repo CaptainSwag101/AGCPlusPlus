@@ -85,6 +85,49 @@ void ads0(Cpu& cpu) {
     }
 }
 
+void aug0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rl10bb(cpu);
+        ws(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 5:
+        rg(cpu);
+        wy(cpu);
+        tsgn(cpu);
+        tmz(cpu);
+        tpzg(cpu);
+        break;
+    case 6:
+        switch (cpu.br) {
+        case 0b00:
+        case 0b01:
+            ponex(cpu);
+            break;
+        case 0b10:
+        case 0b11:
+            monex(cpu);
+            break;
+        }
+        break;
+    case 7:
+        ru(cpu);
+        wsc(cpu);
+        wg(cpu);
+        wovr(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    }
+}
+
 void bzf0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 1:
