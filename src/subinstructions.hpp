@@ -20,6 +20,7 @@ void dca0(Cpu& cpu);
 void dca1(Cpu& cpu);
 void dcs0(Cpu& cpu);
 void dcs1(Cpu& cpu);
+void dim0(Cpu& cpu);
 //void dinc(Cpu& cpu);
 void dxch0(Cpu& cpu);
 void dxch1(Cpu& cpu);
@@ -87,6 +88,7 @@ const static subinstruction subinstruction_list[] {
     {0, true,  076, 016, "BZF0", bzf0},
     {0, true,  076, 022, "QXCH0", qxch0},
     {0, true,  076, 024, "AUG0", aug0},
+    {0, true,  076, 026, "DIM0", dim0},
     {0, true,  070, 030, "DCA0", dca0},
     {1, true,  070, 030, "DCA1", dca1},
     {0, true,  070, 040, "DCS0", dcs0},

@@ -624,6 +624,47 @@ void dcs1(Cpu& cpu) {
     }
 }
 
+void dim0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rl10bb(cpu);
+        ws(cpu);
+        break;
+    case 2:
+        rsc(cpu);
+        wg(cpu);
+        break;
+    case 5:
+        rg(cpu);
+        wy(cpu);
+        tsgn(cpu);
+        tmz(cpu);
+        tpzg(cpu);
+        break;
+    case 6:
+        switch (cpu.br) {
+        case 0b00:
+            monex(cpu);
+            break;
+        case 0b10:
+            ponex(cpu);
+            break;
+        }
+        break;
+    case 7:
+        ru(cpu);
+        wsc(cpu);
+        wg(cpu);
+        wovr(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    }
+}
+
 /*
 void dinc(Cpu& cpu) {
     switch (cpu.current_timepulse) {
