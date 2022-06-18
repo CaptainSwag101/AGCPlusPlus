@@ -230,7 +230,9 @@ static void st2(Cpu& cpu) {
 
 static void tmz(Cpu& cpu) {
     if (cpu.write_bus == 0177777) {
-        cpu.br |= 0b01; // Set BR2
+        cpu.br |= 0b01; // Set BR2 if -0
+    } else {
+        cpu.br &= 0b10; // Clear BR2 if not -0
     }
 }
 
@@ -262,12 +264,12 @@ static void trsm(Cpu& cpu) {
 
 static void tsgn(Cpu& cpu) {
     cpu.br &= 0b01; // BR1 is bit 2, mask it clear
-    cpu.br |= (cpu.write_bus & BITMASK_16) ? 0b10 : 0b00;
+    cpu.br |= ((cpu.write_bus & BITMASK_16) ? 0b10 : 0b00);
 }
 
 static void tsgn2(Cpu& cpu) {
     cpu.br &= 0b10; // BR2 is bit 1, mask it clear
-    cpu.br |= (cpu.write_bus & BITMASK_16) ? 0b01 : 0b00;
+    cpu.br |= ((cpu.write_bus & BITMASK_16) ? 0b01 : 0b00);
 }
 
 static void wa(Cpu& cpu) {
