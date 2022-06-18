@@ -80,9 +80,16 @@ constexpr word RUPT_T3RUPT = 3;
 constexpr word RUPT_T4RUPT = 4;
 constexpr word RUPT_KEYRUPT1 = 5;
 constexpr word RUPT_KEYRUPT2 = 6;
-constexpr word RUPT_MARKRUPT = 6;   // Same code as RUPT_KEYRUPT_NAVI
+constexpr word RUPT_MARKRUPT = 6;   // Same code as RUPT_KEYRUPT2
 constexpr word RUPT_UPRUPT = 7;
 constexpr word RUPT_DOWNRUPT = 8;
 constexpr word RUPT_RADARRUPT = 9;
 constexpr word RUPT_RUPT10L = 10;
+
+struct InitArguments {
+    bool log_mct;
+    bool log_timepulse;
+    bool ignore_counters;
+    bool ignore_interrupts;
+};
 }

@@ -2,10 +2,10 @@
 #include <chrono>
 
 namespace agcplusplus {
-Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope, bool logMCT, bool logTimepulse) {
+Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope, InitArguments init_args) {
     std::cout << "Initializing computer state..." << std::endl;
 
-    cpu = std::make_shared<Cpu>(logMCT, logTimepulse);
+    cpu = std::make_shared<Cpu>(init_args);
     memory = std::make_shared<Memory>(MemoryInitState::BitsClear);
     scaler = std::make_shared<Scaler>();
     timer = std::make_shared<Timer>();

@@ -11,7 +11,7 @@
 namespace agcplusplus {
 class Agc {
 public:
-    Agc(std::array<word, SIZE_FIXED_MEM> rope, bool logMCT, bool logTimepulse);
+    Agc(std::array<word, SIZE_FIXED_MEM> rope, InitArguments init_args);
     void run();
 
 private:

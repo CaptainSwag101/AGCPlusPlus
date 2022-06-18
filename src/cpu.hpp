@@ -29,7 +29,7 @@ enum class LoggingVerbosity {
 class Cpu {
 public:
     // Init functions
-    Cpu(bool logMCT, bool logTimepulse);
+    Cpu(InitArguments init_args);
     void assign_memory(std::shared_ptr<Memory> mem);
 
     // Activity functions
@@ -58,7 +58,9 @@ public:
     bool explicit_carry;
 
     // Interrupt/Counter cells
+    bool ignore_interrupts; // Debug override
     bool interrupts[11];    // Interrupt request cells
+    bool ignore_counters;   // Debug override
     word counters[20];  // Can be 0, +1, -1, or both in the case of a freak accident
 
     // I/O

@@ -2,12 +2,15 @@
 #include "subinstructions.hpp"
 
 namespace agcplusplus {
-Cpu::Cpu(bool logMCT, bool logTimepulse) {
+Cpu::Cpu(InitArguments init_args) {
     std::cout << "Initializing CPU..." << std::endl;
 
-    if (logTimepulse) verbosity = LoggingVerbosity::CpuStatePerTimepulse;
-    else if (logMCT) verbosity = LoggingVerbosity::CpuStatePerMCT;
+    if (init_args.log_timepulse) verbosity = LoggingVerbosity::CpuStatePerTimepulse;
+    else if (init_args.log_mct) verbosity = LoggingVerbosity::CpuStatePerMCT;
     else verbosity = LoggingVerbosity::None;
+
+    ignore_interrupts = init_args.ignore_interrupts;
+    ignore_counters = init_args.ignore_counters;
 
     // Prepare I/O channels
     std::cout << "Initializing I/O channels...";
@@ -31,6 +34,7 @@ void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
 void Cpu::tick() {
     // At the start of every timepulse, clear MCRO
     mcro = false;
+
 
     // Before pulse 1, do INKBT1
     if (current_timepulse == 1) {
@@ -56,13 +60,16 @@ void Cpu::tick() {
         }
     }
 
+
     // Before T2, T5, T8, and T11, reset PIFL
     if (current_timepulse == 2 || current_timepulse == 5 || current_timepulse == 8 || current_timepulse == 11) {
         pifl = false;
     }
 
+
     // Actually execute the portion of the current subinstruction for the current timepulse
     current_subinstruction.function(*this);
+
 
     // Memory reads are done after T4
     if (current_timepulse == 4) {
@@ -83,57 +90,60 @@ void Cpu::tick() {
         }
     }
 
+
     // Memory writebacks are done after T9 if we performed an erasable read
     if (current_timepulse == 9 && s_temp > 0) {
         memory->write_erasable_word(s_temp, g);
         s_temp = 0;
     }
 
+
     // Print CPU state information before we clear the write bus
     if ((verbosity == LoggingVerbosity::CpuStatePerMCT && current_timepulse == 1) || verbosity == LoggingVerbosity::CpuStatePerTimepulse) {
         print_state_info(std::cout);
     }
 
+
     // Clear the write bus after every timepulse
     write_bus = 0;
 
+
     // Perform cleanup and fetch the next subinstruction if needed after T12 (or T3 during division)
     if ((!dv && current_timepulse == 12) || (dv && current_timepulse == 3)) {
+        // Push stage to its next pending value
         st = st_next;
         st_next = 0;
+
 
         if (fetch_next_instruction) {
             // Check for pending counter requests
             bool prev_inkl = inkl;
             inkl = false;
             for (word w : counters) {
-                if (w != COUNT_DIRECTION_NONE && !sudo) {
+                if (w != COUNT_DIRECTION_NONE && !sudo && !ignore_counters) {
                     inkl = true;
                     break;
                 }
             }
+
 
             // If no counters need servicing and we have a pending subinstruction, get back to it.
             if (!inkl && prev_inkl) {
                 current_subinstruction = pending_subinstruction;
             }
 
+
             // Check for pending interrupts
             bool should_rupt = false;
             interrupt_being_serviced = 0177777; // -0 to indicate no interrupt being actively serviced
             for (int r = 0; r < 11; ++r) {
-                if (interrupts[r] == true) {
+                if (interrupts[r] == true && !iip && !ignore_interrupts) {
                     should_rupt = true;
                     interrupt_being_serviced = r;
-                    switch (r) {
-                    case RUPT_KEYRUPT1:
-                        std::cout << "KEYRUPT1 triggered" << std::endl;
-                        break;
-                    }
-
                     break;
                 }
             }
+
 
             uint8_t a_signs = (a & BITMASK_15_16) >> 14;
             bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
@@ -148,6 +158,7 @@ void Cpu::tick() {
             }
         }
 
+
         // Populate current_subinstruction based on the contents of SQ, ST, and EXTEND
         bool found_implemented_subinstruction = false;
         for (auto& subinst : subinstruction_list) {
@@ -158,6 +169,7 @@ void Cpu::tick() {
             }
         }
 
+
         if (!found_implemented_subinstruction) {
             std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
             print_state_info(std::cout);
@@ -167,6 +179,7 @@ void Cpu::tick() {
             s = z & BITMASK_1_12;
         }
     }
+
 
     // Increment or reset timepulse count
     if (current_timepulse == 12) {
