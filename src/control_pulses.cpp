@@ -35,6 +35,18 @@ static void ext(Cpu& cpu) {
     cpu.extend_next = true;
 }
 
+static void krpt(Cpu& cpu) {
+    if (cpu.interrupt_being_serviced == 0177777) {
+        std::cerr << "ERROR: Processing an interrupt when none were pending! Something has gone horribly wrong." << std::endl;
+        return;
+    }
+    if (cpu.interrupts[cpu.interrupt_being_serviced] == false) {
+        std::cerr << "WARNING: Attempting to service an inactive interrupt" << std::endl;
+    }
+    cpu.interrupts[cpu.interrupt_being_serviced] = false;
+    cpu.iip = true;
+}
+
 static void monex(Cpu& cpu) {
     cpu.x |= 0177776;
     cpu.update_adder();
@@ -59,6 +71,10 @@ static void ptwox(Cpu& cpu) {
     cpu.update_adder();
 }
 
+static void r15(Cpu& cpu) {
+    cpu.write_bus |= 0000015;
+}
+
 static void r1c(Cpu& cpu) {
     cpu.write_bus |= 0177776;
 }
@@ -72,20 +88,24 @@ static void rad(Cpu& cpu) {
     {
     case 3:     // RELINT
         cpu.inhibit_interrupts = false;
+        cpu.sudo = true;
         rz(cpu);
         st2(cpu);
         break;
     case 4:     // INHINT
         cpu.inhibit_interrupts = true;
+        cpu.sudo = true;
         rz(cpu);
         st2(cpu);
         break;
     case 6:     // EXTEND
         cpu.extend_next = true;
+        cpu.sudo = true;
         rz(cpu);
         st2(cpu);
         break;
     default:    // ANYTHING ELSE
+        cpu.sudo = false;
         rg(cpu);
         break;
     }
@@ -119,7 +139,7 @@ static void rch(Cpu& cpu) {
     } else if (cpu.s == 2) {
         rq(cpu);
     } else {
-        cpu.write_bus |= cpu.io_channels[cpu.s & 077];  // TODO: Copy bit 16 to 15
+        cpu.write_bus |= cpu.read_io_channel(cpu.s & 077);
     }
 }
 
@@ -139,6 +159,15 @@ static void rl10bb(Cpu& cpu) {
 
 static void rq(Cpu& cpu) {
     cpu.write_bus |= cpu.q;
+}
+
+static void rrpa(Cpu& cpu) {
+    for (int r = 0; r < 11; ++r) {
+        if (cpu.interrupts[r] == true) {
+            cpu.write_bus |= 04000 + (r * 4);   // Interrupt handlers located at octal 4000 + (4r)
+            break;
+        }
+    }
 }
 
 static void rsc(Cpu& cpu) {
@@ -167,6 +196,18 @@ static void rsc(Cpu& cpu) {
     }
 }
 
+static void rsct(Cpu& cpu) {
+    for (word c = 0; c < 20; ++c)
+    {
+        if (cpu.counters[c] != COUNT_DIRECTION_NONE) {
+            cpu.write_bus |= c + 024;
+            // Reset the counter request
+            cpu.counters[c] = COUNT_DIRECTION_NONE;
+            break;
+        }
+    }
+}
+
 static void rstrt(Cpu& cpu) {
     cpu.write_bus |= 04000;
 }
@@ -189,7 +230,9 @@ static void st2(Cpu& cpu) {
 
 static void tmz(Cpu& cpu) {
     if (cpu.write_bus == 0177777) {
-        cpu.br |= 0b01; // Set BR2
+        cpu.br |= 0b01; // Set BR2 if -0
+    } else {
+        cpu.br &= 0b10; // Clear BR2 if not -0
     }
 }
 
@@ -221,12 +264,12 @@ static void trsm(Cpu& cpu) {
 
 static void tsgn(Cpu& cpu) {
     cpu.br &= 0b01; // BR1 is bit 2, mask it clear
-    cpu.br |= (cpu.write_bus & BITMASK_16) ? 0b10 : 0b00;
+    cpu.br |= ((cpu.write_bus & BITMASK_16) ? 0b10 : 0b00);
 }
 
 static void tsgn2(Cpu& cpu) {
     cpu.br &= 0b10; // BR2 is bit 1, mask it clear
-    cpu.br |= (cpu.write_bus & BITMASK_16) ? 0b01 : 0b00;
+    cpu.br |= ((cpu.write_bus & BITMASK_16) ? 0b01 : 0b00);
 }
 
 static void wa(Cpu& cpu) {
@@ -245,7 +288,7 @@ static void wch(Cpu& cpu) {
     } else {
         word temp = cpu.write_bus & ~BITMASK_15;    // Mask out bit 15
         temp |= (cpu.write_bus & BITMASK_16) >> 1;  // Bit 16 into bit 15
-        cpu.io_channels[cpu.s & 077] = temp;
+        cpu.write_io_channel(cpu.s & 077, temp);
     }
 }
 
@@ -282,6 +325,27 @@ static void wl(Cpu& cpu) {
     cpu.l = cpu.write_bus;
 }
 
+static void wovr(Cpu& cpu) {
+    // Check for positive overflow on the counters
+    if (((cpu.write_bus & BITMASK_15_16) >> 14) == 0b01)
+    {
+        switch (cpu.s - 024) {
+        case COUNTER_TIME1:
+            cpu.counters[COUNTER_TIME2] |= COUNT_DIRECTION_UP;
+            break;
+        case COUNTER_TIME3:
+            cpu.interrupts[RUPT_T3RUPT] = true;
+            break;
+        case COUNTER_TIME4:
+            cpu.interrupts[RUPT_T4RUPT] = true;
+            break;
+        case COUNTER_TIME5:
+            cpu.interrupts[RUPT_T5RUPT] = true;
+            break;
+        }
+    }
+}
+
 static void wq(Cpu& cpu) {
     cpu.q = cpu.write_bus;
 }
@@ -302,11 +366,11 @@ static void wsc(Cpu& cpu) {
             cpu.q = cpu.write_bus;
             break;
         case 3:
-            cpu.eb = cpu.write_bus;
+            cpu.eb = (cpu.write_bus & BITMASK_8_10);
             cpu.update_bb();
             break;
         case 4:
-            cpu.fb = cpu.write_bus;
+            cpu.fb = (cpu.write_bus & BITMASK_11_15);
             cpu.update_bb();
             break;
         case 5:

@@ -65,14 +65,14 @@ int main(int argc, char* argv[])
 
     // Verify we can open the rope file
     if (!in_rope.is_open()) {
-        std::cout << "Unable to open core rope file \"" << rope_path << "\".\n";
+        std::cout << "Unable to open core rope file \"" << rope_path << "\"." << std::endl;
         std::exit(1);
     }
 
     // Check rope length
     uint64_t size = in_rope.tellg();
     if ((size / 2) != SIZE_FIXED_MEM) {
-        std::cout << "Warning: Provided core rope file does not match the size of the AGC's fixed memory.\n";
+        std::cout << "Warning: Provided core rope file does not match the size of the AGC's fixed memory." << std::endl;
     }
 
     // Seek to the start of the file, since we open it at the end to check its length

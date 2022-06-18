@@ -30,10 +30,11 @@ class Cpu {
 public:
     // Init functions
     Cpu(bool logMCT, bool logTimepulse);
-    void assign_mem(Memory& mem);
+    void assign_memory(std::shared_ptr<Memory> mem);
 
     // Activity functions
     void tick();
+    void gojam();
     void update_adder();
     void update_bb();
     void update_eb_fb();
@@ -49,23 +50,32 @@ public:
     LoggingVerbosity verbosity;
 
     // Pointers
-    std::unique_ptr<Memory> memory;
+    std::shared_ptr<Memory> memory;
 
     // Registers
     word a, l, g, b, z, q, s, s_temp, sq, eb, fb, bb, u, x, y;
     uint8_t st, st_next, br;
     bool explicit_carry;
 
+    // Interrupt/Counter cells
+    bool interrupts[11];    // Interrupt request cells
+    word counters[20];  // Can be 0, +1, -1, or both in the case of a freak accident
+
     // I/O
+    word read_io_channel(word address);
+    void write_io_channel(word address, word data);
     std::unordered_map<word, word> io_channels;
 
     // Internal CPU data
     word write_bus;
-    bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv, shinc, pifl, extend, extend_next;
+    bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv;
+    bool inkl, iip, sudo, shinc, pifl, extend, extend_next, restart;
     uint64_t night_watchman;
+    word interrupt_being_serviced;
 
     // Instruction data
     uint8_t current_timepulse = 1;
     subinstruction current_subinstruction;
+    subinstruction pending_subinstruction;
 };
 }

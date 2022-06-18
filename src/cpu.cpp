@@ -3,19 +3,29 @@
 
 namespace agcplusplus {
 Cpu::Cpu(bool logMCT, bool logTimepulse) {
-    std::cout << "Initializing CPU..." << '\n';
+    std::cout << "Initializing CPU..." << std::endl;
 
     if (logTimepulse) verbosity = LoggingVerbosity::CpuStatePerTimepulse;
     else if (logMCT) verbosity = LoggingVerbosity::CpuStatePerMCT;
     else verbosity = LoggingVerbosity::None;
 
-    current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
+    // Prepare I/O channels
+    std::cout << "Initializing I/O channels...";
+    io_channels.emplace(010, 0);
+    io_channels.emplace(011, 0);
+    io_channels.emplace(012, 0);
+    io_channels.emplace(015, 0);
+    io_channels.emplace(016, 0);
+    std::cout << " done!" << std::endl;
 
-    std::cout << "Initializing CPU done." << '\n';
+    // Perform GOJAM to initialize state
+    gojam();
+
+    std::cout << "Initializing CPU done." << std::endl;
 }
 
-void Cpu::assign_mem(Memory& mem) {
-    memory = std::make_unique<Memory>(mem);
+void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
+    memory = mem;
 }
 
 void Cpu::tick() {
@@ -24,7 +34,22 @@ void Cpu::tick() {
 
     // Before pulse 1, do INKBT1
     if (current_timepulse == 1) {
-        // TODO: Add INKL handling once we fully implement I/O
+        // Service INKL
+        if (inkl) {
+            // Remember what we wanted to do, so we can come back to it later
+            pending_subinstruction = current_subinstruction;
+
+            for (int c = 0; c < 20; ++c) {
+                if (counters[c] & COUNT_DIRECTION_UP) {
+                    if (c >= COUNTER_TIME2 && c <= COUNTER_TIME5) {
+                        current_subinstruction = COUNT_SUBINST_PINC;
+                    }
+                    break;
+                }
+
+            }
+        }
+
         if (st != 2) {
             fetch_next_instruction = false;
             extend_next = false;
@@ -78,9 +103,49 @@ void Cpu::tick() {
         st_next = 0;
 
         if (fetch_next_instruction) {
-            sq = (b & BITMASK_10_14) >> 9;  // B10-14 to SQ1-5
-            sq |= (b & BITMASK_16) >> 10;   // B16 to SQ6
-            extend = extend_next;
+            // Check for pending counter requests
+            bool prev_inkl = inkl;
+            inkl = false;
+            for (word w : counters) {
+                if (w != COUNT_DIRECTION_NONE && !sudo) {
+                    inkl = true;
+                    break;
+                }
+            }
+
+            // If no counters need servicing and we have a pending subinstruction, get back to it.
+            if (!inkl && prev_inkl) {
+                current_subinstruction = pending_subinstruction;
+            }
+
+            // Check for pending interrupts
+            bool should_rupt = false;
+            interrupt_being_serviced = 0177777; // -0 to indicate no interrupt being actively serviced
+            for (int r = 0; r < 11; ++r) {
+                if (interrupts[r] == true) {
+                    should_rupt = true;
+                    interrupt_being_serviced = r;
+                    switch (r) {
+                    case RUPT_KEYRUPT1:
+                        std::cout << "KEYRUPT1 triggered" << std::endl;
+                        break;
+                    }
+
+                    break;
+                }
+            }
+
+            uint8_t a_signs = (a & BITMASK_15_16) >> 14;
+            bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
+            if (should_rupt && !inhibit_interrupts && !iip && !extend_next && !sudo && !a_overflow) {
+                subinstruction rupt0 = RUPT_SUBINST_RUPT0;
+                sq = rupt0.sequence_opcode;
+                extend = rupt0.sequence_extend;
+            } else {
+                sq = (b & BITMASK_10_14) >> 9;  // B10-14 to SQ1-5
+                sq |= (b & BITMASK_16) >> 10;   // B16 to SQ6
+                extend = extend_next;
+            }
         }
 
         // Populate current_subinstruction based on the contents of SQ, ST, and EXTEND
@@ -111,10 +176,21 @@ void Cpu::tick() {
     }
 }
 
+void Cpu::gojam() {
+    current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
+    sq = 0;
+    extend = false;
+    extend_next = false;
+    st = 1;
+    st_next = 1;
+    br = 0;
+    restart = true;
+}
+
 void Cpu::print_state_info(std::ostream& output) const {
     std::dec(output);
 
-    output << current_subinstruction.name << " (T" << std::setw(2) << std::setfill('0') << (word)current_timepulse <<")" << '\n';
+    output << current_subinstruction.name << " (T" << std::setw(2) << std::setfill('0') << (word)current_timepulse <<")" << std::endl;
 
     std::oct(output);
 
@@ -122,8 +198,8 @@ void Cpu::print_state_info(std::ostream& output) const {
     output << " L = " << std::setw(6) << l;
     output << " G = " << std::setw(6) << g;
     output << " B = " << std::setw(6) << b;
-    output << " Z = " << std::setw(6) << z;
     output << " Q = " << std::setw(6) << q;
+    output << " Z = " << std::setw(6) << z;
     output << '\n';
 
     output << " S = " << std::setw(6) << s;
@@ -193,5 +269,41 @@ word Cpu::get_fixed_absolute_addr() const {
     }
 
     return abs_addr;
+}
+
+word Cpu::read_io_channel(word address) {
+    word result;
+
+    switch (address) {
+    case 1:
+        result = l;
+        break;
+    case 2:
+        result = q;
+        break;
+    default:
+        result = io_channels[address] & ~BITMASK_16;    // Mask out bit 16, since erasable words are only 15 bits wide
+        result |= ((result & BITMASK_15) << 1);   // Copy bit 15 into bit 16
+        break;
+    }
+
+    return result;
+}
+
+void Cpu::write_io_channel(word address, word data) {
+    switch (address) {
+    case 1:
+        l = data;
+        break;
+    case 2:
+        q = data;
+        break;
+    default:
+        word temp = data & ~BITMASK_15; // Mask out bit 15
+        temp |= ((temp & BITMASK_16) >> 1); // Copy bit 16 into bit 15
+        temp &= ~BITMASK_16;    // Mask out bit 16 since erasable words are only 15 bits wide
+        io_channels[address] = temp;
+        break;
+    }
 }
 }
