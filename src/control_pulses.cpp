@@ -479,12 +479,13 @@ static void zap(Cpu& cpu) {
 
 static void zip(Cpu& cpu) {
     // Do complicated state stuff first
-    word state_bits;
+    word state_bits = 0;
     state_bits |= (((cpu.l >> 14) & 1) << 2);   // L bit 15 into state bit 3
     state_bits |= (cpu.l & 3);                  // L bits 1,2 into state bits 1,2
 
     // Clear MCRO, it will be re-set if necessary below
     cpu.mcro = false;
+
     switch (state_bits) {
     case 0b000:
         wy(cpu);

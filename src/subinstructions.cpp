@@ -1006,7 +1006,7 @@ void mp3(Cpu& cpu) {
         ru(cpu);
         wz(cpu);
         tl15(cpu);
-        neacof(cpu);
+        // NEACOF should happen here but a hardware fix extends it to the end of MP3
         break;
     case 7:
         switch (cpu.br) {
@@ -1037,6 +1037,9 @@ void mp3(Cpu& cpu) {
             wa(cpu);
             break;
         }
+        break;
+    case 12:
+        neacof(cpu);    // Extend NOEAC until it's released by hardware
         break;
     }
 }
