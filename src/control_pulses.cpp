@@ -374,9 +374,9 @@ static void wg(Cpu& cpu) {
         }
         case 022:   // Cycle Left
         {
-            word top_to_bottom = (cpu.write_bus & 1) >> 15; // Cycle the most significant bit to the least
+            word top_to_bottom = (cpu.write_bus & BITMASK_16) >> 15; // Cycle the most significant bit to the least
             word new_top = ((cpu.write_bus & BITMASK_14) << 2); // Remember bit 14 and double-shift it so it ends up in bit 16
-            temp = ((cpu.write_bus & ~BITMASK_15_16) << 1) | top_to_bottom | new_top;  // Mask out bits 15 and 16 before shifting so they are blank afterwards
+            temp = ((cpu.write_bus & ~BITMASK_14_15) << 1) | top_to_bottom | new_top;  // Mask out bits 14 and 15 before shifting so they are blank afterwards
             break;
         }
         case 023:  // EDOP, move 7 bits right
