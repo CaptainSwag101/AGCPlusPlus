@@ -17,6 +17,7 @@ Cpu::Cpu(InitArguments init_args) {
     io_channels.emplace(010, 0);
     io_channels.emplace(011, 0);
     io_channels.emplace(012, 0);
+    io_channels.emplace(013, 0);
     io_channels.emplace(015, 0);
     io_channels.emplace(016, 0);
     std::cout << " done!" << std::endl;

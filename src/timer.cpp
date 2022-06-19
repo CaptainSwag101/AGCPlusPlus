@@ -136,6 +136,7 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
                     uint16_t data = ((read_buf[1] & 0b00000111) << 11) |
                                     ((read_buf[2] & 0b00111111) << 5) |
                                     (read_buf[3] & 0b00111111);
+                    /*
                     std::cout << "DSKY read success (result = " << result << "), packet data is:" << std::endl;
                     std::oct(std::cout);
                     std::cout << " u = " << bitmask;
@@ -144,6 +145,7 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
                     std::cout << " data = " << std::setw(6) << (word)data;
                     std::cout << std::endl;
                     std::dec(std::cout);
+                    */
 
                     if (channel == 015 || channel == 016) {
                         scaler_ref->queue_dsky_update(channel, data);
@@ -161,20 +163,9 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
 
             // Write the contents of channel 10, 11 and 12
             word chan10_data = cpu_ref->read_io_channel(010);
-            std::array<uint8_t, 4> chan10_buf = generate_dsky_packet(010, chan10_data);
-            sock.write(chan10_buf.data(), 4);
-
             word chan11_data = cpu_ref->read_io_channel(011);
-            std::array<uint8_t, 4> chan11_buf = generate_dsky_packet(011, chan11_data);
-            sock.write(chan11_buf.data(), 4);
-
             word chan12_data = cpu_ref->read_io_channel(012);
-            std::array<uint8_t, 4> chan12_buf = generate_dsky_packet(012, chan12_data);
-            sock.write(chan12_buf.data(), 4);
-
             word chan13_data = cpu_ref->read_io_channel(013);
-            std::array<uint8_t, 4> chan13_buf = generate_dsky_packet(013, chan13_data);
-            sock.write(chan13_buf.data(), 4);
 
             // Write channel 163 stuff for RESTART, OPR ERR, etc.
             word chan163_data = 0;
@@ -195,7 +186,20 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
             if (cpu_ref->restart) {
                 chan163_data |= BITMASK_8;
             }
+            // Check for lights test signal
+            if (chan13_data & BITMASK_10) {
+                chan163_data |= 1;
+                // Light all the lights
+            }
 
+            std::array<uint8_t, 4> chan10_buf = generate_dsky_packet(010, chan10_data);
+            sock.write(chan10_buf.data(), 4);
+            std::array<uint8_t, 4> chan11_buf = generate_dsky_packet(011, chan11_data);
+            sock.write(chan11_buf.data(), 4);
+            std::array<uint8_t, 4> chan12_buf = generate_dsky_packet(012, chan12_data);
+            sock.write(chan12_buf.data(), 4);
+            std::array<uint8_t, 4> chan13_buf = generate_dsky_packet(013, chan13_data);
+            sock.write(chan13_buf.data(), 4);
             std::array<uint8_t, 4> chan163_buf = generate_dsky_packet(0163, chan163_data);
             sock.write(chan163_buf.data(), 4);
         }
