@@ -1219,7 +1219,8 @@ void dv4(Cpu& cpu) {
             rb1f(cpu);
             break;
         }
-        wl(cpu);
+        wb(cpu);
+        wa(cpu);
         break;
     case 6:
         rz(cpu);
