@@ -339,14 +339,15 @@ static void wb(Cpu& cpu) {
 }
 
 static void wch(Cpu& cpu) {
-    if (cpu.s == 1) {
+    word s_masked = (cpu.s & 077);
+    if (s_masked == 1) {
         wl(cpu);
-    } else if (cpu.s == 2) {
+    } else if (s_masked == 2) {
         wq(cpu);
     } else {
         word temp = cpu.write_bus & ~BITMASK_15;    // Mask out bit 15
         temp |= (cpu.write_bus & BITMASK_16) >> 1;  // Bit 16 into bit 15
-        cpu.write_io_channel(cpu.s & 077, temp);
+        cpu.write_io_channel(s_masked, temp);
     }
 }
 
