@@ -82,9 +82,9 @@ void Scaler::tick() {
     }
 
     if (!FS16 && !FS17) {
-        dsky_flash_on = false;
-    } else {
         dsky_flash_on = true;
+    } else {
+        dsky_flash_on = false;
     }
 }
 

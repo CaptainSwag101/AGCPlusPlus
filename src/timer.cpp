@@ -147,6 +147,10 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
 
                     if (channel == 015 || channel == 016) {
                         scaler_ref->queue_dsky_update(channel, data);
+                        // Reset RESTART light upon RESET key press
+                        if (channel == 015 && data == 022) {
+                            cpu_ref->restart = false;
+                        }
                     } else if (channel == 012) {
 
                     }
@@ -154,34 +158,46 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
             }
 
             // If we're in a good state, write any new updated I/O channel data to it
-            uint8_t write_channel = 0;
-            word write_data = 0;
-            std::array<uint8_t, 4> write_buf = {};
 
             // Write the contents of channel 10, 11 and 12
-            write_channel = 010;
-            write_data = cpu_ref->read_io_channel(write_channel);
-            write_buf = generate_dsky_packet(write_channel, write_data);
-            sock.write(write_buf.data(), 4);
+            word chan10_data = cpu_ref->read_io_channel(010);
+            std::array<uint8_t, 4> chan10_buf = generate_dsky_packet(010, chan10_data);
+            sock.write(chan10_buf.data(), 4);
 
-            write_channel = 011;
-            write_data = cpu_ref->read_io_channel(write_channel);
-            write_buf = generate_dsky_packet(write_channel, write_data);
-            sock.write(write_buf.data(), 4);
+            word chan11_data = cpu_ref->read_io_channel(011);
+            std::array<uint8_t, 4> chan11_buf = generate_dsky_packet(011, chan11_data);
+            sock.write(chan11_buf.data(), 4);
 
-            write_channel = 012;
-            write_data = cpu_ref->read_io_channel(write_channel);
-            write_buf = generate_dsky_packet(write_channel, write_data);
-            sock.write(write_buf.data(), 4);
+            word chan12_data = cpu_ref->read_io_channel(012);
+            std::array<uint8_t, 4> chan12_buf = generate_dsky_packet(012, chan12_data);
+            sock.write(chan12_buf.data(), 4);
+
+            word chan13_data = cpu_ref->read_io_channel(013);
+            std::array<uint8_t, 4> chan13_buf = generate_dsky_packet(013, chan13_data);
+            sock.write(chan13_buf.data(), 4);
 
             // Write channel 163 stuff for RESTART, OPR ERR, etc.
-            write_channel = 0163;
-            write_data = 0;
-            if (cpu_ref->restart) {
-                write_data |= 0b010000000;
+            word chan163_data = 0;
+
+            // Check for KEY REL
+            if ((chan11_data & BITMASK_5) && !scaler_ref->dsky_flash_state()) {
+                chan163_data |= BITMASK_5;
             }
-            write_buf = generate_dsky_packet(write_channel, write_data);
-            sock.write(write_buf.data(), 4);
+            // Check for verb/noun flashing
+            if ((chan11_data & BITMASK_6) && scaler_ref->dsky_flash_state()) {
+                chan163_data |= BITMASK_6;
+            }
+            // Check for OPR ERR
+            if ((chan11_data & BITMASK_7) && !scaler_ref->dsky_flash_state()) {
+                chan163_data |= BITMASK_7;
+            }
+            // Check for restart light
+            if (cpu_ref->restart) {
+                chan163_data |= BITMASK_8;
+            }
+
+            std::array<uint8_t, 4> chan163_buf = generate_dsky_packet(0163, chan163_data);
+            sock.write(chan163_buf.data(), 4);
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
