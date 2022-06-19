@@ -196,7 +196,7 @@ void Cpu::gojam() {
     extend = false;
     extend_next = false;
     st = 1;
-    st_next = 1;
+    st_next = 0;
     br = 0;
     restart = true;
 }
