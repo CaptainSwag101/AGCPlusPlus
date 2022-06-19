@@ -1481,6 +1481,55 @@ void rsm3(Cpu& cpu) {
     }
 }
 
+void rxor0(Cpu& cpu) {
+    switch (cpu.current_timepulse) {
+    case 1:
+        rl10bb(cpu);
+        ws(cpu);
+        break;
+    case 2:
+        ra(cpu);
+        wb(cpu);
+        break;
+    case 3:
+        rc(cpu);
+        rch(cpu);
+        wy(cpu);
+        break;
+    case 4:
+        rch(cpu);
+        wb(cpu);
+        break;
+    case 5:
+        ra(cpu);
+        rc(cpu);
+        wg(cpu);
+        break;
+    case 7:
+        rg(cpu);
+        wb(cpu);
+        break;
+    case 8:
+        rz(cpu);
+        ws(cpu);
+        st2(cpu);
+        break;
+    case 9:
+        rc(cpu);
+        wg(cpu);
+        break;
+    case 10:
+        ru(cpu);
+        wb(cpu);
+        break;
+    case 11:
+        rc(cpu);
+        rg(cpu);
+        wa(cpu);
+        break;
+    }
+}
+
 void rupt0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 1:

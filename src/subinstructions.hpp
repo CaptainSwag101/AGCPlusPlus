@@ -42,6 +42,7 @@ void rand0(Cpu& cpu);
 void read0(Cpu& cpu);
 void ror0(Cpu& cpu);
 void rsm3(Cpu& cpu);
+void rxor0(Cpu& cpu);
 void rupt0(Cpu& cpu);
 void rupt1(Cpu& cpu);
 void std2(Cpu& cpu);
@@ -85,6 +86,7 @@ const static subinstruction subinstruction_list[] {
     {0, true,  077, 003, "WAND0", wand0},
     {0, true,  077, 004, "ROR0", ror0},
     {0, true,  077, 005, "WOR0", wor0},
+    {0, true,  077, 006, "RXOR0", rxor0},
     {0, true,  077, 007, "RUPT0", rupt0},
     {1, true,  077, 007, "RUPT1", rupt1},
     {0, true,  076, 012, "BZF0", bzf0},

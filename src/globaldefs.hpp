@@ -26,6 +26,7 @@ constexpr word BITMASK_7 = (1 << 6);
 constexpr word BITMASK_8 = (1 << 7);
 constexpr word BITMASK_9 = (1 << 8);
 constexpr word BITMASK_10 = (1 << 9);
+constexpr word BITMASK_14 = (1 << 13);
 constexpr word BITMASK_15 = (1 << 14);
 constexpr word BITMASK_16 = (1 << 15);
 constexpr uint64_t BITMASK_17 = (1 << 16);
