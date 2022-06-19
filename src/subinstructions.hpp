@@ -22,6 +22,12 @@ void dcs0(Cpu& cpu);
 void dcs1(Cpu& cpu);
 void dim0(Cpu& cpu);
 //void dinc(Cpu& cpu);
+void dv0(Cpu& cpu);
+void dv1(Cpu& cpu);
+void dv3(Cpu& cpu);
+void dv7(Cpu& cpu);
+void dv6(Cpu& cpu);
+void dv4(Cpu& cpu);
 void dxch0(Cpu& cpu);
 void dxch1(Cpu& cpu);
 void goj1(Cpu& cpu);
@@ -89,6 +95,12 @@ const static subinstruction subinstruction_list[] {
     {0, true,  077, 006, "RXOR0", rxor0},
     {0, true,  077, 007, "RUPT0", rupt0},
     {1, true,  077, 007, "RUPT1", rupt1},
+    {0, true,  076, 010, "DV0", dv0},
+    {1, true,  076, 010, "DV1", dv1},
+    {3, true,  076, 010, "DV3", dv3},
+    {7, true,  076, 010, "DV7", dv7},
+    {6, true,  076, 010, "DV6", dv6},
+    {4, true,  076, 010, "DV4", dv4},
     {0, true,  076, 012, "BZF0", bzf0},
     {0, true,  076, 014, "BZF0", bzf0},
     {0, true,  076, 016, "BZF0", bzf0},

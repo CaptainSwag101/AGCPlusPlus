@@ -59,6 +59,9 @@ static void neacon(Cpu& cpu);
 // interrupts.
 static void nisq(Cpu& cpu);
 
+// When L15 = 1, block writing into Y1 on a WYD.
+static void pifl(Cpu& cpu);
+
 // Set bit 1 of X to 1.
 static void ponex(Cpu& cpu);
 
@@ -133,6 +136,9 @@ static void rsct(Cpu& cpu);
 // Place octal 004000 = Block 2 start address on the WL's.
 static void rstrt(Cpu& cpu);
 
+// Reset the divide T03 staging condition.
+static void rststg(Cpu& cpu);
+
 // Read U1-16 to WL1-16.
 static void ru(Cpu& cpu);
 
@@ -147,6 +153,9 @@ static void st1(Cpu& cpu);
 
 // Set Stage2 flip flop next T12.
 static void st2(Cpu& cpu);
+
+// Execute gray-coded stage advance computed by DVST.
+static void stage(Cpu& cpu);
 
 // Copy L15 into BR1.
 static void tl15(Cpu& cpu);
@@ -170,6 +179,9 @@ static void tsgn(Cpu& cpu);
 
 // Test sign. Copy WL16 to BR2.
 static void tsgn2(Cpu& cpu);
+
+// Test sign of sum (U). Copy U16 into BR1.
+static void tsgu(Cpu& cpu);
 
 // Clear and write WL1-16 into A1-16.
 static void wa(Cpu& cpu);
@@ -226,6 +238,12 @@ static void wy12(Cpu& cpu);
 
 // Clear and write WL1-16 into Z1-16.
 static void wz(Cpu& cpu);
+
+// Set bit 15 of Z to 1.
+static void z15(Cpu& cpu);
+
+// Set bit 16 of Z to 1.
+static void z16(Cpu& cpu);
 
 // Always implies RU, G2LS, and WALS.
 static void zap(Cpu& cpu);

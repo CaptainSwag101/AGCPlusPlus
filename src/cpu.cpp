@@ -84,7 +84,7 @@ void Cpu::tick() {
         } else {    // Fixed memory
             // Don't read from fixed memory during division steps 3, 7, 6, or 4.
             // Based on SBF being inhibited by hardware logic during those phases.
-            if (!dv) {  // TODO: Implement gray-code check
+            if (!dv || st < 3) {
                 word fixed_addr = get_fixed_absolute_addr();
                 g = memory->read_fixed_word(fixed_addr);
             }

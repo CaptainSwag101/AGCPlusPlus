@@ -29,6 +29,7 @@ static void clxc(Cpu& cpu) {
 
 static void dvst(Cpu& cpu) {
     cpu.dv = true;
+    ++cpu.dv_stage;
 }
 
 static void ext(Cpu& cpu) {
@@ -89,6 +90,10 @@ static void nisq(Cpu& cpu) {
     // between subinstructions of the same operation, i.e. between MP1 and MP3.
     //cpu.permit_interrupts = true;
     // TODO: Permit increments from counters when implemented
+}
+
+static void pifl(Cpu& cpu) {
+    cpu.pifl = true;
 }
 
 static void ponex(Cpu& cpu) {
@@ -242,6 +247,11 @@ static void rstrt(Cpu& cpu) {
     cpu.write_bus |= 04000;
 }
 
+static void rststg(Cpu& cpu) {
+    cpu.dv = false;
+    cpu.dv_stage = 0;
+}
+
 static void ru(Cpu& cpu) {
     cpu.write_bus |= cpu.u;
 }
@@ -263,6 +273,10 @@ static void st1(Cpu& cpu) {
 
 static void st2(Cpu& cpu) {
     cpu.st_next |= 2;
+}
+
+static void stage(Cpu& cpu) {
+    cpu.st_next = (((7 << cpu.dv_stage) >> 3) & 7);
 }
 
 static void tl15(Cpu& cpu) {
@@ -312,6 +326,11 @@ static void tsgn(Cpu& cpu) {
 static void tsgn2(Cpu& cpu) {
     cpu.br &= 0b10; // BR2 is bit 1, mask it clear
     cpu.br |= ((cpu.write_bus & BITMASK_16) ? 0b01 : 0b00);
+}
+
+static void tsgu(Cpu& cpu) {
+    cpu.br &= 0b01; // Mask out BR1 so we can change it
+    cpu.br |= (((cpu.u & BITMASK_16) != 0) ? 0b10 : 0b00); // Copy the state of U16 into BR1
 }
 
 static void wa(Cpu& cpu) {
@@ -480,6 +499,14 @@ static void wy12(Cpu& cpu) {
 
 static void wz(Cpu& cpu) {
     cpu.z = cpu.write_bus;
+}
+
+static void z15(Cpu& cpu) {
+    cpu.z |= BITMASK_15;
+}
+
+static void z16(Cpu& cpu) {
+    cpu.z |= BITMASK_16;
 }
 
 static void zap(Cpu& cpu) {
