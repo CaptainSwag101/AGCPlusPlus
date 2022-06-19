@@ -93,7 +93,11 @@ static void nisq(Cpu& cpu) {
 }
 
 static void pifl(Cpu& cpu) {
-    cpu.pifl = true;
+    if (cpu.l & BITMASK_15) {
+        cpu.pifl = true;
+    } else {
+        cpu.pifl = false;
+    }
     cpu.update_adder();
 }
 
@@ -485,7 +489,7 @@ static void wyd(Cpu& cpu) {
     cpu.y = ((cpu.write_bus & BITMASK_1_14) << 1);  // WL1-14 into Y2-15
     cpu.y |= (cpu.write_bus & BITMASK_16);  // WL16 into Y16
     // WL16 into Y1 if circumstances allow
-    if (!cpu.no_eac && !cpu.shinc && !(cpu.pifl && ((cpu.l & BITMASK_15) != 0))) {
+    if (!cpu.no_eac && !cpu.shinc && !cpu.pifl) {
         cpu.y |= ((cpu.write_bus & BITMASK_16) >> 15);
     }
     cpu.update_adder();
