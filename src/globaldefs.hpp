@@ -18,6 +18,7 @@ constexpr word BITMASK_8_10  = 0001600;
 constexpr word BITMASK_8_14  = 0037400;
 constexpr word BITMASK_10_14 = 0037000;
 constexpr word BITMASK_11_15 = 0076000;
+constexpr word BITMASK_13_14 = 0030000;
 constexpr word BITMASK_15_16 = 0140000;
 constexpr word BITMASK_5 = (1 << 4);
 constexpr word BITMASK_6 = (1 << 5);

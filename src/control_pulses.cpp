@@ -36,12 +36,12 @@ static void ext(Cpu& cpu) {
 }
 
 static void g2ls(Cpu& cpu) {
-    word temp = ((cpu.g & BITMASK_4_15) >> 3);
-    temp |= (cpu.g & BITMASK_16);
-    temp |= ((cpu.g & 1) << 14);
+    word temp = ((cpu.g & BITMASK_4_15) >> 3);  // G4-15 into L1-12
+    temp |= (cpu.g & BITMASK_16);   // G16 into L16
+    temp |= ((cpu.g & 1) << 14);    // G1 into L15
 
-    cpu.l &= ~BITMASK_1_12;
-    cpu.l &= ~BITMASK_15_16;
+    cpu.l &= ~BITMASK_1_12;     // Mask out L1-12
+    cpu.l &= ~BITMASK_15_16;    // Mask out L15,16
     cpu.l |= temp;
 }
 
@@ -320,7 +320,7 @@ static void wa(Cpu& cpu) {
 
 static void wals(Cpu& cpu) {
     word a_temp = (cpu.write_bus >> 2);
-    if ((cpu.g & 1) != 0) {
+    if ((cpu.g & 1) == 0) {
         a_temp |= ((cpu.g & BITMASK_16) >> 1);
         a_temp |= (cpu.g & BITMASK_16);
     } else {
@@ -330,7 +330,7 @@ static void wals(Cpu& cpu) {
     cpu.a = a_temp;
 
     word l_temp = ((cpu.write_bus & BITMASK_1_2) << 12);
-    cpu.l &= ~BITMASK_1_2;
+    cpu.l &= ~BITMASK_13_14;
     cpu.l |= l_temp;
 }
 
