@@ -841,24 +841,20 @@ void dv1(Cpu& cpu) {
         a2x(cpu);
         break;
     case 2:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
-            dvst(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
-            dvst(cpu);
             break;
         }
+        wl(cpu);
+        dvst(cpu);
         break;
     case 3:
         ru(cpu);
@@ -878,22 +874,19 @@ void dv3(Cpu& cpu) {
         a2x(cpu);
         break;
     case 5:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 6:
         ru(cpu);
@@ -907,22 +900,19 @@ void dv3(Cpu& cpu) {
         a2x(cpu);
         break;
     case 8:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 9:
         ru(cpu);
@@ -936,22 +926,19 @@ void dv3(Cpu& cpu) {
         a2x(cpu);
         break;
     case 11:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 12:
         ru(cpu);
@@ -965,24 +952,20 @@ void dv3(Cpu& cpu) {
         a2x(cpu);
         break;
     case 2:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
-            dvst(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
-            dvst(cpu);
             break;
         }
+        wl(cpu);
+        dvst(cpu);
         break;
     case 3:
         ru(cpu);
@@ -1002,22 +985,19 @@ void dv7(Cpu& cpu) {
         a2x(cpu);
         break;
     case 5:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 6:
         ru(cpu);
@@ -1031,22 +1011,19 @@ void dv7(Cpu& cpu) {
         a2x(cpu);
         break;
     case 8:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 9:
         ru(cpu);
@@ -1060,22 +1037,19 @@ void dv7(Cpu& cpu) {
         a2x(cpu);
         break;
     case 11:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 12:
         ru(cpu);
@@ -1089,24 +1063,20 @@ void dv7(Cpu& cpu) {
         a2x(cpu);
         break;
     case 2:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
-            dvst(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
-            dvst(cpu);
             break;
         }
+        wl(cpu);
+        dvst(cpu);
         break;
     case 3:
         ru(cpu);
@@ -1126,22 +1096,19 @@ void dv6(Cpu& cpu) {
         a2x(cpu);
         break;
     case 5:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 6:
         ru(cpu);
@@ -1155,22 +1122,19 @@ void dv6(Cpu& cpu) {
         a2x(cpu);
         break;
     case 8:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 9:
         ru(cpu);
@@ -1184,22 +1148,19 @@ void dv6(Cpu& cpu) {
         a2x(cpu);
         break;
     case 11:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 12:
         ru(cpu);
@@ -1213,24 +1174,20 @@ void dv6(Cpu& cpu) {
         a2x(cpu);
         break;
     case 2:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
-            dvst(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
-            dvst(cpu);
             break;
         }
+        wl(cpu);
+        dvst(cpu);
         break;
     case 3:
         ru(cpu);
@@ -1250,22 +1207,19 @@ void dv4(Cpu& cpu) {
         a2x(cpu);
         break;
     case 5:
+        rg(cpu);
+        tsgu(cpu);
         switch (cpu.br) {
         case 0b00:
         case 0b01:
-            rg(cpu);
-            tsgu(cpu);
             clxc(cpu);
-            wl(cpu);
             break;
         case 0b10:
         case 0b11:
-            rg(cpu);
-            tsgu(cpu);
             rb1f(cpu);
-            wl(cpu);
             break;
         }
+        wl(cpu);
         break;
     case 6:
         rz(cpu);

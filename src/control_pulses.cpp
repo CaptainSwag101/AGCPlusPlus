@@ -94,6 +94,7 @@ static void nisq(Cpu& cpu) {
 
 static void pifl(Cpu& cpu) {
     cpu.pifl = true;
+    cpu.update_adder();
 }
 
 static void ponex(Cpu& cpu) {
