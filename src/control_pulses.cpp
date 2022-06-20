@@ -77,6 +77,10 @@ static void monex(Cpu& cpu) {
     cpu.update_adder();
 }
 
+static void mout(Cpu& cpu) {
+    // TODO: Implement this
+}
+
 static void neacof(Cpu& cpu) {
     cpu.no_eac = false;
     cpu.update_adder();
@@ -108,6 +112,10 @@ static void pifl(Cpu& cpu) {
 static void ponex(Cpu& cpu) {
     cpu.x |= 1;
     cpu.update_adder();
+}
+
+static void pout(Cpu& cpu) {
+    // TODO: Implement this
 }
 
 static void ptwox(Cpu& cpu) {
@@ -579,5 +587,19 @@ static void zip(Cpu& cpu) {
 
     a2x(cpu);
     l2gd(cpu);
+}
+
+static void zout(Cpu& cpu) {
+    switch (cpu.counter_being_serviced) {
+    case COUNTER_TIME6:
+        {
+            // Clear bit 16 of I/O channel 13
+            word temp = cpu.read_io_channel(013);
+            temp &= ~BITMASK_15;
+            cpu.write_io_channel(013, temp);
+            cpu.interrupts[RUPT_T6RUPT] = true;
+        }
+        break;
+    }
 }
 }

@@ -665,7 +665,6 @@ void dim0(Cpu& cpu) {
     }
 }
 
-/*
 void dinc(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 1:
@@ -711,7 +710,6 @@ void dinc(Cpu& cpu) {
         break;
     }
 }
-*/
 
 void dv0(Cpu& cpu) {
     switch (cpu.current_timepulse) {

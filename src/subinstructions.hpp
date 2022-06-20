@@ -21,7 +21,7 @@ void dca1(Cpu& cpu);
 void dcs0(Cpu& cpu);
 void dcs1(Cpu& cpu);
 void dim0(Cpu& cpu);
-//void dinc(Cpu& cpu);
+void dinc(Cpu& cpu);
 void dv0(Cpu& cpu);
 void dv1(Cpu& cpu);
 void dv3(Cpu& cpu);
@@ -130,6 +130,6 @@ const static subinstruction RUPT_SUBINST_RUPT0
 const static subinstruction COUNT_SUBINST_PINC
     {0, false, 000, 000, "PINC", pinc};
 
-//const static subinstruction COUNT_SUBINST_DINC
-//    {0, false, 000, 000, "DINC", dinc};
+const static subinstruction COUNT_SUBINST_DINC
+    {0, false, 000, 000, "DINC", dinc};
 }

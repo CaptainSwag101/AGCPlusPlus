@@ -39,7 +39,7 @@ void Scaler::tick() {
 
     // Process timer counts
     if (F06B) {
-        //cpu_ref->counters[COUNTER_TIME6] |= COUNTER_DIRECTION_DOWN;
+        cpu_ref->counters[COUNTER_TIME6] |= COUNT_DIRECTION_DOWN;
     }
 
     if (F09B) {
