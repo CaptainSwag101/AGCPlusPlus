@@ -716,6 +716,7 @@ void dinc(Cpu& cpu) {
 void dv0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 1:
+        _1xp10(cpu);
         ra(cpu);
         wb(cpu);
         tsgn(cpu);

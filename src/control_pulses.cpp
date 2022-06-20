@@ -1,6 +1,10 @@
 #include "control_pulses.hpp"
 
 namespace agcplusplus {
+static void _1xp10(Cpu& cpu) {
+    cpu.g = 0;
+}
+
 static void _8xp5(Cpu& cpu) {
     cpu.s |= 04000;
 }

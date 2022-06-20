@@ -4,6 +4,11 @@
 #pragma once
 
 namespace agcplusplus {
+// Involuntary control pulse implicitly triggered by
+// T1 of DV0, which clears G to avoid cross-contamination
+// between the pulses of RG and RSC in T7 of DV1.
+static void _1xp10(Cpu& cpu);
+
 // Involuntary control pulse implicitly triggered by DV1.
 // Sets bit 12 of S, redirecting erasable memory reads
 // during division sequences.
