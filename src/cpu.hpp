@@ -69,7 +69,7 @@ public:
     std::unordered_map<word, word> io_channels;
 
     // Internal CPU data
-    word write_bus, interrupt_being_serviced, counter_being_serviced, dv_stage;
+    word write_bus, dv_stage;
     bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv;
     bool inkl, iip, sudo, shinc, pifl, extend, extend_next, restart;
     uint64_t night_watchman;

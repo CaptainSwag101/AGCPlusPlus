@@ -45,13 +45,12 @@ void Cpu::tick() {
             pending_subinstruction = current_subinstruction;
 
             for (int c = 0; c < 20; ++c) {
-                word counter_state = counters[counter_being_serviced];
-                if (counter_state & COUNT_DIRECTION_UP) {
+                if (counters[c] & COUNT_DIRECTION_UP) {
                     if (c >= COUNTER_TIME2 && c <= COUNTER_TIME5) {
                         current_subinstruction = COUNT_SUBINST_PINC;
                         break;
                     }
-                } else if (counter_state & COUNT_DIRECTION_DOWN) {
+                } else if (counters[c] & COUNT_DIRECTION_DOWN) {
                     if (c == COUNTER_TIME6) {
                         current_subinstruction = COUNT_SUBINST_DINC;
                         break;
@@ -126,11 +125,9 @@ void Cpu::tick() {
             // Check for pending counter requests
             bool prev_inkl = inkl;
             inkl = false;
-            counter_being_serviced = 0177777; // -0 to indicate no counter being actively serviced
             for (int c = 0; c < 20; ++c) {
                 if (counters[c] != COUNT_DIRECTION_NONE && !sudo && !ignore_counters) {
                     inkl = true;
-                    counter_being_serviced = c;
                     break;
                 }
             }
@@ -143,14 +140,10 @@ void Cpu::tick() {
 
 
             // Check for pending interrupts
-            bool should_rupt = false;
-            interrupt_being_serviced = 0177777; // -0 to indicate no interrupt being actively serviced
+            bool rupt_pending = false;
             for (int r = 0; r < 11; ++r) {
-                // Even if we can't actively interrupt, queue up our interrupt state information
-                // in the event of something like an EDRUPT
                 if (interrupts[r] == true) {
-                    should_rupt = true;
-                    interrupt_being_serviced = r;
+                    rupt_pending = true;
                     break;
                 }
             }
@@ -158,7 +151,7 @@ void Cpu::tick() {
 
             uint8_t a_signs = (a & BITMASK_15_16) >> 14;
             bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
-            if (should_rupt && !ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !sudo && !a_overflow) {
+            if (rupt_pending && !ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !sudo && !a_overflow) {
                 subinstruction rupt0 = RUPT_SUBINST_RUPT0;
                 sq = rupt0.sequence_opcode;
                 extend = rupt0.sequence_extend;
