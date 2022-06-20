@@ -230,12 +230,14 @@ static void rsc(Cpu& cpu) {
         break;
     case 4:
         cpu.write_bus |= cpu.fb;
+        cpu.write_bus |= ((cpu.fb & BITMASK_15) << 1);  // Copy bit 15 to 16 in case this gets written to erasable memory
         break;
     case 5:
         rz(cpu);
         break;
     case 6:
         cpu.write_bus |= cpu.bb;
+        cpu.write_bus |= ((cpu.bb & BITMASK_15) << 1);  // Copy bit 15 to 16 in case this gets written to erasable memory
         break;
     }
 }
@@ -468,6 +470,8 @@ static void wsc(Cpu& cpu) {
             break;
         case 4:
             cpu.fb = (cpu.write_bus & BITMASK_11_15);
+            cpu.fb &= ~BITMASK_15;  // Mask out the old bit 15 which is invalid if taken from erasable memory
+            cpu.fb |= ((cpu.write_bus & BITMASK_16) >> 1);  // Move bit 16 into bit 15
             cpu.update_bb();
             break;
         case 5:
@@ -475,6 +479,8 @@ static void wsc(Cpu& cpu) {
             break;
         case 6:
             cpu.bb = cpu.write_bus;
+            cpu.bb &= ~BITMASK_15;  // Mask out the old bit 15 which is invalid if taken from erasable memory
+            cpu.bb |= ((cpu.write_bus & BITMASK_16) >> 1);  // Move bit 16 into bit 15
             cpu.update_eb_fb();
             break;
     };
