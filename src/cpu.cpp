@@ -12,6 +12,41 @@ Cpu::Cpu(InitArguments init_args) {
     ignore_interrupts = init_args.ignore_interrupts;
     ignore_counters = init_args.ignore_counters;
 
+    // Init CPU registers, counters, interrupts
+    a = 0;
+    b = 0;
+    g = 0;
+    l = 0;
+    s = 0;
+    sq = 0;
+    st = 0;
+    st_next = 0;
+    br = 0;
+    bb = 0;
+    update_eb_fb();
+    x = 0;
+    y = 0;
+    explicit_carry = false;
+    update_adder();
+    q = 0;
+    z = 0;
+    write_bus = 0;
+    inhibit_interrupts = false;
+    extend = false;
+    extend_next = false;
+    dv = false;
+    dv_stage = 0;
+    iip = false;
+    sudo = false;
+
+    for (word &c : counters) {
+        c = COUNT_DIRECTION_NONE;
+    }
+
+    for (bool &i : interrupts) {
+        i = false;
+    }
+
     // Perform GOJAM to initialize state
     gojam();
 
@@ -192,6 +227,9 @@ void Cpu::gojam() {
     st_next = 0;
     br = 0;
     restart = true;
+    inkl = false;
+    shinc = false;
+    pifl = false;
 }
 
 void Cpu::print_state_info(std::ostream& output) const {
