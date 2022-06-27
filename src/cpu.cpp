@@ -12,16 +12,6 @@ Cpu::Cpu(InitArguments init_args) {
     ignore_interrupts = init_args.ignore_interrupts;
     ignore_counters = init_args.ignore_counters;
 
-    // Prepare I/O channels
-    std::cout << "Initializing I/O channels...";
-    io_channels.emplace(010, 0);
-    io_channels.emplace(011, 0);
-    io_channels.emplace(012, 0);
-    io_channels.emplace(013, 0);
-    io_channels.emplace(015, 0);
-    io_channels.emplace(016, 0);
-    std::cout << " done!" << std::endl;
-
     // Perform GOJAM to initialize state
     gojam();
 
