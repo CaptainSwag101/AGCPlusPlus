@@ -53,7 +53,7 @@ public:
     std::shared_ptr<Memory> memory;
 
     // Registers
-    word a, l, g, b, z, q, s, s_temp, sq, eb, fb, bb, u, x, y;
+    word a, l, g, b, z, q, s, s_temp, sq, fext, eb, fb, bb, u, x, y;
     uint8_t st, st_next, br;
     bool explicit_carry;
 

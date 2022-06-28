@@ -18,10 +18,14 @@ Cpu::Cpu(InitArguments init_args) {
     g = 0;
     l = 0;
     s = 0;
+    s_temp = 0;
+    no_eac = false;
+    night_watchman = 0;
     sq = 0;
     st = 0;
     st_next = 0;
     br = 0;
+    fext = 0;
     bb = 0;
     update_eb_fb();
     x = 0;
@@ -38,6 +42,7 @@ Cpu::Cpu(InitArguments init_args) {
     dv_stage = 0;
     iip = false;
     sudo = false;
+    mcro = false;
 
     for (word &c : counters) {
         c = COUNT_DIRECTION_NONE;
@@ -254,6 +259,7 @@ void Cpu::print_state_info(std::ostream& output) const {
     output << " EB = " << std::setw(2) << (eb >> 8);
     output << " FB = " << std::setw(2) << (fb >> 10);
     output << " BB = " << std::setw(6) << bb;
+    output << " FEXT = " << (word)((fext & 0160) >> 4);
     output << '\n';
 
     output << " EXTEND = " << (word)extend;
@@ -308,7 +314,13 @@ word Cpu::get_fixed_absolute_addr() const {
 
     if (s >= MEM_FIXED_BANKED_START && s <= MEM_FIXED_BANKED_END) {
         abs_addr = s & 01777;
-        abs_addr |= fb;
+        // Check if we're superbanking
+        if (((fext & 0160) >> 4) >= 4) { // Yes, superbank
+            abs_addr |= (fb & 0016000); // Mask out the top two bits of FB
+            abs_addr |= ((fext & 0160) << 9);   // Put FEXT's three bits over the top two bits and extend
+        } else {    // No, not superbank
+            abs_addr |= fb;
+        }
     } else {
         abs_addr = s;
     }
@@ -325,6 +337,9 @@ word Cpu::read_io_channel(word address) {
         break;
     case 2:
         result = q;
+        break;
+    case 7:
+        result = fext;
         break;
     default:
         result = io_channels[address] & ~BITMASK_16;    // Mask out bit 16, since erasable words are only 15 bits wide
@@ -343,6 +358,10 @@ void Cpu::write_io_channel(word address, word data) {
     case 2:
         q = data;
         break;
+    case 7:
+        fext = (data & 0160);
+        std::cout << "FEXT changed to " << (word)(fext >> 4) << std::endl;
+        // Fall through
     default:
         word temp = data & ~BITMASK_15; // Mask out bit 15
         temp |= ((temp & BITMASK_16) >> 1); // Copy bit 16 into bit 15
