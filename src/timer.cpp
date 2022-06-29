@@ -189,7 +189,17 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
             // Check for lights test signal
             if (chan13_data & BITMASK_10) {
                 chan163_data |= 1;
-                // Light all the lights
+                // Set the restart light and STBY light temporarily
+                chan163_data |= BITMASK_8;
+                chan163_data |= BITMASK_9;
+            }
+            // Check for TEMP light
+            if (chan11_data & BITMASK_4) {
+                chan163_data |= BITMASK_4;
+            }
+            // Check for STBY light
+            if (chan13_data & BITMASK_11) {
+                chan163_data |= BITMASK_9;
             }
 
             std::array<uint8_t, 4> chan10_buf = generate_dsky_packet(010, chan10_data);
@@ -204,7 +214,7 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
             sock.write(chan163_buf.data(), 4);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
 }
 
