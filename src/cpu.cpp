@@ -129,7 +129,11 @@ void Cpu::tick() {
 
     // Memory writebacks are done after T9 if we performed an erasable read
     if (current_timepulse == 9 && s_temp > 0) {
-        memory->write_erasable_word(s_temp, g);
+        // Preserve S but replace it so we can use get_erasable_absolute_addr()
+        word s_temp2 = s;
+        s = s_temp;
+        memory->write_erasable_word(get_erasable_absolute_addr(), g);
+        s = s_temp2;    // Restore S now that we've properly calculated the erasable address
         s_temp = 0;
     }
 
