@@ -52,6 +52,13 @@ Cpu::Cpu(InitArguments init_args) {
         i = false;
     }
 
+    // Assign workaround values for I/O channels 30-33,
+    // which have an inverted state
+    io_channels[030] = 0177777;
+    io_channels[031] = 0177777;
+    io_channels[032] = 0177777;
+    io_channels[033] = 0177777;
+
     // Perform GOJAM to initialize state
     gojam();
 
