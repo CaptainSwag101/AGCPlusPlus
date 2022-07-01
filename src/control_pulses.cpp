@@ -134,24 +134,24 @@ static void rad(Cpu& cpu) {
     {
     case 3:     // RELINT
         cpu.inhibit_interrupts = false;
-        cpu.sudo = true;
+        cpu.pseudo = true;
         rz(cpu);
         st2(cpu);
         break;
     case 4:     // INHINT
         cpu.inhibit_interrupts = true;
-        cpu.sudo = true;
+        cpu.pseudo = true;
         rz(cpu);
         st2(cpu);
         break;
     case 6:     // EXTEND
         cpu.extend_next = true;
-        cpu.sudo = true;
+        cpu.pseudo = true;
         rz(cpu);
         st2(cpu);
         break;
     default:    // ANYTHING ELSE
-        cpu.sudo = false;
+        cpu.pseudo = false;
         rg(cpu);
         break;
     }
@@ -245,8 +245,7 @@ static void rsc(Cpu& cpu) {
 }
 
 static void rsct(Cpu& cpu) {
-    for (word c = 0; c < 20; ++c)
-    {
+    for (word c = 0; c < 20; ++c) {
         if (cpu.counters[c] != COUNT_DIRECTION_NONE) {
             cpu.write_bus |= c + 024;
             // Reset the counter request
@@ -322,7 +321,7 @@ static void tov(Cpu& cpu) {
 static void tpzg(Cpu& cpu) {
     if (cpu.g == 0) {
         cpu.br |= 0b01; // Set BR2
-    }
+    }   // Do not modify BR2 otherwise
 }
 
 static void trsm(Cpu& cpu) {
@@ -342,7 +341,7 @@ static void tsgn2(Cpu& cpu) {
 }
 
 static void tsgu(Cpu& cpu) {
-    cpu.br &= 0b01; // Mask out BR1 so we can change it
+    cpu.br &= 0b01; // BR1 is bit 2, mask it clear
     cpu.br |= (((cpu.u & BITMASK_16) != 0) ? 0b10 : 0b00); // Copy the state of U16 into BR1
 }
 

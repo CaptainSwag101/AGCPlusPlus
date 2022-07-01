@@ -41,8 +41,9 @@ Cpu::Cpu(InitArguments init_args) {
     dv = false;
     dv_stage = 0;
     iip = false;
-    sudo = false;
+    pseudo = false;
     mcro = false;
+    current_timepulse = 1;
 
     for (word &c : counters) {
         c = COUNT_DIRECTION_NONE;
@@ -59,10 +60,47 @@ Cpu::Cpu(InitArguments init_args) {
     io_channels[032] = 0177777;
     io_channels[033] = 0177777;
 
-    // Perform GOJAM to initialize state
+    // GOJAM to initialize state
     gojam();
 
     std::cout << "Initializing CPU done." << std::endl;
+}
+
+void Cpu::queue_gojam() {
+    should_gojam = true;
+}
+
+void Cpu::gojam() {
+    current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
+    sq = 0;
+    extend = false;
+    extend_next = false;
+    st = 1;
+    st_next = 0;
+    restart = true;
+    inkl = false;
+    inhibit_interrupts = false;
+    pseudo = false;
+    no_eac = false;
+    iip = false;
+    should_gojam = false;
+
+    // Clear channels 5, 6, 10-14, 34, 35, and 33 bit 11
+    io_channels[005] = 0;
+    io_channels[006] = 0;
+    io_channels[010] = 0;
+    io_channels[011] = 0;
+    io_channels[012] = 0;
+    io_channels[013] = 0;
+    io_channels[014] = 0;
+    io_channels[034] = 0;
+    io_channels[035] = 0;
+    io_channels[033] = io_channels[033] & ~BITMASK_11;
+
+    // Clear all pending RUPTs
+    for (bool &i : interrupts) {
+        i = false;
+    }
 }
 
 void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
@@ -167,7 +205,7 @@ void Cpu::tick() {
             bool prev_inkl = inkl;
             inkl = false;
             for (int c = 0; c < 20; ++c) {
-                if (counters[c] != COUNT_DIRECTION_NONE && !sudo && !ignore_counters) {
+                if (counters[c] != COUNT_DIRECTION_NONE && !pseudo && !ignore_counters) {
                     inkl = true;
                     break;
                 }
@@ -192,7 +230,7 @@ void Cpu::tick() {
 
             uint8_t a_signs = (a & BITMASK_15_16) >> 14;
             bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
-            if (rupt_pending && !ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !sudo && !a_overflow) {
+            if (rupt_pending && !ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !pseudo && !a_overflow) {
                 subinstruction rupt0 = RUPT_SUBINST_RUPT0;
                 sq = rupt0.sequence_opcode;
                 extend = rupt0.sequence_extend;
@@ -223,6 +261,12 @@ void Cpu::tick() {
             current_subinstruction = std2;
             s = z & BITMASK_1_12;
         }
+
+
+        // If a GOJAM is pending, perform it, overriding all else
+        if (should_gojam) {
+            gojam();
+        }
     }
 
 
@@ -232,20 +276,6 @@ void Cpu::tick() {
     } else {
         ++current_timepulse;
     }
-}
-
-void Cpu::gojam() {
-    current_subinstruction = subinstruction_list[2];    // Inject GOJ1 (GOJAM) to init computer for startup
-    sq = 0;
-    extend = false;
-    extend_next = false;
-    st = 1;
-    st_next = 0;
-    br = 0;
-    restart = true;
-    inkl = false;
-    shinc = false;
-    pifl = false;
 }
 
 void Cpu::print_state_info(std::ostream& output) const {

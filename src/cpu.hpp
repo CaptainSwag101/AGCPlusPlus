@@ -34,7 +34,7 @@ public:
 
     // Activity functions
     void tick();
-    void gojam();
+    void queue_gojam();
     void update_adder();
     void update_bb();
     void update_eb_fb();
@@ -71,12 +71,24 @@ public:
     // Internal CPU data
     word write_bus, dv_stage;
     bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv;
-    bool inkl, iip, sudo, shinc, pifl, extend, extend_next, restart;
-    uint64_t night_watchman;
+    bool inkl, iip, pseudo, shinc, pifl, extend, extend_next, restart;
+
+    // Watchman variables for hardware alarms.
+    // Positive state for alarm condition being present active (i.e. executing TC for a length of time),
+    // negative state for alarm condition being present inactive (i.e. not executing TC for a length of time).
+    //
+    // When a condition resets or switches on any of these watchman variables, the following logic should be used:
+    // Check the sign. If its magnitude is greater than zero in the opposite polarity to the new state,
+    // set it to zero. Otherwise, augment its state by 1 in the current polarity.
+    int64_t night_watchman, tc_watchman, rupt_watchman, counter_watchman;
 
     // Instruction data
     uint8_t current_timepulse = 1;
     subinstruction current_subinstruction;
     subinstruction pending_subinstruction;
+
+private:
+    void gojam();
+    bool should_gojam = false;
 };
 }

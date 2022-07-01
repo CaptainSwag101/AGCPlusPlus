@@ -34,8 +34,13 @@ void Scaler::tick() {
     bool F09B = (((cur_state & BITMASK_9) ^ (prev_state & BITMASK_9)) && (cur_state & BITMASK_9) != 0);
     bool F10A = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) == 0);
     bool F10B = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) != 0);
+    bool F12B = (((cur_state & BITMASK_12) ^ (prev_state & BITMASK_12)) && (cur_state & BITMASK_12) != 0);
+    bool F14B = (((cur_state & BITMASK_14) ^ (prev_state & BITMASK_14)) && (cur_state & BITMASK_14) != 0);
+    bool FS13 = ((cur_state & BITMASK_13) != 0);
+    bool FS14 = ((cur_state & BITMASK_14) != 0);
     bool FS16 = ((cur_state & BITMASK_16) != 0);
     bool FS17 = ((cur_state & BITMASK_17) != 0);
+    bool F14H = (F12B && FS13 && !FS14);    // Used for RUPT lock check
 
     // Process timer counts
     if (F06B) {
@@ -81,14 +86,37 @@ void Scaler::tick() {
         cpu_ref->counters[COUNTER_TIME3] |= COUNT_DIRECTION_UP;
     }
 
+    if (F14B) {
+        interrupt_ended = false;
+        interrupt_started = false;
+    }
+
     if (!FS16 && !FS17) {
         dsky_flash_on = true;
     } else {
         dsky_flash_on = false;
     }
+
+    if (F14H) {
+        // If an old interrupt is still going or a new one hasn't started, alarm
+        if (!interrupt_started && !interrupt_ended) {
+            cpu_ref->queue_gojam();
+        }
+    }
 }
 
 bool Scaler::dsky_flash_state() {
     return dsky_flash_on;
+}
+
+void Scaler::update_interrupt_state(bool new_iip) {
+    // If our interrupt state has changed, set the relevant flip-flop
+    if (last_iip && !new_iip) {
+        interrupt_ended = true;
+    } else if (!last_iip && new_iip) {
+        interrupt_started = true;
+    }
+
+    last_iip = new_iip;
 }
 }

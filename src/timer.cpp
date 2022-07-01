@@ -52,6 +52,9 @@ void Timer::start_timer() {
             // Perform CPU timepulse every tick
             cpu_ref->tick();
 
+            // Copy the CPU's IIP signal to the scaler for RUPT lock checking
+            scaler_ref->update_interrupt_state(cpu_ref->iip);
+
             // Tick the scaler every 10 ticks (every 10 milliseconds)
             if ((total_ticks % 10) == 0) {
                 scaler_ref->tick();
