@@ -45,11 +45,13 @@ void Scaler::tick() {
     // Process timer counts
     if (F06B) {
         cpu_ref->counters[COUNTER_TIME6] |= COUNT_DIRECTION_DOWN;
+        //std::cout << "TIME6 decrement" << std::endl;
     }
 
     if (F09B) {
         if ((cur_state & BITMASK_10) == 0) {    // if not FS10
             cpu_ref->counters[COUNTER_TIME4] |= COUNT_DIRECTION_UP;
+            //std::cout << "TIME4 increment" << std::endl;
         }
 
         // Generate KEYRUPT1, KEYRUPT2, or MARKRUPT if keys are pending
@@ -84,6 +86,7 @@ void Scaler::tick() {
     if (F10B) {
         cpu_ref->counters[COUNTER_TIME1] |= COUNT_DIRECTION_UP;
         cpu_ref->counters[COUNTER_TIME3] |= COUNT_DIRECTION_UP;
+        //std::cout << "TIME1+3 increment" << std::endl;
     }
 
     if (F14B) {
@@ -100,6 +103,7 @@ void Scaler::tick() {
     if (F14H) {
         // If an old interrupt is still going or a new one hasn't started, alarm
         if (!interrupt_started && !interrupt_ended) {
+            std::cout << "HARDWARE ALARM: RUPT LOCK" << std::endl;
             cpu_ref->queue_gojam();
         }
     }
