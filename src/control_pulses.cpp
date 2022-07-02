@@ -588,7 +588,7 @@ static void zout(Cpu& cpu) {
         {
             // Clear bit 16 of I/O channel 13
             word temp = cpu.read_io_channel(013);
-            temp &= ~BITMASK_15;
+            temp &= ~BITMASK_16;
             cpu.write_io_channel(013, temp);
             cpu.interrupts[RUPT_T6RUPT] = true;
         }

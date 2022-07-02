@@ -44,8 +44,13 @@ void Scaler::tick() {
 
     // Process timer counts
     if (F06B) {
-        //cpu_ref->counters[COUNTER_TIME6] |= COUNT_DIRECTION_DOWN;
-        //std::cout << "TIME6 decrement" << std::endl;
+        // TIME6 only counts if the top bit of I/O channel 13 is set
+        word check = cpu_ref->read_io_channel(013);
+        bool time6_enabled = ((check & BITMASK_16) != 0);   // Is bit 16 set?
+        if (time6_enabled) {
+            cpu_ref->counters[COUNTER_TIME6] |= COUNT_DIRECTION_DOWN;
+            //std::cout << "TIME6 decrement" << std::endl;
+        }
     }
 
     if (F09B) {
@@ -78,6 +83,7 @@ void Scaler::tick() {
 
     if (F10A) {
          cpu_ref->counters[COUNTER_TIME5] |= COUNT_DIRECTION_UP;
+         //std::cout << "TIME5 increment" << std::endl;
 
         // Start radar cycle if enabled
         // Trigger restart if TC TRAP flip flop is set
