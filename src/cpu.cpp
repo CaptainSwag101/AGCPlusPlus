@@ -155,7 +155,7 @@ void Cpu::tick() {
     // Memory reads are done after T4
     if (current_timepulse == 4) {
         // Determine whether we are targeting fixed or erasable memory
-        if (s < MEM_ERASABLE_END) {    // Erasable memory
+        if (s <= MEM_ERASABLE_END) {    // Erasable memory
             if (s >= 010) {
                 s_temp = s; // Preserve S in case it's changed before the writeback
                 word erasable_addr = get_erasable_absolute_addr();
