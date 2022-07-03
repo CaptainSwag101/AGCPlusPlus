@@ -360,7 +360,7 @@ word Cpu::get_fixed_absolute_addr() const {
     if (s >= MEM_FIXED_BANKED_START && s <= MEM_FIXED_BANKED_END) {
         abs_addr = s & 01777;
         // Check if we're superbanking
-        if (((fext >> 4) >= 4) && (fb >= 040000)) { // Yes, superbank
+        if (((fext >> 4) >= 4) && (fb >= 060000)) { // Yes, superbank
             abs_addr |= (fb & 0016000); // Mask out the top two bits of FB
             abs_addr |= (fext << 9);    // Put FEXT's three bits over the top two bits and extend
         } else {    // No, not superbank
