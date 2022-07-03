@@ -150,14 +150,12 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
                     std::dec(std::cout);
                     */
 
-                    if (channel == 015 || channel == 016) {
+                    if (channel == 015 || channel == 016 || (channel == 032 && bitmask == false)) {
                         scaler_ref->queue_dsky_update(channel, data);
                         // Reset RESTART light upon RESET key press
                         if (channel == 015 && data == 022) {
                             cpu_ref->restart = false;
                         }
-                    } else if (channel == 012) {
-
                     }
                 }
             }

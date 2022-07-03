@@ -69,8 +69,12 @@ void Scaler::tick() {
                 cpu_ref->write_io_channel(channel, data);
                 cpu_ref->interrupts[RUPT_KEYRUPT1] = true;
                 dsky_queue.pop();
-            } else {
-                // TODO: handle channel 012
+            } else if (channel == 032) {
+                word chan32 = cpu_ref->read_io_channel(channel);
+                chan32 &= ~BITMASK_14;  // Mask out bit 14 due to inverted logic
+                chan32 |= (~(data << 1) & BITMASK_14);
+                cpu_ref->write_io_channel(channel, chan32);
+                //cpu_ref->interrupts[RUPT_KEYRUPT1] = true;
                 dsky_queue.pop();
             }
         } else {
