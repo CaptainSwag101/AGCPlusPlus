@@ -55,7 +55,7 @@ Cpu::Cpu(InitArguments init_args) {
 
     // Assign workaround values for I/O channels 30-33,
     // which have an inverted state
-    io_channels[030] = 0177777;
+    io_channels[030] = 0037777; // Set top bits low to remove TEMP light
     io_channels[031] = 0177777;
     io_channels[032] = 0177777;
     io_channels[033] = 0177777;
@@ -110,6 +110,10 @@ void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
 void Cpu::tick() {
     // At the start of every timepulse, clear MCRO
     mcro = false;
+
+
+    // HACK: Reset I/O channel 33 to inverted state
+    io_channels[033] = 0177777;
 
 
     // Before pulse 1, do INKBT1
@@ -356,9 +360,9 @@ word Cpu::get_fixed_absolute_addr() const {
     if (s >= MEM_FIXED_BANKED_START && s <= MEM_FIXED_BANKED_END) {
         abs_addr = s & 01777;
         // Check if we're superbanking
-        if (((fext & 0160) >> 4) >= 4) {    // Yes, superbank
-            abs_addr |= (fb & 0016000);     // Mask out the top two bits of FB
-            abs_addr |= ((fext & 0160) << 9);   // Put FEXT's three bits over the top two bits and extend
+        if ((fext >> 4) >= 4) {         // Yes, superbank
+            abs_addr |= (fb & 0016000); // Mask out the top two bits of FB
+            abs_addr |= (fext << 9);    // Put FEXT's three bits over the top two bits and extend
         } else {    // No, not superbank
             abs_addr |= fb;
         }
@@ -401,7 +405,7 @@ void Cpu::write_io_channel(word address, word data) {
         break;
     case 7:
         fext = (data & 0160);
-        std::cout << "FEXT changed to " << (word)(fext >> 4) << std::endl;
+        //std::cout << "FEXT changed to " << (word)(fext >> 4) << std::endl;
         // Fall through
     default:
         word temp = data & ~BITMASK_15; // Mask out bit 15
