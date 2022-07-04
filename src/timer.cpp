@@ -109,7 +109,12 @@ void Timer::accept_dsky_connections() {
 void Timer::process_dsky(sockpp::tcp_socket sock) {
     sock.set_non_blocking(true);
     while (!stop) {
+        // Calculate the time that we should process the DSKY next, before any code executes
+        auto started_at = std::chrono::steady_clock::now();
+        auto x = started_at + std::chrono::milliseconds(1);
+
         if (sock.is_open()) {
+
             // Read from the DSKY first to check its state
             char read_buf[4];
             size_t result = sock.read(read_buf, 4);
@@ -215,7 +220,8 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
             sock.write(chan163_buf.data(), 4);
         }
 
-        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        // Wait the remaining amount of time before checking the DSKY again
+        std::this_thread::sleep_until(x);
     }
 }
 
