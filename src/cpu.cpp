@@ -170,6 +170,14 @@ void Cpu::tick() {
             // Based on SBF being inhibited by hardware logic during those phases.
             if (!dv || st < 3) {
                 word fixed_addr = get_fixed_absolute_addr();
+                // Check parity by reading raw value
+                word v = memory->read_fixed_word(fixed_addr, true);
+                v ^= v >> 1;
+                v ^= v >> 2;
+                v = (v & 0x1111) * 0x1111;
+                if (((v >> 12) & 1) == 0) {    // Invalid parity
+                    queue_gojam();
+                }
                 g = memory->read_fixed_word(fixed_addr);
             }
         }
@@ -341,7 +349,7 @@ void Cpu::update_eb_fb() {
     fb = bb & BITMASK_11_15;
 }
 
-word Cpu::get_erasable_absolute_addr() const {
+word Cpu::get_erasable_absolute_addr() {
     word abs_addr = 0;
 
     if (s >= MEM_ERASABLE_BANKED_START && s <= MEM_ERASABLE_BANKED_END) {
@@ -349,6 +357,11 @@ word Cpu::get_erasable_absolute_addr() const {
         abs_addr |= eb;
     } else {
         abs_addr = s;
+    }
+
+    // If address being read/written is 67, signal the night watchman
+    if (abs_addr == 067) {
+        night_watchman = true;
     }
 
     return abs_addr;

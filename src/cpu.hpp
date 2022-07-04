@@ -40,7 +40,7 @@ public:
     void update_eb_fb();
 
     // Memory functions
-    word get_erasable_absolute_addr() const;
+    word get_erasable_absolute_addr();
     word get_fixed_absolute_addr() const;
 
     // Debug functions
@@ -72,15 +72,7 @@ public:
     word write_bus, dv_stage;
     bool fetch_next_instruction, inhibit_interrupts, no_eac, mcro, dv;
     bool inkl, iip, pseudo, shinc, pifl, extend, extend_next, restart;
-
-    // Watchman variables for hardware alarms.
-    // Positive state for alarm condition being present active (i.e. executing TC for a length of time),
-    // negative state for alarm condition being present inactive (i.e. not executing TC for a length of time).
-    //
-    // When a condition resets or switches on any of these watchman variables, the following logic should be used:
-    // Check the sign. If its magnitude is greater than zero in the opposite polarity to the new state,
-    // set it to zero. Otherwise, augment its state by 1 in the current polarity.
-    int64_t night_watchman, tc_watchman, rupt_watchman, counter_watchman;
+    bool night_watchman = false;
 
     // Instruction data
     uint8_t current_timepulse = 1;

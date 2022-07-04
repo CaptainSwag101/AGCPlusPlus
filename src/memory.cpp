@@ -44,7 +44,11 @@ word Memory::read_erasable_word(word address) {
     return temp;
 }
 
-word Memory::read_fixed_word(word address) const {
+word Memory::read_fixed_word(word address, bool raw_parity) const {
+    if (raw_parity) {
+        return fixed[address];
+    }
+
     word temp = fixed[address] & ~BITMASK_15;   // Mask out bit 15
     temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 into bit 15
     return temp;

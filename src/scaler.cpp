@@ -36,6 +36,8 @@ void Scaler::tick() {
     bool F10B = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) != 0);
     bool F12B = (((cur_state & BITMASK_12) ^ (prev_state & BITMASK_12)) && (cur_state & BITMASK_12) != 0);
     bool F14B = (((cur_state & BITMASK_14) ^ (prev_state & BITMASK_14)) && (cur_state & BITMASK_14) != 0);
+    bool F17A = (((cur_state & BITMASK_17) ^ (prev_state & BITMASK_17)) && (cur_state & BITMASK_17) == 0);
+    bool F17B = (((cur_state & BITMASK_17) ^ (prev_state & BITMASK_17)) && (cur_state & BITMASK_17) != 0);
     bool FS13 = ((cur_state & BITMASK_13) != 0);
     bool FS14 = ((cur_state & BITMASK_14) != 0);
     bool FS16 = ((cur_state & BITMASK_16) != 0);
@@ -77,11 +79,6 @@ void Scaler::tick() {
                 //cpu_ref->interrupts[RUPT_KEYRUPT1] = true;
                 dsky_queue.pop();
             }
-        } else {
-            // Doing this may be unnecessary because we only check the key state when a
-            // KEYRUPT happens, so clearing the previous state will always happen implicitly
-            // upon a new key press event, I think.
-            //cpu_ref->write_io_channel(015, 0);  // Clear DSKY keys
         }
     }
 
@@ -102,6 +99,17 @@ void Scaler::tick() {
     if (F14B) {
         interrupt_ended = false;
         interrupt_started = false;
+    }
+
+    if (F17A) {
+        if (!cpu_ref->night_watchman) {
+            std::cout << "HARDWARE ALARM: NIGHT WATCHMAN" << std::endl;
+            cpu_ref->queue_gojam();
+        }
+    }
+
+    if (F17B) {
+        cpu_ref->night_watchman = false;
     }
 
     if (!FS16 && !FS17) {
