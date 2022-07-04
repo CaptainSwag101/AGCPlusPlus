@@ -88,13 +88,22 @@ void Scaler::tick() {
          //std::cout << "TIME5 increment" << std::endl;
 
         // Start radar cycle if enabled
+
         // Trigger restart if TC TRAP flip flop is set
+        if ((!tc_started || !tc_ended) && !config.ignore_alarms) {
+            std::cout << "HARDWARE ALARM: TC TRAP" << std::endl;
+            cpu_ref->write_io_channel(077, BITMASK_3);
+            cpu_ref->queue_gojam();
+        }
     }
 
     if (F10B) {
         cpu_ref->counters[COUNTER_TIME1] |= COUNT_DIRECTION_UP;
         cpu_ref->counters[COUNTER_TIME3] |= COUNT_DIRECTION_UP;
         //std::cout << "TIME1+3 increment" << std::endl;
+
+        tc_started = false;
+        tc_ended = false;
     }
 
     if (F14B) {
@@ -143,5 +152,13 @@ void Scaler::update_interrupt_state(bool new_iip) {
     }
 
     last_iip = new_iip;
+}
+
+void Scaler::signal_tc_started() {
+    tc_started = true;
+}
+
+void Scaler::signal_tc_ended() {
+    tc_ended = true;
 }
 }

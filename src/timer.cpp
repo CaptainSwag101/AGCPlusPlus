@@ -55,6 +55,15 @@ void Timer::start_timer() {
             // Copy the CPU's IIP signal to the scaler for RUPT lock checking
             scaler_ref->update_interrupt_state(cpu_ref->iip);
 
+            // If the CPU is executing a TC instruction at any time, tell the scaler
+            bool check_notbuggy = (cpu_ref->current_subinstruction.name == "TC0" || cpu_ref->current_subinstruction.name == "TCF0");
+            if (check_notbuggy) {
+                scaler_ref->signal_tc_started();
+            } else if (cpu_ref->current_timepulse == 4 && !cpu_ref->inkl) {
+                // If it's timepulse 4 and the CPU is not processing a counter or executing TC/TCF, tell the scaler
+                scaler_ref->signal_tc_ended();
+            }
+
             // Tick the scaler every 10 ticks (every 10 milliseconds)
             if ((total_ticks % 10) == 0) {
                 scaler_ref->tick();
