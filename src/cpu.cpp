@@ -171,6 +171,7 @@ void Cpu::tick() {
             if (!dv || st < 3) {
                 word fixed_addr = get_fixed_absolute_addr();
                 // Check parity by reading raw value
+                // Adapted from http://graphics.stanford.edu/~seander/bithacks.html#ParityMultiply
                 word v = memory->read_fixed_word(fixed_addr, true);
                 v ^= v >> 1;
                 v ^= v >> 2;
