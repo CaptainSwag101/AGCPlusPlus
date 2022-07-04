@@ -103,5 +103,6 @@ struct InitArguments {
     bool log_timepulse;
     bool ignore_counters;
     bool ignore_interrupts;
+    bool ignore_alarms;
 };
 }

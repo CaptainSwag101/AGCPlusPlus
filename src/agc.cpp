@@ -7,7 +7,7 @@ Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope, InitArguments init_args) {
 
     cpu = std::make_shared<Cpu>(init_args);
     memory = std::make_shared<Memory>(MemoryInitState::BitsClear);
-    scaler = std::make_shared<Scaler>();
+    scaler = std::make_shared<Scaler>(init_args);
     timer = std::make_shared<Timer>();
 
     std::cout << "Loading rope into fixed memory...";

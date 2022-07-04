@@ -48,6 +48,7 @@ public:
 
     // Helper data
     LoggingVerbosity verbosity;
+    InitArguments config;
 
     // Pointers
     std::shared_ptr<Memory> memory;
@@ -58,9 +59,7 @@ public:
     bool explicit_carry;
 
     // Interrupt/Counter cells
-    bool ignore_interrupts; // Debug override
     bool interrupts[11];    // Interrupt request cells
-    bool ignore_counters;   // Debug override
     word counters[20];  // Can be 0, +1, -1, or both in the case of a freak accident
 
     // I/O

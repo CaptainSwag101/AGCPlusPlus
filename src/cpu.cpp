@@ -9,8 +9,7 @@ Cpu::Cpu(InitArguments init_args) {
     else if (init_args.log_mct) verbosity = LoggingVerbosity::CpuStatePerMCT;
     else verbosity = LoggingVerbosity::None;
 
-    ignore_interrupts = init_args.ignore_interrupts;
-    ignore_counters = init_args.ignore_counters;
+    config = init_args;
 
     // Init CPU registers, counters, interrupts
     a = 0;
@@ -176,7 +175,9 @@ void Cpu::tick() {
                 v ^= v >> 1;
                 v ^= v >> 2;
                 v = (v & 0x1111) * 0x1111;
-                if (((v >> 12) & 1) == 0) {    // Invalid parity
+                if ((((v >> 12) & 1) == 0) && !config.ignore_alarms) {    // Invalid parity
+                    std::cout << "HARDWARE ALARM: FIXED MEMORY PARITY FAIL" << std::endl;
+                    write_io_channel(077, 1);
                     queue_gojam();
                 }
                 g = memory->read_fixed_word(fixed_addr);
@@ -218,7 +219,7 @@ void Cpu::tick() {
             bool prev_inkl = inkl;
             inkl = false;
             for (int c = 0; c < 20; ++c) {
-                if (counters[c] != COUNT_DIRECTION_NONE && !pseudo && !ignore_counters) {
+                if (counters[c] != COUNT_DIRECTION_NONE && !pseudo && !config.ignore_counters) {
                     inkl = true;
                     break;
                 }
@@ -243,7 +244,7 @@ void Cpu::tick() {
 
             uint8_t a_signs = (a & BITMASK_15_16) >> 14;
             bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
-            if (rupt_pending && !ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !pseudo && !a_overflow) {
+            if (rupt_pending && !config.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !pseudo && !a_overflow) {
                 subinstruction rupt0 = RUPT_SUBINST_RUPT0;
                 sq = rupt0.sequence_opcode;
                 extend = rupt0.sequence_extend;

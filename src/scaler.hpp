@@ -9,7 +9,7 @@ namespace agcplusplus {
 class Scaler
 {
 public:
-    Scaler();
+    Scaler(InitArguments init_args);
     void tick();
     void assign_cpu(std::shared_ptr<Cpu> cpu);
     void queue_dsky_update(word channel, word data);
@@ -17,6 +17,7 @@ public:
     void update_interrupt_state(bool new_iip);
 
 private:
+    InitArguments config;
     uint64_t cur_state = 0;
     uint64_t prev_state = 0;
     bool dsky_flash_on = false;

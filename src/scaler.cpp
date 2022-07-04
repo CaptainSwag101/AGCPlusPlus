@@ -1,10 +1,11 @@
 #include "scaler.hpp"
 
 namespace agcplusplus {
-Scaler::Scaler()
+Scaler::Scaler(InitArguments init_args)
 {
     std::cout << "Initializing scaler..." << std::endl;
 
+    config = init_args;
     cur_state = 0;
     prev_state = 0;
 
@@ -102,8 +103,9 @@ void Scaler::tick() {
     }
 
     if (F17A) {
-        if (!cpu_ref->night_watchman) {
+        if (!cpu_ref->night_watchman && !config.ignore_alarms) {
             std::cout << "HARDWARE ALARM: NIGHT WATCHMAN" << std::endl;
+            cpu_ref->write_io_channel(077, BITMASK_5);
             cpu_ref->queue_gojam();
         }
     }
@@ -120,8 +122,9 @@ void Scaler::tick() {
 
     if (F14H) {
         // If an old interrupt is still going or a new one hasn't started, alarm
-        if (!interrupt_started && !interrupt_ended) {
+        if (!interrupt_started && !interrupt_ended && !config.ignore_alarms) {
             std::cout << "HARDWARE ALARM: RUPT LOCK" << std::endl;
+            cpu_ref->write_io_channel(077, BITMASK_4);
             cpu_ref->queue_gojam();
         }
     }
