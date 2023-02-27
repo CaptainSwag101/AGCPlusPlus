@@ -14,12 +14,21 @@ configure_file(src/main.hpp.in generated_src/main.hpp)
 # Set a variable containing the list of source files, to avoid cluttering our add_executable() statement
 set(SOURCES src/main.cpp src/globaldefs.hpp src/agc.hpp src/agc.cpp src/memory.hpp src/memory.cpp src/cpu.hpp src/cpu.cpp src/control_pulses.hpp src/control_pulses.cpp src/subinstructions.hpp src/subinstructions.cpp src/timer.hpp src/timer.cpp src/scaler.hpp src/scaler.cpp)
 
+# fetch latest argparse
+include(FetchContent)
+FetchContent_Declare(
+    argparse
+    GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+)
+FetchContent_MakeAvailable(argparse)
+
 # Define the project target
 add_executable(AGCPlusPlus ${SOURCES})
 
 # Search for the sockpp library
 find_library(LIBSOCKPP sockpp)
 target_link_libraries(AGCPlusPlus PUBLIC "${LIBSOCKPP}")
+target_link_libraries(AGCPlusPlus PUBLIC argparse)
 
 # Add the extra generated header file for our version number
 target_include_directories(AGCPlusPlus PUBLIC

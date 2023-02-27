@@ -1,6 +1,7 @@
 #include "timer.hpp"
 #include <functional>
 #include <thread>
+#include <sockpp/socket.h>
 
 namespace agcplusplus {
 Timer::Timer() {
@@ -95,7 +96,7 @@ void Timer::stop_timer() {
 void Timer::accept_dsky_connections() {
     while (!stop) {
         // Set up the socket to connect to the DSKY server
-        sockpp::socket_initializer sock_init;
+        sockpp::socket_initializer::initialize();
         in_port_t port = 19697;
         sockpp::tcp_acceptor dsky_conn(port);
 
