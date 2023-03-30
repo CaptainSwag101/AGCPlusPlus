@@ -2,8 +2,8 @@
 #include <iomanip>
 #include <iostream>
 
-#ifndef AGCPLUSPLUS_GLOBAL_DEFINITIONS_HPP
-#define AGCPLUSPLUS_GLOBAL_DEFINITIONS_HPP
+#pragma once
+
 namespace agcplusplus {
     // Simplify our terminology by using "words" just like the AGC
     using word = uint16_t;
@@ -47,4 +47,3 @@ namespace agcplusplus {
         bool ignore_alarms;
     };
 }
-#endif //AGCPLUSPLUS_GLOBAL_DEFINITIONS_HPP

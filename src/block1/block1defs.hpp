@@ -1,7 +1,7 @@
 #include "../common/global_definitions.hpp"
 
-#ifndef AGCPLUSPLUS_BLOCK1DEFS_HPP
-#define AGCPLUSPLUS_BLOCK1DEFS_HPP
+#pragma once
+
 namespace agcplusplus::block1 {
     constexpr uint64_t MEM_ERASABLE_START = 0;
     constexpr uint64_t MEM_ERASABLE_END = 01777;
@@ -18,4 +18,4 @@ namespace agcplusplus::block1 {
 
     constexpr uint64_t MEM_FIXED_TOTAL_SIZE = MEM_FIXED_FIXED_SIZE + (MEM_FIXED_BANKED_SIZE * MEM_FIXED_BANKED_BANKCOUNT);
 }
-#endif //AGCPLUSPLUS_BLOCK1DEFS_HPP
+

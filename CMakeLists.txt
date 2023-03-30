@@ -15,7 +15,10 @@ configure_file(src/main.hpp.in generated_src/main.hpp)
 set(SOURCES src/main.cpp
         src/common/util_functions.hpp
         src/common/global_definitions.hpp
+
         src/block1/block1defs.hpp
+        src/block1/agc.cpp src/block1/agc.hpp
+
         src/block2/block2defs.hpp
         src/block2/agc.hpp src/block2/agc.cpp
         src/block2/memory.hpp src/block2/memory.cpp

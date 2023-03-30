@@ -1,7 +1,6 @@
 #include <climits>
 
-#ifndef AGCPLUSPLUS_UTIL_FUNCTIONS_HPP
-#define AGCPLUSPLUS_UTIL_FUNCTIONS_HPP
+#pragma once
 
 template <typename T>
 T swap_endian(T u) {
@@ -19,5 +18,3 @@ T swap_endian(T u) {
 
     return dest.u;
 }
-
-#endif //AGCPLUSPLUS_UTIL_FUNCTIONS_HPP

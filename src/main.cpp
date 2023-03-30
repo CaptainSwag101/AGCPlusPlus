@@ -7,7 +7,6 @@
 #include "block2/block2defs.hpp"
 #include "block2/agc.hpp"
 
-#include <array>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -24,6 +23,7 @@ int main(int argc, char* argv[]) {
     // Print banner message
     output << "AGCPlusPlus version v" << AGCPlusPlus_VERSION_MAJOR << "." << AGCPlusPlus_VERSION_MINOR << '\n';
 
+    // Define our program's arguments
     argparse::ArgumentParser mainArgs("AGCPlusPlus");
     mainArgs.add_argument("machine-type")
         .help("The machine type to emulate, either 'block1' or 'block2'");
