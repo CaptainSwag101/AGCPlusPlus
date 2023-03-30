@@ -1,11 +1,11 @@
-#include "globaldefs.hpp"
+#include "block2defs.hpp"
 #include "cpu.hpp"
 
 #include "control_pulses.cpp"
 
 #pragma once
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 void ad0(Cpu& cpu);
 void ads0(Cpu& cpu);
 void aug0(Cpu& cpu);

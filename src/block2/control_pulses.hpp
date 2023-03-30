@@ -1,9 +1,9 @@
-#include "globaldefs.hpp"
+#include "block2defs.hpp"
 #include "cpu.hpp"
 
 #pragma once
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 // Involuntary control pulse implicitly triggered by
 // T1 of DV0, which clears G to avoid cross-contamination
 // between the pulses of RG and RSC in T7 of DV1.

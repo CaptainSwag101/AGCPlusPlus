@@ -1,8 +1,8 @@
 #include "agc.hpp"
 #include <chrono>
 
-namespace agcplusplus {
-Agc::Agc(std::array<word, SIZE_FIXED_MEM> rope, InitArguments init_args) {
+namespace agcplusplus::block2 {
+Agc::Agc(std::vector<word>& rope, InitArguments init_args) {
     std::cout << "Initializing computer state..." << std::endl;
 
     cpu = std::make_shared<Cpu>(init_args);

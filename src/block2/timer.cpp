@@ -3,7 +3,7 @@
 #include <thread>
 #include <sockpp/socket.h>
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 Timer::Timer() {
     std::cout << "Initializing timer..." << std::endl;
 
@@ -117,121 +117,125 @@ void Timer::accept_dsky_connections() {
 }
 
 void Timer::process_dsky(sockpp::tcp_socket sock) {
-    sock.set_non_blocking(true);
-    while (!stop) {
-        // Calculate the time that we should process the DSKY next, before any code executes
-        auto started_at = std::chrono::steady_clock::now();
-        auto x = started_at + std::chrono::milliseconds(1);
+    try {
+        sock.set_non_blocking(true);
+        while (!stop) {
+            // Calculate the time that we should process the DSKY next, before any code executes
+            auto started_at = std::chrono::steady_clock::now();
+            auto x = started_at + std::chrono::milliseconds(1);
 
-        if (sock.is_open()) {
+            if (sock.is_open()) {
 
-            // Read from the DSKY first to check its state
-            char read_buf[4];
-            size_t result = sock.read(read_buf, 4);
-            if (result == 0) {
-                std::cout << "DSKY connection closed" << std::endl;
-                sock.close();
-                break;
-            } else if (result == 4) {
-                // Read the packet, form of:
-                // 00utpppp 01pppddd 10dddddd 11dddddd
-                // where p are I/O channel bits, d are data bits,
-                // u is the bitmask flag, and t is the counter request flag.
+                // Read from the DSKY first to check its state
+                char read_buf[4];
+                size_t result = sock.read(read_buf, 4);
+                if (result == 0) {
+                    std::cout << "DSKY connection closed" << std::endl;
+                    sock.close();
+                    break;
+                } else if (result == 4) {
+                    // Read the packet, form of:
+                    // 00utpppp 01pppddd 10dddddd 11dddddd
+                    // where p are I/O channel bits, d are data bits,
+                    // u is the bitmask flag, and t is the counter request flag.
 
-                // First, verify the signature of the packet by checking
-                // the 2 most significant bits in each byte.
-                uint8_t signature = 0;
-                signature |= read_buf[0] & 0b11000000;
-                signature |= (read_buf[1] & 0b11000000) >> 2;
-                signature |= (read_buf[2] & 0b11000000) >> 4;
-                signature |= (read_buf[3] & 0b11000000) >> 6;
-                if (signature == 0b00011011) {  // should be 00 01 10 11
-                    // If the signature is valid, parse the data
-                    bool bitmask = ((read_buf[0] & 0b00100000) != 0);
-                    bool unprogrammed_sequence = ((read_buf[0] & 0b00010000) != 0);
-                    uint8_t channel = ((read_buf[0] & 0b00001111) << 3) |
-                                      ((read_buf[1] & 0b00111000) >> 3);
-                    uint16_t data = ((read_buf[1] & 0b00000111) << 11) |
-                                    ((read_buf[2] & 0b00111111) << 5) |
-                                    (read_buf[3] & 0b00111111);
-                    /*
-                    std::cout << "DSKY read success (result = " << result << "), packet data is:" << std::endl;
-                    std::oct(std::cout);
-                    std::cout << " u = " << bitmask;
-                    std::cout << " t = " << unprogrammed_sequence;
-                    std::cout << " channel = " << std::setw(2) << std::setfill('0') << (word)channel;
-                    std::cout << " data = " << std::setw(6) << (word)data;
-                    std::cout << std::endl;
-                    std::dec(std::cout);
-                    */
+                    // First, verify the signature of the packet by checking
+                    // the 2 most significant bits in each byte.
+                    uint8_t signature = 0;
+                    signature |= read_buf[0] & 0b11000000;
+                    signature |= (read_buf[1] & 0b11000000) >> 2;
+                    signature |= (read_buf[2] & 0b11000000) >> 4;
+                    signature |= (read_buf[3] & 0b11000000) >> 6;
+                    if (signature == 0b00011011) {  // should be 00 01 10 11
+                        // If the signature is valid, parse the data
+                        bool bitmask = ((read_buf[0] & 0b00100000) != 0);
+                        bool unprogrammed_sequence = ((read_buf[0] & 0b00010000) != 0);
+                        uint8_t channel = ((read_buf[0] & 0b00001111) << 3) |
+                                          ((read_buf[1] & 0b00111000) >> 3);
+                        uint16_t data = ((read_buf[1] & 0b00000111) << 11) |
+                                        ((read_buf[2] & 0b00111111) << 5) |
+                                        (read_buf[3] & 0b00111111);
+                        /*
+                        std::cout << "DSKY read success (result = " << result << "), packet data is:" << std::endl;
+                        std::oct(std::cout);
+                        std::cout << " u = " << bitmask;
+                        std::cout << " t = " << unprogrammed_sequence;
+                        std::cout << " channel = " << std::setw(2) << std::setfill('0') << (word)channel;
+                        std::cout << " data = " << std::setw(6) << (word)data;
+                        std::cout << std::endl;
+                        std::dec(std::cout);
+                        */
 
-                    if (channel == 015 || channel == 016 || (channel == 032 && bitmask == false)) {
-                        scaler_ref->queue_dsky_update(channel, data);
-                        // Reset RESTART light upon RESET key press
-                        if (channel == 015 && data == 022) {
-                            cpu_ref->restart = false;
+                        if (channel == 015 || channel == 016 || (channel == 032 && bitmask == false)) {
+                            scaler_ref->queue_dsky_update(channel, data);
+                            // Reset RESTART light upon RESET key press
+                            if (channel == 015 && data == 022) {
+                                cpu_ref->restart = false;
+                            }
                         }
                     }
                 }
+
+                // If we're in a good state, write any new updated I/O channel data to it
+
+                // Write the contents of channel 10, 11 and 12
+                word chan10_data = cpu_ref->read_io_channel(010);
+                word chan11_data = cpu_ref->read_io_channel(011);
+                word chan12_data = cpu_ref->read_io_channel(012);
+                word chan13_data = cpu_ref->read_io_channel(013);
+
+                // Write channel 163 stuff for RESTART, OPR ERR, etc.
+                word chan163_data = 0;
+
+                // Check for KEY REL
+                if ((chan11_data & BITMASK_5) && !scaler_ref->dsky_flash_state()) {
+                    chan163_data |= BITMASK_5;
+                }
+                // Check for verb/noun flashing
+                if ((chan11_data & BITMASK_6) && scaler_ref->dsky_flash_state()) {
+                    chan163_data |= BITMASK_6;
+                }
+                // Check for OPR ERR
+                if ((chan11_data & BITMASK_7) && !scaler_ref->dsky_flash_state()) {
+                    chan163_data |= BITMASK_7;
+                }
+                // Check for restart light
+                if (cpu_ref->restart) {
+                    chan163_data |= BITMASK_8;
+                }
+                // Check for lights test signal
+                if (chan13_data & BITMASK_10) {
+                    chan163_data |= 1;
+                    // Set the restart light and STBY light temporarily
+                    chan163_data |= BITMASK_8;
+                    chan163_data |= BITMASK_9;
+                }
+                // Check for TEMP light
+                if (chan11_data & BITMASK_4) {
+                    chan163_data |= BITMASK_4;
+                }
+                // Check for STBY light
+                if (chan13_data & BITMASK_11) {
+                    chan163_data |= BITMASK_9;
+                }
+
+                std::array<uint8_t, 4> chan10_buf = generate_dsky_packet(010, chan10_data);
+                sock.write(chan10_buf.data(), 4);
+                std::array<uint8_t, 4> chan11_buf = generate_dsky_packet(011, chan11_data);
+                sock.write(chan11_buf.data(), 4);
+                std::array<uint8_t, 4> chan12_buf = generate_dsky_packet(012, chan12_data);
+                sock.write(chan12_buf.data(), 4);
+                std::array<uint8_t, 4> chan13_buf = generate_dsky_packet(013, chan13_data);
+                sock.write(chan13_buf.data(), 4);
+                std::array<uint8_t, 4> chan163_buf = generate_dsky_packet(0163, chan163_data);
+                sock.write(chan163_buf.data(), 4);
             }
 
-            // If we're in a good state, write any new updated I/O channel data to it
-
-            // Write the contents of channel 10, 11 and 12
-            word chan10_data = cpu_ref->read_io_channel(010);
-            word chan11_data = cpu_ref->read_io_channel(011);
-            word chan12_data = cpu_ref->read_io_channel(012);
-            word chan13_data = cpu_ref->read_io_channel(013);
-
-            // Write channel 163 stuff for RESTART, OPR ERR, etc.
-            word chan163_data = 0;
-
-            // Check for KEY REL
-            if ((chan11_data & BITMASK_5) && !scaler_ref->dsky_flash_state()) {
-                chan163_data |= BITMASK_5;
-            }
-            // Check for verb/noun flashing
-            if ((chan11_data & BITMASK_6) && scaler_ref->dsky_flash_state()) {
-                chan163_data |= BITMASK_6;
-            }
-            // Check for OPR ERR
-            if ((chan11_data & BITMASK_7) && !scaler_ref->dsky_flash_state()) {
-                chan163_data |= BITMASK_7;
-            }
-            // Check for restart light
-            if (cpu_ref->restart) {
-                chan163_data |= BITMASK_8;
-            }
-            // Check for lights test signal
-            if (chan13_data & BITMASK_10) {
-                chan163_data |= 1;
-                // Set the restart light and STBY light temporarily
-                chan163_data |= BITMASK_8;
-                chan163_data |= BITMASK_9;
-            }
-            // Check for TEMP light
-            if (chan11_data & BITMASK_4) {
-                chan163_data |= BITMASK_4;
-            }
-            // Check for STBY light
-            if (chan13_data & BITMASK_11) {
-                chan163_data |= BITMASK_9;
-            }
-
-            std::array<uint8_t, 4> chan10_buf = generate_dsky_packet(010, chan10_data);
-            sock.write(chan10_buf.data(), 4);
-            std::array<uint8_t, 4> chan11_buf = generate_dsky_packet(011, chan11_data);
-            sock.write(chan11_buf.data(), 4);
-            std::array<uint8_t, 4> chan12_buf = generate_dsky_packet(012, chan12_data);
-            sock.write(chan12_buf.data(), 4);
-            std::array<uint8_t, 4> chan13_buf = generate_dsky_packet(013, chan13_data);
-            sock.write(chan13_buf.data(), 4);
-            std::array<uint8_t, 4> chan163_buf = generate_dsky_packet(0163, chan163_data);
-            sock.write(chan163_buf.data(), 4);
+            // Wait the remaining amount of time before checking the DSKY again
+            std::this_thread::sleep_until(x);
         }
-
-        // Wait the remaining amount of time before checking the DSKY again
-        std::this_thread::sleep_until(x);
+    } catch (std::runtime_error err) {
+        sock.close();
     }
 }
 

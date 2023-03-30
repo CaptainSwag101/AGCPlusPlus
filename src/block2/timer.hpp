@@ -1,5 +1,5 @@
 #include "cpu.hpp"
-#include "globaldefs.hpp"
+#include "block2defs.hpp"
 #include "memory.hpp"
 #include "scaler.hpp"
 
@@ -10,7 +10,7 @@
 
 #pragma once
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 class Timer
 {
 public:

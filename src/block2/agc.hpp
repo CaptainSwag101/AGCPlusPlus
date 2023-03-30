@@ -1,5 +1,5 @@
 #include "cpu.hpp"
-#include "globaldefs.hpp"
+#include "block2defs.hpp"
 #include "memory.hpp"
 #include "scaler.hpp"
 #include "timer.hpp"
@@ -8,10 +8,10 @@
 
 #pragma once
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 class Agc {
 public:
-    Agc(std::array<word, SIZE_FIXED_MEM> rope, InitArguments init_args);
+    Agc(std::vector<word>& rope, InitArguments init_args);
     void run();
 
 private:

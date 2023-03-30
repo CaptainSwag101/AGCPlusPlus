@@ -1,6 +1,6 @@
 #include "subinstructions.hpp"
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 void ad0(Cpu& cpu) {
     switch (cpu.current_timepulse) {
     case 2:

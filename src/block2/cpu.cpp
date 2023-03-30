@@ -1,7 +1,7 @@
 #include "cpu.hpp"
 #include "subinstructions.hpp"
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 Cpu::Cpu(InitArguments init_args) {
     std::cout << "Initializing CPU..." << std::endl;
 

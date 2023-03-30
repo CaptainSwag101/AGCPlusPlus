@@ -1,6 +1,6 @@
 #include "memory.hpp"
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 Memory::Memory(MemoryInitState initState) {
     std::cout << "Initializing memory..." << std::endl;
 
