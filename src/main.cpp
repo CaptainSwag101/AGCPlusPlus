@@ -1,6 +1,6 @@
 #include "main.hpp" // This will be created in generated_src folder at compile time
-#include "agc.hpp"
-#include "globaldefs.hpp"
+#include "block2/agc.hpp"
+#include "block2/globaldefs.hpp"
 #include <array>
 #include <climits>
 #include <fstream>
