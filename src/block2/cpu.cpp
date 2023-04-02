@@ -107,7 +107,7 @@ void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
 }
 
 void Cpu::tick() {
-    // At the start of every timepulse, clear MCRO
+    // At the run of every timepulse, clear MCRO
     mcro = false;
 
 

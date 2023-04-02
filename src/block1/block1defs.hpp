@@ -3,6 +3,12 @@
 #pragma once
 
 namespace agcplusplus::block1 {
+    enum class ComponentState {
+        Off,
+        Stopped,
+        Started,
+    };
+
     constexpr uint64_t MEM_ERASABLE_START = 0;
     constexpr uint64_t MEM_ERASABLE_END = 01777;
     constexpr uint64_t MEM_ERASABLE_SIZE = MEM_ERASABLE_END - MEM_ERASABLE_START;

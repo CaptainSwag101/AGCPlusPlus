@@ -24,8 +24,8 @@ void Timer::assign_scaler(std::shared_ptr<Scaler> scaler) {
     scaler_ref = scaler;
 }
 
-void Timer::start_timer() {
-    stop = false;
+void Timer::start() {
+    enable = true;
 
     if (!cpu_ref) {
         std::cerr << "Timer CPU reference has not been assigned." << std::endl;
@@ -42,7 +42,7 @@ void Timer::start_timer() {
 
     // Start ticking our various functions at their given intervals
     std::cout << "Starting CPU clock." << std::endl;
-    while (!stop) {
+    while (enable) {
         // Calculate the time that we should tick the clock next, before any code executes
         auto started_at = std::chrono::steady_clock::now();
         auto x = started_at + std::chrono::milliseconds(1); // We can complete 1024 timepulses in 1 millisecond
@@ -88,13 +88,13 @@ void Timer::start_timer() {
     }
 }
 
-void Timer::stop_timer() {
+void Timer::stop() {
     std::cout << "Stopping main clock after " << total_ticks << " ticks." << std::endl;
-    stop = true;
+    enable = false;
 }
 
 void Timer::accept_dsky_connections() {
-    while (!stop) {
+    while (enable) {
         // Set up the socket to connect to the DSKY server
         sockpp::socket_initializer::initialize();
         in_port_t port = 19697;
@@ -119,7 +119,7 @@ void Timer::accept_dsky_connections() {
 void Timer::process_dsky(sockpp::tcp_socket sock) {
     try {
         sock.set_non_blocking(true);
-        while (!stop) {
+        while (enable) {
             // Calculate the time that we should process the DSKY next, before any code executes
             auto started_at = std::chrono::steady_clock::now();
             auto x = started_at + std::chrono::milliseconds(1);

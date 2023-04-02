@@ -41,6 +41,6 @@ Agc::Agc(std::vector<word>& rope, InitArguments init_args) {
 }
 
 void Agc::run() {
-    timer->start_timer();
+    timer->start();
 }
 }

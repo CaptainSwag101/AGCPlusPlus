@@ -6,6 +6,7 @@
 
 #include "block2/block2defs.hpp"
 #include "block2/agc.hpp"
+#include "block1/agc.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -98,7 +99,8 @@ int main(int argc, char* argv[]) {
         }
 
         // Initialize the Block I computer
-
+        block1::Agc computer;
+        computer.run();
     } else if (machine_type == "block2") {
         // Check rope length
         if ((rope_buffer.size() - 1) != block2::SIZE_FIXED_MEM) {
@@ -107,8 +109,6 @@ int main(int argc, char* argv[]) {
 
         // Initialize the Block II computer
         block2::Agc computer(rope_buffer, init_args);
-
-        // Start running
         computer.run();
     }
 
