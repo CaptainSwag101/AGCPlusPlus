@@ -6,8 +6,6 @@
 
 namespace agcplusplus::block1 {
     void Timer::start() {
-        state = ComponentState::Started;
-
         // Start a thread where we can look for incoming connections
         //std::thread socket_thread(&Timer::accept_dsky_connections, *this);
 
@@ -15,21 +13,13 @@ namespace agcplusplus::block1 {
         std::cout << "Starting CPU clock." << std::endl;
     }
 
-    void Timer::stop() {
-        state = ComponentState::Stopped;
-    }
-
     void Timer::execute_tick_batch() {
         // Calculate the time that we should tick the clock next, before any code executes
         auto started_at = std::chrono::steady_clock::now();
         auto x = started_at + std::chrono::milliseconds(1); // We can complete 1024 timepulses in 1 millisecond
 
-        // Only actually perform the ticks if we're in an active state. Otherwise, just
-        // wait for a millisecond to reduce unnecessary CPU spinning, maybe?
-        if (state == ComponentState::Started) {
-            for (word t = 0; t < TIMEPULSES_PER_MILLISECOND; ++t) {
-                tick();
-            }
+        for (word t = 0; t < TIMEPULSES_PER_MILLISECOND; ++t) {
+            tick();
         }
 
         auto ended_at = std::chrono::steady_clock::now();
@@ -45,7 +35,7 @@ namespace agcplusplus::block1 {
         ++total_ticks;
 
         // Perform CPU timepulse every tick
-        //Agc::cpu.tick();
+        Agc::cpu.tick();
 
         // Tick the scaler every 10 ticks (every 10 milliseconds)
         if ((total_ticks % 10) == 0) {
