@@ -18,6 +18,6 @@ namespace agcplusplus::block1 {
         static Cpu cpu;
         static std::thread dsky_thread;
 
-        void run();
+        [[noreturn]] void run();
     };
 }

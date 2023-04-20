@@ -31,7 +31,7 @@ set(SOURCES src/main.cpp
         src/block2/subinstructions.hpp src/block2/subinstructions.cpp
         src/block2/timer.hpp src/block2/timer.cpp
         src/block2/scaler.hpp src/block2/scaler.cpp
-        )
+        src/block1/subinstructions.cpp src/block1/subinstructions.hpp src/block1/control_pulses.cpp src/block1/control_pulses.hpp)
 
 # fetch latest argparse
 include(FetchContent)
