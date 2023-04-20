@@ -5,8 +5,9 @@ namespace agcplusplus::block1 {
     Scaler Agc::scaler;
     Memory Agc::memory;
     Cpu Agc::cpu;
+    std::thread dsky_thread;
 
-    [[noreturn]] void Agc::run() {
+    void Agc::run() {
         timer.start();
 
         while (true) {

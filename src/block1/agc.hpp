@@ -5,6 +5,7 @@
 #include "timer.hpp"
 
 #include <memory>
+#include <thread>
 
 #pragma once
 
@@ -15,7 +16,8 @@ namespace agcplusplus::block1 {
         static Scaler scaler;
         static Memory memory;
         static Cpu cpu;
+        static std::thread dsky_thread;
 
-        [[noreturn]] void run();
+        void run();
     };
 }
