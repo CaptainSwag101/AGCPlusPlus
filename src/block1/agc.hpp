@@ -17,7 +17,9 @@ namespace agcplusplus::block1 {
         static Memory memory;
         static Cpu cpu;
         static std::thread dsky_thread;
+        static InitArguments configuration;
 
+        Agc(std::vector<word> rope_buffer, InitArguments init_args);
         [[noreturn]] void run();
     };
 }

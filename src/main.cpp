@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
         }
 
         // Initialize the Block I computer
-        block1::Agc computer;
+        block1::Agc computer(rope_buffer, init_args);
         computer.run();
     } else if (machine_type == "block2") {
         // Check rope length

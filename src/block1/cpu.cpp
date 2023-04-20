@@ -28,7 +28,9 @@ namespace agcplusplus::block1 {
     }
 
     void Cpu::process_after_timepulse() {
-        print_state_info(std::cout);
+        if ((Agc::configuration.log_mct && timepulse == 12) || Agc::configuration.log_timepulse) {
+            print_state_info(std::cout);
+        }
 
         // Reset write bus
         write_bus = 0;
