@@ -3,15 +3,16 @@
 #include "memory.hpp"
 #include "scaler.hpp"
 #include "timer.hpp"
-#include <array>
 #include <iostream>
+#include <map>
+#include <vector>
 
 #pragma once
 
 namespace agcplusplus::block2 {
 class Agc {
 public:
-    Agc(std::vector<word>& rope, InitArguments init_args);
+    Agc(std::vector<word>& rope, std::map<word, word> padload, InitArguments init_args);
     void run();
 
 private:

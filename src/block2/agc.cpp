@@ -2,7 +2,7 @@
 #include <chrono>
 
 namespace agcplusplus::block2 {
-Agc::Agc(std::vector<word>& rope, InitArguments init_args) {
+Agc::Agc(std::vector<word>& rope, std::map<word, word> padload, InitArguments init_args) {
     std::cout << "Initializing computer state..." << std::endl;
 
     cpu = std::make_shared<Cpu>(init_args);
@@ -14,6 +14,12 @@ Agc::Agc(std::vector<word>& rope, InitArguments init_args) {
     for (word w : rope) {
         static int fixed_addr = 0;
         memory->write_fixed_word(fixed_addr++, w);
+    }
+    std::cout << " done!" << std::endl;
+
+    std::cout << "Loading pad-loaded values into erasable memory...";
+    for (auto pair : padload) {
+        memory->write_erasable_word(pair.first, pair.second);
     }
     std::cout << " done!" << std::endl;
 

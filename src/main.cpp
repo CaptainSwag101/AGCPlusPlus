@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <argparse/argparse.hpp>
+#include <filesystem>
 
 using namespace agcplusplus;
 
@@ -90,6 +91,32 @@ int main(int argc, char* argv[]) {
     }
     in_rope.close();
 
+
+    // Create a blank pad-load placeholder
+    std::map<word, word> padload{};
+
+    // Get the padload file path from our rope name
+    auto padload_path = mainArgs.get<std::string>("rope-file");
+    std::filesystem::path padload_path2 = padload_path;
+    padload_path2.replace_extension("pad");
+    std::fstream in_padload;
+    in_padload.open(padload_path2, std::ios::in);
+
+    // Verify we can open the pad file
+    if (in_padload.is_open()) {
+        // Load padload file into our map
+        std::cout << "Reading padload data from " << padload_path2 << std::endl;
+        while (!in_padload.eof()) {
+            word addr = 0;
+            word data = 0;
+            in_padload >> addr;
+            in_padload >> data;
+            padload.emplace(addr, data);
+            std::cout << "Addr: " << addr << " Data: " << data << std::endl;
+        }
+        in_padload.close();
+    }
+
     // Load data and prepare computer based on the machine type selected
     auto machine_type = mainArgs.get<std::string>("machine-type");
     if (machine_type == "block1") {
@@ -108,7 +135,7 @@ int main(int argc, char* argv[]) {
         }
 
         // Initialize the Block II computer
-        block2::Agc computer(rope_buffer, init_args);
+        block2::Agc computer(rope_buffer, padload, init_args);
         computer.run();
     }
 
