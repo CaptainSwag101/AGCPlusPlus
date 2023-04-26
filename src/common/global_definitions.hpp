@@ -14,7 +14,7 @@ namespace agcplusplus {
     constexpr word BITMASK_1_14 = ((1 << 14) - 1);
     constexpr word BITMASK_1_16 = ((1 << 16) - 1);
     constexpr word BITMASK_4_15 = 0077770;
-    constexpr word BITMASK_8_10 = 0001600;
+    constexpr word BITMASK_8_10 = 0003400;
     constexpr word BITMASK_8_14 = 0037600;
     constexpr word BITMASK_10_14 = 0037000;
     constexpr word BITMASK_11_15 = 0076000;
