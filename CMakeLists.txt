@@ -21,13 +21,18 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/p-ranav/argparse.git
 )
 FetchContent_MakeAvailable(argparse)
+FetchContent_Declare(
+        sockpp
+        GIT_REPOSITORY https://github.com/fpagliughi/sockpp.git
+)
+FetchContent_MakeAvailable(sockpp)
 
 # Define the project target
 add_executable(AGCPlusPlus ${SOURCES})
 
 # Search for the sockpp library
-find_library(LIBSOCKPP sockpp)
-target_link_libraries(AGCPlusPlus PUBLIC "${LIBSOCKPP}")
+#find_library(LIBSOCKPP sockpp)
+target_link_libraries(AGCPlusPlus PUBLIC sockpp)
 target_link_libraries(AGCPlusPlus PUBLIC argparse)
 
 # Add the extra generated header file for our version number
