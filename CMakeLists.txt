@@ -22,6 +22,8 @@ set(SOURCES src/main.cpp
         src/block1/memory.cpp src/block1/memory.hpp
         src/block1/scaler.cpp src/block1/scaler.hpp
         src/block1/cpu.cpp src/block1/cpu.hpp
+        src/block1/subinstructions.cpp src/block1/subinstructions.hpp
+        src/block1/control_pulses.cpp src/block1/control_pulses.hpp
 
         src/block2/block2defs.hpp
         src/block2/agc.hpp src/block2/agc.cpp
@@ -31,7 +33,7 @@ set(SOURCES src/main.cpp
         src/block2/subinstructions.hpp src/block2/subinstructions.cpp
         src/block2/timer.hpp src/block2/timer.cpp
         src/block2/scaler.hpp src/block2/scaler.cpp
-        src/block1/subinstructions.cpp src/block1/subinstructions.hpp src/block1/control_pulses.cpp src/block1/control_pulses.hpp)
+        )
 
 # fetch latest argparse
 include(FetchContent)
@@ -40,15 +42,17 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/p-ranav/argparse.git
 )
 FetchContent_MakeAvailable(argparse)
+FetchContent_Declare(
+        sockpp
+        GIT_REPOSITORY https://github.com/fpagliughi/sockpp.git
+)
+FetchContent_MakeAvailable(sockpp)
 
 # Define the project target
 add_executable(AGCPlusPlus ${SOURCES})
 
-# Search for the sockpp library
-find_library(LIBSOCKPP sockpp)
-
 # Link our libraries
-target_link_libraries(AGCPlusPlus PUBLIC "${LIBSOCKPP}")
+target_link_libraries(AGCPlusPlus PUBLIC sockpp)
 target_link_libraries(AGCPlusPlus PUBLIC argparse)
 
 # Add the extra generated header file for our version number
