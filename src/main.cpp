@@ -95,31 +95,31 @@ int main(int argc, char* argv[]) {
     // Create a blank pad-load placeholder
     std::map<word, word> padload{};
 
-    /*
+
     // Get the padload file path from our rope name
-    auto padload_path = mainArgs.get<std::string>("rope-file");
-    std::filesystem::path padload_path2 = padload_path;
-    padload_path2.replace_extension("pad");
-    std::fstream in_padload;
-    in_padload.open(padload_path2, std::ios::in | std::ios::binary);
+    auto padload_string = mainArgs.get<std::string>("rope-file");
+    std::filesystem::path padload_path = padload_string;
+    padload_path.replace_extension("pad");
+    std::ifstream in_padload(padload_path, std::ios::in | std::ios::binary);
 
     // Verify we can open the pad file
     if (in_padload.is_open()) {
         // Load padload file into our map
-        std::cout << "Reading padload data from " << padload_path2 << std::endl;
+        std::cout << "Reading padload data from " << padload_path << std::endl;
         while (!in_padload.eof()) {
             word addr = 0;
             word data = 0;
-            in_rope.read(reinterpret_cast<char*>(&addr), 2);
-            word addr_swapped = swap_endian<word>(addr);
-            in_rope.read(reinterpret_cast<char*>(&data), 2);
-            word data_swapped = swap_endian<word>(data);
-            padload.emplace(addr_swapped, data_swapped);
-            std::cout << std::oct << "Addr: " << addr_swapped << " Data: " << data_swapped << std::dec << std::endl;
+            in_padload.read(reinterpret_cast<char*>(&addr), 2);
+            //word addr_swapped = swap_endian<word>(addr);
+            in_padload.read(reinterpret_cast<char*>(&data), 2);
+            //word data_swapped = swap_endian<word>(data);
+            if (addr == 0) continue;    // Skip any empty entries
+            padload.emplace(addr, data);
+            //std::cout << std::oct << "Addr: " << addr << " Data: " << data << std::dec << std::endl;
         }
         in_padload.close();
     }
-    */
+
 
     // Load data and prepare computer based on the machine type selected
     auto machine_type = mainArgs.get<std::string>("machine-type");
