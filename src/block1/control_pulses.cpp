@@ -28,7 +28,9 @@ namespace agcplusplus::block1 {
     }
 
     void rg(Cpu& cpu) {
-        cpu.write_bus |= cpu.g;
+        word temp = cpu.g;
+        temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 (SG) into bit 15 (US)
+        cpu.write_bus |= temp;
     }
 
     void rq(Cpu& cpu) {
@@ -55,7 +57,7 @@ namespace agcplusplus::block1 {
                 cpu.write_bus |= cpu.lp;
                 break;
             case 015:
-                cpu.write_bus |= cpu.bank;
+                cpu.write_bus |= (cpu.bank << 10);
                 break;
         }
     }
@@ -122,7 +124,7 @@ namespace agcplusplus::block1 {
     }
 
     void wg(Cpu& cpu) {
-        word temp = cpu.write_bus;
+        word temp = cpu.write_bus & ~BITMASK_15;    // Mask out bit 15 (US)
 
         word s_correct = (cpu.s_temp > 0) ? cpu.s_temp : cpu.s;
 
@@ -200,7 +202,7 @@ namespace agcplusplus::block1 {
                 cpu.lp = cpu.write_bus;
                 break;
             case 015:
-                cpu.bank = (cpu.write_bus & 037);
+                cpu.bank = (cpu.write_bus & BITMASK_11_14) >> 10;
                 break;
         }
     }

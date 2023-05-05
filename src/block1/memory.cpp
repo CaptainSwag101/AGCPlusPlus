@@ -6,18 +6,17 @@ namespace agcplusplus::block1 {
         if (address <= MEM_ERASABLE_END) {
             word temp = erasable[address];
             erasable[address] = 0;  // Erasable reads are destructive
-            temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 (SG) into bit 15 (US)
-            //temp &= ~BITMASK_16;    // Mask out SG
             return temp;
         } else {
-            int32_t fixed_addr = address - 02000;
-            fixed_addr |= ((bank - 1) << 12);
+            int32_t fixed_addr = 0;
+            if (address <= MEM_FIXED_FIXED_END) {
+                fixed_addr = address - MEM_FIXED_FIXED_START;
+            } else {
+                fixed_addr = address - MEM_FIXED_BANKED_START;
+                fixed_addr += (bank - 1) * MEM_FIXED_BANKED_SIZE;
+            }
 
-            word temp = fixed[fixed_addr];
-            temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 (SG) into bit 15 (US)
-            //temp &= ~BITMASK_16;    // Mask out SG
-
-            return temp;
+            return fixed[fixed_addr];
         }
     }
 

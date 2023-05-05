@@ -183,7 +183,7 @@ namespace agcplusplus::block1 {
                 tp(cpu);
                 break;
             case 9:
-                wb(cpu);
+                rb(cpu);
                 wsc(cpu);
                 wg(cpu);
                 break;
