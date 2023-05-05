@@ -37,6 +37,7 @@ namespace agcplusplus {
     constexpr word BITMASK_14 = (1 << 13);
     constexpr word BITMASK_15 = (1 << 14);
     constexpr word BITMASK_16 = (1 << 15);
+    constexpr word BITMASK_13_16 = (BITMASK_13 | BITMASK_14 | BITMASK_15 | BITMASK_16);
     constexpr uint64_t BITMASK_17 = (1 << 16);
 
     struct InitArguments {

@@ -1,4 +1,5 @@
 #include "control_pulses.hpp"
+#include "../common/util_functions.hpp"
 
 namespace agcplusplus::block1 {
     void ci(Cpu& cpu) {
@@ -14,12 +15,28 @@ namespace agcplusplus::block1 {
         cpu.fetch_next_subinstruction = true;
     }
 
+    void ra(Cpu& cpu) {
+        cpu.write_bus |= cpu.a;
+    }
+
     void rb(Cpu& cpu) {
         cpu.write_bus |= cpu.b;
     }
 
+    void rc(Cpu& cpu) {
+        cpu.write_bus |= ~(cpu.b);
+    }
+
     void rg(Cpu& cpu) {
         cpu.write_bus |= cpu.g;
+    }
+
+    void rq(Cpu& cpu) {
+        cpu.write_bus |= cpu.q;
+    }
+
+    void rp2(Cpu& cpu) {
+        // TODO
     }
 
     void rsc(Cpu& cpu) {
@@ -51,8 +68,47 @@ namespace agcplusplus::block1 {
         cpu.write_bus |= cpu.z;
     }
 
+    void r1(Cpu& cpu) {
+        cpu.write_bus |= 1;
+    }
+
+    void r1c(Cpu& cpu) {
+        cpu.write_bus |= 017776;
+    }
+
+    void r2(Cpu& cpu) {
+        cpu.write_bus |= 2;
+    }
+
+    void r22(Cpu& cpu) {
+        cpu.write_bus |= 022;
+    }
+
+    void r24(Cpu& cpu) {
+        cpu.write_bus |= 024;
+    }
+
+    void st1(Cpu& cpu) {
+        cpu.st_next |= 1;
+    }
+
+    void st2(Cpu& cpu) {
+        cpu.st_next |= 2;
+    }
+
+    void tov(Cpu& cpu) {
+        word sign_bits = get_sign_bits(cpu.write_bus);
+        if (sign_bits == 0b01 || sign_bits == 0b10) {
+            cpu.br = sign_bits; // Set MSB (BR 1) on negative overflow, LSB (BR 2) on positive overflow.
+        }
+    }
+
     void tp(Cpu& cpu) {
         // TODO
+    }
+
+    void wa(Cpu &cpu) {
+        cpu.a = cpu.write_bus;
     }
 
     void wb(Cpu &cpu) {
@@ -98,8 +154,24 @@ namespace agcplusplus::block1 {
         cpu.g = temp;
     }
 
+    void wovi(Cpu& cpu) {
+        // If uncorrected sign and generated sign do not match, we have an overflow.
+        word sign_bits = get_sign_bits(cpu.write_bus);
+        if (sign_bits == 0b01 || sign_bits == 0b10) {
+            cpu.inhibit_interrupts = true;
+        }
+    }
+
     void wp(Cpu& cpu) {
         // TODO
+    }
+
+    void wp2(Cpu& cpu) {
+        // TODO
+    }
+
+    void wq(Cpu& cpu) {
+        cpu.q = cpu.write_bus;
     }
 
     void ws(Cpu& cpu) {

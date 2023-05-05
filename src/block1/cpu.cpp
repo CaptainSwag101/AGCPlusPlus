@@ -3,6 +3,17 @@
 #include "subinstructions.hpp"
 
 namespace agcplusplus::block1 {
+    void Cpu::go() {
+        write_bus = 02030;
+        inhibit_interrupts = false;
+        inkl = false;
+        b = 0;
+        current_subinstruction = subinstruction_data[0];
+        fetch_next_subinstruction = false;
+        st = 2;
+        bank = 1;
+    }
+
     void Cpu::tick() {
         process_before_timepulse();
         process_timepulse();
@@ -12,8 +23,10 @@ namespace agcplusplus::block1 {
     void Cpu::process_before_timepulse() {
         if (timepulse == 1)
         {
-            fetch_next_subinstruction = false;
-            extend_next = false;
+            if (st != 2) {
+                fetch_next_subinstruction = false;
+                extend_next = false;
+            }
         }
 
         // Data arrives from memory at T6, rather than T4 on Block II.
@@ -42,11 +55,23 @@ namespace agcplusplus::block1 {
             extend = extend_next;
 
             if (fetch_next_subinstruction) {
-                for (const subinstruction& sub : subinstruction_data) {
-                    if (sub.extended == extend && sub.stage == st && (sub.order_code & sub.mask) == sq) {
-                        current_subinstruction = sub;
-                    }
+                sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
+                extend = extend_next;
+            }
+
+            bool found_good_subinstruction = false;
+            for (const subinstruction& sub : subinstruction_data) {
+                if (sub.extended == extend && sub.stage == st && (sub.order_code & sub.mask) == (sq & sub.mask)) {
+                    current_subinstruction = sub;
+                    found_good_subinstruction = true;
+                    break;
                 }
+            }
+
+            if (!found_good_subinstruction) {
+                // Force STD2 on unimplemented subinstruction
+                current_subinstruction = subinstruction_data[0];
+                std::cout << "Replacing unknown subinstruction with STD2" << std::endl;
             }
         }
 

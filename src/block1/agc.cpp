@@ -14,6 +14,7 @@ namespace agcplusplus::block1 {
     Agc::Agc(std::vector<word> rope_buffer, InitArguments init_args) {
         memory.assign_fixed_memory(std::move(rope_buffer));
         configuration = init_args;
+        cpu.go();
     }
 
     [[noreturn]] void Agc::run() {

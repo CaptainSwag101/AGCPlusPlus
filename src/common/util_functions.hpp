@@ -1,6 +1,9 @@
 #include <climits>
+#include "global_definitions.hpp"
 
 #pragma once
+
+using namespace agcplusplus;
 
 template <typename T>
 T swap_endian(T u) {
@@ -18,3 +21,5 @@ T swap_endian(T u) {
 
     return dest.u;
 }
+
+word get_sign_bits(const word input);

@@ -13,8 +13,9 @@ configure_file(src/main.hpp.in generated_src/main.hpp)
 
 # Set a variable containing the list of source files, to avoid cluttering our add_executable() statement
 set(SOURCES src/main.cpp
-        src/common/util_functions.hpp
         src/common/global_definitions.hpp
+        src/common/util_functions.hpp
+        src/common/util_functions.cpp
 
         src/block1/block1defs.hpp
         src/block1/agc.cpp src/block1/agc.hpp

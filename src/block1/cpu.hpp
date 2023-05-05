@@ -22,6 +22,7 @@ namespace agcplusplus::block1 {
     class Cpu {
     public:
         // Functions
+        void go();
         void tick();
         void process_before_timepulse();
         void process_timepulse();
