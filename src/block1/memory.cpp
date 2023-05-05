@@ -4,11 +4,20 @@ namespace agcplusplus::block1 {
 
     word Memory::read(word address, word bank) {
         if (address <= MEM_ERASABLE_END) {
-            return erasable[address];
+            word temp = erasable[address];
+            erasable[address] = 0;  // Erasable reads are destructive
+            temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 (SG) into bit 15 (US)
+            //temp &= ~BITMASK_16;    // Mask out SG
+            return temp;
         } else {
             int32_t fixed_addr = address - 02000;
             fixed_addr |= ((bank - 1) << 12);
-            return fixed[fixed_addr];
+
+            word temp = fixed[fixed_addr];
+            temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 (SG) into bit 15 (US)
+            //temp &= ~BITMASK_16;    // Mask out SG
+
+            return temp;
         }
     }
 

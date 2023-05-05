@@ -6,6 +6,8 @@
 namespace agcplusplus::block1 {
     // Subinstruction functions
     void cs0(Cpu& cpu);
+    void ndx0(Cpu& cpu);
+    void ndx1(Cpu& cpu);
     void std2(Cpu& cpu);
     void tc0(Cpu& cpu);
     void ts0(Cpu& cpu);
@@ -16,7 +18,9 @@ namespace agcplusplus::block1 {
             {"STD2", 2, false, 000, 000, std2},
             {"TC0", 0, false, 017, 000, tc0},
             {"XCH0", 0, false, 017, 003, xch0},
-            {"CS0", 0, false, 017, 004, cs0},
-            {"TS0", 0, false, 017, 011, ts0},
+            {"CS0", 0, false, 017, 014, cs0},
+            {"TS0", 0, false, 017, 015, ts0},
+            {"NDX0", 0, false, 017, 002, ndx0},
+            {"NDX1", 1, false, 017, 002, ndx1},
     };
 }

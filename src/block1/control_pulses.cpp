@@ -107,6 +107,12 @@ namespace agcplusplus::block1 {
         // TODO
     }
 
+    void trsm(Cpu& cpu) {
+        if (cpu.s == 025) {
+            st2(cpu);
+        }
+    }
+
     void wa(Cpu &cpu) {
         cpu.a = cpu.write_bus;
     }
@@ -175,7 +181,7 @@ namespace agcplusplus::block1 {
     }
 
     void ws(Cpu& cpu) {
-        cpu.s = cpu.write_bus;
+        cpu.s = (cpu.write_bus & BITMASK_1_12);
     }
 
     void wsc(Cpu& cpu) {
@@ -194,14 +200,20 @@ namespace agcplusplus::block1 {
                 cpu.lp = cpu.write_bus;
                 break;
             case 015:
-                cpu.bank = cpu.write_bus;
+                cpu.bank = (cpu.write_bus & 037);
                 break;
         }
     }
 
+    void wx(Cpu& cpu) {
+        cpu.x |= cpu.write_bus;
+        cpu.update_adder();
+    }
+
     void wy(Cpu& cpu) {
-        cpu.carry_in = false;
+        cpu.x = 0;
         cpu.y = cpu.write_bus;
+        cpu.carry_in = false;
         cpu.update_adder();
     }
 

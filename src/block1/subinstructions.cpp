@@ -37,6 +37,88 @@ namespace agcplusplus::block1 {
         }
     }
 
+    void ndx0(Cpu& cpu) {
+        switch (cpu.timepulse) {
+            case 1:
+                rb(cpu);
+                ws(cpu);
+                break;
+            case 3:
+                wg(cpu);
+                break;
+            case 4:
+                ra(cpu);
+                wovi(cpu);
+                break;
+            case 7:
+                rg(cpu);
+                rsc(cpu);
+                wb(cpu);
+                wp(cpu);
+                break;
+            case 8:
+                gp(cpu);
+                tp(cpu);
+                break;
+            case 9:
+                rb(cpu);
+                wsc(cpu);
+                wg(cpu);
+                break;
+            case 10:
+                trsm(cpu);
+                break;
+            case 11:
+                st1(cpu);
+                break;
+        }
+    }
+
+    void ndx1(Cpu& cpu) {
+        switch (cpu.timepulse) {
+            case 1:
+                rz(cpu);
+                wy(cpu);
+                ws(cpu);
+                ci(cpu);
+                break;
+            case 3:
+                wg(cpu);
+                break;
+            case 4:
+                ru(cpu);
+                wz(cpu);
+                break;
+            case 6:
+                rb(cpu);
+                wy(cpu);
+                break;
+            case 7:
+                rg(cpu);
+                rsc(cpu);
+                wb(cpu);
+                wp(cpu);
+                break;
+            case 8:
+                rb(cpu);
+                wx(cpu);
+                gp(cpu);
+                tp(cpu);
+                break;
+            case 9:
+                rb(cpu);
+                wsc(cpu);
+                wg(cpu);
+                break;
+            case 11:
+                ru(cpu);
+                wb(cpu);
+                wovi(cpu);
+                nisq(cpu);
+                break;
+        }
+    }
+
     void std2(Cpu& cpu) {
         switch (cpu.timepulse) {
             case 1:

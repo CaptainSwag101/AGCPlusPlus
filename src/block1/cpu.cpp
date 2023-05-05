@@ -48,6 +48,17 @@ namespace agcplusplus::block1 {
         // Reset write bus
         write_bus = 0;
 
+        // If address 016 or 017 is present in S at time 5,
+        // release or inhibit interrupts, respectively.
+        if (timepulse == 5) {
+            if (s == 016) {
+                inhibit_interrupts = false;
+            }
+            if (s == 017) {
+                inhibit_interrupts = true;
+            }
+        }
+
         // Fetch next subinstruction if we should
         if (timepulse == 12) {
             st = st_next;

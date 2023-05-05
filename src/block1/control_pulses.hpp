@@ -25,6 +25,7 @@ namespace agcplusplus::block1 {
     void st2(Cpu& cpu);
     void tov(Cpu& cpu);
     void tp(Cpu& cpu);
+    void trsm(Cpu& cpu);
     void wa(Cpu& cpu);
     void wb(Cpu& cpu);
     void wg(Cpu& cpu);
@@ -34,6 +35,7 @@ namespace agcplusplus::block1 {
     void wq(Cpu& cpu);
     void ws(Cpu& cpu);
     void wsc(Cpu& cpu);
+    void wx(Cpu& cpu);
     void wy(Cpu& cpu);
     void wz(Cpu& cpu);
 }
