@@ -22,6 +22,7 @@ namespace agcplusplus::block1 {
             return fixed[fixed_addr];
         } else {
             std::cout << "Invalid memory access attempt at " << std::oct << address << "." << std::dec << std::endl;
+            return 0;
         }
     }
 
