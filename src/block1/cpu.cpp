@@ -127,7 +127,7 @@ namespace agcplusplus::block1 {
         output << " Y = " << std::setw(6) << y;
         output << " U = " << std::setw(6) << u;
         output << " WL = " << std::setw(6) << write_bus;
-        output << std::endl;
+        output << std::endl << std::endl;
 
         std::dec(output);
     }
