@@ -509,9 +509,9 @@ namespace agcplusplus::block1 {
                 break;
             case 9:
                 ra(cpu);
-                wsc(cpu);
-                rg(cpu);
                 rp2(cpu);
+                wsc(cpu);
+                wg(cpu);
                 break;
             case 10:
                 rb(cpu);
