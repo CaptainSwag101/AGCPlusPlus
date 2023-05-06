@@ -32,7 +32,8 @@ namespace agcplusplus::block1 {
         // Data arrives from memory at T6, rather than T4 on Block II.
         if (timepulse == 6) {
             s_temp = s;
-            g = Agc::memory.read(s, bank);
+            if (s >= 020)
+                g = Agc::memory.read(s, bank);
         }
     }
 
