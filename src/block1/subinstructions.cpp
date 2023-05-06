@@ -120,8 +120,8 @@ namespace agcplusplus::block1 {
                         break;
                     case 0b01:
                     case 0b11:
-                        wa(cpu);
                         r1c(cpu);
+                        wa(cpu);
                         break;
                 }
                 break;
