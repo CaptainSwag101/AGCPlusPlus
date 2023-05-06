@@ -225,7 +225,7 @@ namespace agcplusplus::block1 {
                 cpu.lp = cpu.write_bus;
                 break;
             case 015:
-                cpu.bank = (cpu.write_bus & BITMASK_11_14) >> 10;
+                cpu.bank = (cpu.write_bus & BITMASK_11_15) >> 10;
                 break;
         }
     }
