@@ -145,7 +145,9 @@ namespace agcplusplus::block1 {
     }
 
     void wg(Cpu& cpu) {
-        word temp = cpu.write_bus & ~BITMASK_15;    // Mask out bit 15 (US)
+        word temp = cpu.write_bus & ~BITMASK_16;    // Mask out bit 16 (SG)
+        temp |= (cpu.write_bus & BITMASK_15) << 1;  // Copy bit 15 into bit 16
+        temp &= ~BITMASK_15;    // Mask out bit 15
 
         word s_correct = (cpu.s_temp > 0) ? cpu.s_temp : cpu.s;
 
