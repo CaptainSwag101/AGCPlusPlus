@@ -57,6 +57,9 @@ namespace agcplusplus::block1 {
             if (s == 017) {
                 inhibit_interrupts = true;
             }
+            if (s == 05777) {
+                extend_next = true;
+            }
         }
 
         // Do erasable memory writes after time 10
