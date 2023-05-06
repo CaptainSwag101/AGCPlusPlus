@@ -57,7 +57,7 @@ namespace agcplusplus::block1 {
             if (s == 017) {
                 inhibit_interrupts = true;
             }
-            if (s == 05777) {
+            if (b == 0147777) { // EXTEND
                 extend_next = true;
             }
         }

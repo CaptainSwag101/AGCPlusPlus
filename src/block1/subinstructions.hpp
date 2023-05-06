@@ -13,6 +13,7 @@ namespace agcplusplus::block1 {
     void ndx0(Cpu& cpu);
     void ndx1(Cpu& cpu);
     void std2(Cpu& cpu);
+    void su0(Cpu& cpu);
     void tc0(Cpu& cpu);
     void ts0(Cpu& cpu);
     void xch0(Cpu& cpu);
@@ -32,5 +33,6 @@ namespace agcplusplus::block1 {
 
             {"CCS0", 0, false, 017, 001, ccs0},
             {"CCS1", 1, false, 017, 001, ccs1},
+            {"SU0", 0, true, 017, 013, su0},
     };
 }

@@ -375,6 +375,46 @@ namespace agcplusplus::block1 {
         }
     }
 
+    void su0(Cpu& cpu) {
+        switch (cpu.timepulse) {
+            case 1:
+                rb(cpu);
+                ws(cpu);
+                break;
+            case 2:
+                ra(cpu);
+                wy(cpu);
+                break;
+            case 3:
+                wg(cpu);
+                break;
+            case 7:
+                rg(cpu);
+                rsc(cpu);
+                wb(cpu);
+                wp(cpu);
+                break;
+            case 8:
+                rc(cpu);
+                wx(cpu);
+                gp(cpu);
+                tp(cpu);
+                break;
+            case 9:
+                rb(cpu);
+                wsc(cpu);
+                wg(cpu);
+                break;
+            case 11:
+                ru(cpu);
+                wa(cpu);
+                wovc(cpu);
+                st2(cpu);
+                wovi(cpu);
+                break;
+        }
+    }
+
     void tc0(Cpu& cpu) {
         switch (cpu.timepulse) {
             case 1:
