@@ -76,7 +76,7 @@ namespace agcplusplus::block1 {
     }
 
     void r1c(Cpu& cpu) {
-        cpu.write_bus |= 017776;
+        cpu.write_bus |= 0177776;
     }
 
     void r2(Cpu& cpu) {
