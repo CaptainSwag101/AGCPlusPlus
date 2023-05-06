@@ -4,10 +4,13 @@ namespace agcplusplus::block1 {
 
     word Memory::read(word address, word bank) {
         if (address <= MEM_ERASABLE_END) {
+            // Return zero when accessing central and system registers
+            if (address < 020) return 0;
+
             word temp = erasable[address];
             erasable[address] = 0;  // Erasable reads are destructive
             return temp;
-        } else {
+        } else if (address <= MEM_FIXED_BANKED_END) {
             uint32_t fixed_addr = 0;
             if (address <= MEM_FIXED_FIXED_END) {
                 fixed_addr = address - MEM_FIXED_FIXED_START;
@@ -17,11 +20,13 @@ namespace agcplusplus::block1 {
             }
 
             return fixed[fixed_addr];
+        } else {
+            std::cout << "Invalid memory access attempt at " << std::oct << address << "." << std::dec << std::endl;
         }
     }
 
     void Memory::write(word address, word data) {
-        if (address <= MEM_ERASABLE_END) {
+        if (address >= 020 && address <= MEM_ERASABLE_END) {
             erasable[address] = data;
         }
     }
