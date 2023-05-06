@@ -23,12 +23,16 @@ namespace agcplusplus::block1 {
     void r24(Cpu& cpu);
     void st1(Cpu& cpu);
     void st2(Cpu& cpu);
+    void tmz(Cpu& cpu);
     void tov(Cpu& cpu);
     void tp(Cpu& cpu);
     void trsm(Cpu& cpu);
+    void tsgn(Cpu& cpu);
+    void tsgn2(Cpu& cpu);
     void wa(Cpu& cpu);
     void wb(Cpu& cpu);
     void wg(Cpu& cpu);
+    void wovc(Cpu& cpu);
     void wovi(Cpu& cpu);
     void wp(Cpu& cpu);
     void wp2(Cpu& cpu);

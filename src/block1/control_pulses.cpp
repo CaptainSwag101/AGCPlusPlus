@@ -12,7 +12,7 @@ namespace agcplusplus::block1 {
     }
 
     void nisq(Cpu& cpu) {
-        cpu.fetch_next_subinstruction = true;
+        cpu.fetch_new_subinstruction = true;
     }
 
     void ra(Cpu& cpu) {
@@ -29,6 +29,7 @@ namespace agcplusplus::block1 {
 
     void rg(Cpu& cpu) {
         word temp = cpu.g;
+        temp &= ~BITMASK_15;    // Mask out bit 15 (US)
         temp |= (temp & BITMASK_16) >> 1;   // Copy bit 16 (SG) into bit 15 (US)
         cpu.write_bus |= temp;
     }
@@ -98,11 +99,17 @@ namespace agcplusplus::block1 {
         cpu.st_next |= 2;
     }
 
+    void tmz(Cpu& cpu) {
+        if (cpu.write_bus == 0177777) {
+            cpu.br |= 0b01; // Set LSB (BR 2) if -0 is on the write bus.
+        }
+    }
+
     void tov(Cpu& cpu) {
         word sign_bits = get_sign_bits(cpu.write_bus);
-        if (sign_bits == 0b01 || sign_bits == 0b10) {
+        //if (sign_bits == 0b01 || sign_bits == 0b10) {
             cpu.br = sign_bits; // Set MSB (BR 1) on negative overflow, LSB (BR 2) on positive overflow.
-        }
+        //}
     }
 
     void tp(Cpu& cpu) {
@@ -112,6 +119,18 @@ namespace agcplusplus::block1 {
     void trsm(Cpu& cpu) {
         if (cpu.s == 025) {
             st2(cpu);
+        }
+    }
+
+    void tsgn(Cpu& cpu) {
+        if ((cpu.write_bus & BITMASK_15) > 0) {
+            cpu.br |= 0b10; // Set MSB (BR 1) if sign bit is set
+        }
+    }
+
+    void tsgn2(Cpu& cpu) {
+        if ((cpu.write_bus & BITMASK_15) > 0) {
+            cpu.br |= 0b01; // Set LSB (BR 2) if sign bit is set
         }
     }
 
@@ -160,6 +179,10 @@ namespace agcplusplus::block1 {
         }
 
         cpu.g = temp;
+    }
+
+    void wovc(Cpu& cpu) {
+        // TODO: Direct overflow to OVCTR priority inputs
     }
 
     void wovi(Cpu& cpu) {

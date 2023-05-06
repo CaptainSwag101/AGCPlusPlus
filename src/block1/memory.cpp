@@ -8,7 +8,7 @@ namespace agcplusplus::block1 {
             erasable[address] = 0;  // Erasable reads are destructive
             return temp;
         } else {
-            int32_t fixed_addr = 0;
+            uint32_t fixed_addr = 0;
             if (address <= MEM_FIXED_FIXED_END) {
                 fixed_addr = address - MEM_FIXED_FIXED_START;
             } else {
@@ -20,8 +20,10 @@ namespace agcplusplus::block1 {
         }
     }
 
-    void Memory::write(word address, word bank, word data) {
-
+    void Memory::write(word address, word data) {
+        if (address <= MEM_ERASABLE_END) {
+            erasable[address] = data;
+        }
     }
 
     void Memory::assign_fixed_memory(std::vector<word> buffer) {

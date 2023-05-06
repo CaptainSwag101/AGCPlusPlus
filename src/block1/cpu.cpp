@@ -9,7 +9,7 @@ namespace agcplusplus::block1 {
         inkl = false;
         b = 0;
         current_subinstruction = subinstruction_data[0];
-        fetch_next_subinstruction = false;
+        fetch_new_subinstruction = false;
         st = 2;
         bank = 1;
     }
@@ -24,7 +24,7 @@ namespace agcplusplus::block1 {
         if (timepulse == 1)
         {
             if (st != 2) {
-                fetch_next_subinstruction = false;
+                fetch_new_subinstruction = false;
                 extend_next = false;
             }
         }
@@ -59,13 +59,18 @@ namespace agcplusplus::block1 {
             }
         }
 
-        // Fetch next subinstruction if we should
+        // Do erasable memory writes after time 10
+        if (timepulse == 10) {
+            Agc::memory.write(s_temp, g);
+        }
+
+        // Fetch next subinstruction, or the next stage of the current one
         if (timepulse == 12) {
             st = st_next;
             st_next = 0;
             extend = extend_next;
 
-            if (fetch_next_subinstruction) {
+            if (fetch_new_subinstruction) {
                 sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
                 extend = extend_next;
             }
