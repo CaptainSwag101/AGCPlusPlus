@@ -107,9 +107,11 @@ namespace agcplusplus::block1 {
 
     void tov(Cpu& cpu) {
         word sign_bits = get_sign_bits(cpu.write_bus);
-        //if (sign_bits == 0b01 || sign_bits == 0b10) {
+        if (sign_bits == 0b01 || sign_bits == 0b10) {
             cpu.br = sign_bits; // Set MSB (BR 1) on negative overflow, LSB (BR 2) on positive overflow.
-        //}
+        } else {
+            cpu.br = 0;
+        }
     }
 
     void tp(Cpu& cpu) {
