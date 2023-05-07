@@ -52,6 +52,8 @@ namespace agcplusplus::block1 {
         word sq{}, st{}, st_next{}, s{}, s_temp{}, br{}, bank{}, timepulse = 1;
         subinstruction current_subinstruction, pending_subinstruction;
         bool fetch_new_subinstruction = false;
-        bool extend = false, extend_next = false, no_eac = false, inkl = false, inhibit_interrupts = false;
+        bool extend = false, extend_next = false, no_eac = false;
+        bool mcro = false, pseudo = false;
+        bool inkl = false, iip = false, inhibit_interrupts = false;
     };
 }

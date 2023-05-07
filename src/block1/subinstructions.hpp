@@ -48,4 +48,7 @@ namespace agcplusplus::block1 {
     const static subinstruction sub_minc = {
             "MINC", 0, false, 000, 000, minc
     };
+    const static subinstruction sub_rupt0 = {
+
+    };
 }

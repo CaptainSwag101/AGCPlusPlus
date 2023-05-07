@@ -23,6 +23,22 @@ namespace agcplusplus::block1 {
     void Cpu::process_before_timepulse() {
         if (timepulse == 1)
         {
+            // Service INKL
+            if (inkl) {
+                // Remember what we wanted to do, so we can come back to it later
+                pending_subinstruction = current_subinstruction;
+
+                for (auto& counter : counters) {
+                    if (counter == COUNTER_STATUS::UP) {
+                        current_subinstruction = sub_pinc;
+                        break;
+                    } else if (counter == COUNTER_STATUS::DOWN) {
+                        current_subinstruction = sub_minc;
+                        break;
+                    }
+                }
+            }
+
             if (st != 2) {
                 fetch_new_subinstruction = false;
                 extend_next = false;
@@ -69,13 +85,48 @@ namespace agcplusplus::block1 {
 
         // Fetch next subinstruction, or the next stage of the current one
         if (timepulse == 12) {
+            // Push stage to its next pending value
             st = st_next;
             st_next = 0;
-            extend = extend_next;
 
             if (fetch_new_subinstruction) {
-                sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
-                extend = extend_next;
+                // Check for pending counter requests
+                bool prev_inkl = inkl;
+                inkl = false;
+                for (int c = 0; c < 20; ++c) {
+                    if (counters[c] != COUNTER_STATUS::NONE && !pseudo && !Agc::configuration.ignore_counters) {
+                        inkl = true;
+                        break;
+                    }
+                }
+
+
+                // If no counters need servicing, and we have a pending subinstruction, get back to it.
+                if (!inkl && prev_inkl) {
+                    current_subinstruction = pending_subinstruction;
+                }
+
+
+                // Check for pending interrupts
+                bool rupt_pending = false;
+                for (int r = 0; r < 5; ++r) {
+                    if (interrupts[r]) {
+                        rupt_pending = true;
+                        break;
+                    }
+                }
+
+
+                uint8_t a_signs = (a & BITMASK_15_16) >> 14;
+                bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
+                if (rupt_pending && !Agc::configuration.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !pseudo && !a_overflow) {
+                    subinstruction rupt0 = sub_rupt0;
+                    sq = rupt0.order_code;
+                    extend = rupt0.extended;
+                } else {
+                    sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
+                    extend = extend_next;
+                }
             }
 
             bool found_good_subinstruction = false;

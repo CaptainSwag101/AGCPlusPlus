@@ -212,7 +212,11 @@ namespace agcplusplus::block1 {
     }
 
     void wovc(Cpu& cpu) {
-        cpu.counters[COUNTER_OVCTR] = COUNTER_STATUS::UP;
+        // If uncorrected sign and generated sign do not match, we have an overflow.
+        word sign_bits = get_sign_bits(cpu.write_bus);
+        if (sign_bits == 0b01 || sign_bits == 0b10) {
+            cpu.counters[COUNTER_OVCTR] = COUNTER_STATUS::UP;
+        }
     }
 
     void wovi(Cpu& cpu) {
