@@ -57,6 +57,19 @@ namespace agcplusplus::block1 {
             case 3:
                 cpu.write_bus |= cpu.lp;
                 break;
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                cpu.write_bus |= cpu.in[cpu.s - 4];
+                break;
+            case 010:
+            case 011:
+            case 012:
+            case 013:
+            case 014:
+                cpu.write_bus |= cpu.out[cpu.s - 010];
+                break;
             case 015:
                 cpu.write_bus |= (cpu.bank << 10);
                 break;
@@ -227,6 +240,19 @@ namespace agcplusplus::block1 {
                 break;
             case 3:
                 cpu.lp = cpu.write_bus;
+                break;
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                cpu.in[cpu.s - 4] = cpu.write_bus;
+                break;
+            case 010:
+            case 011:
+            case 012:
+            case 013:
+            case 014:
+                cpu.out[cpu.s - 010] = cpu.write_bus;
                 break;
             case 015:
                 cpu.bank = (cpu.write_bus & BITMASK_11_15) >> 10;
