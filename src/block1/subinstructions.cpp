@@ -214,6 +214,43 @@ namespace agcplusplus::block1 {
         }
     }
 
+    void minc(Cpu& cpu) {
+        switch (cpu.timepulse) {
+            case 1:
+                rsct(cpu);
+                ws(cpu);
+                break;
+            case 3:
+                wg(cpu);
+                break;
+            case 4:
+                r1c(cpu);
+                wy(cpu);
+                break;
+            case 6:
+                rg(cpu);
+                wx(cpu);
+                wp(cpu);
+                break;
+            case 7:
+                tp(cpu);
+                break;
+            case 8:
+                wp(cpu);
+                break;
+            case 9:
+                ru(cpu);
+                clg(cpu);
+                wp(cpu);
+                break;
+            case 10:
+                ru(cpu);
+                wg(cpu);
+                wovr(cpu);
+                break;
+        }
+    }
+
     void msk0(Cpu& cpu) {
         switch (cpu.timepulse) {
             case 1:
@@ -335,6 +372,43 @@ namespace agcplusplus::block1 {
                 wb(cpu);
                 wovi(cpu);
                 nisq(cpu);
+                break;
+        }
+    }
+
+    void pinc(Cpu& cpu) {
+        switch (cpu.timepulse) {
+            case 1:
+                rsct(cpu);
+                ws(cpu);
+                break;
+            case 3:
+                wg(cpu);
+                break;
+            case 4:
+                r1(cpu);
+                wy(cpu);
+                break;
+            case 6:
+                rg(cpu);
+                wx(cpu);
+                wp(cpu);
+                break;
+            case 7:
+                tp(cpu);
+                break;
+            case 8:
+                wp(cpu);
+                break;
+            case 9:
+                ru(cpu);
+                clg(cpu);
+                wp(cpu);
+                break;
+            case 10:
+                ru(cpu);
+                wg(cpu);
+                wovr(cpu);
                 break;
         }
     }

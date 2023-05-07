@@ -39,8 +39,14 @@ namespace agcplusplus::block1 {
         word in[4]{};
         word out[5]{};
 
+        // Interrupt list
+        bool interrupts[6]{};
+
+        // Counters
+        COUNTER_STATUS counters[20]{};
+
         // Auto-generated (read-only) registers
-        word u{}, c{}, p{}, p2{};
+        word u{}, p{}, p2{};
 
         // Control-related registers
         word sq{}, st{}, st_next{}, s{}, s_temp{}, br{}, bank{}, timepulse = 1;

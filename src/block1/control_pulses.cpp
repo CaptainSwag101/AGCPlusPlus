@@ -7,6 +7,10 @@ namespace agcplusplus::block1 {
         cpu.update_adder();
     }
 
+    void clg(Cpu& cpu) {
+        cpu.g = 0;
+    }
+
     void gp(Cpu& cpu) {
         // TODO
     }
@@ -73,6 +77,15 @@ namespace agcplusplus::block1 {
             case 015:
                 cpu.write_bus |= (cpu.bank << 10);
                 break;
+        }
+    }
+
+    void rsct(Cpu& cpu) {
+        for (word c = 0; c < 20; ++c) {
+            if (cpu.counters[c] != COUNTER_STATUS::NONE) {
+                cpu.write_bus |= c + 034;
+                break;
+            }
         }
     }
 
@@ -199,7 +212,7 @@ namespace agcplusplus::block1 {
     }
 
     void wovc(Cpu& cpu) {
-        // TODO: Direct overflow to OVCTR priority inputs
+        cpu.counters[COUNTER_OVCTR] = COUNTER_STATUS::UP;
     }
 
     void wovi(Cpu& cpu) {
@@ -208,6 +221,17 @@ namespace agcplusplus::block1 {
         if (sign_bits == 0b01 || sign_bits == 0b10) {
             cpu.inhibit_interrupts = true;
         }
+    }
+
+    void wovr(Cpu& cpu) {
+        // TODO: This may be implemented incorrectly, as far as I know
+        // the only counter that should overflow is TIME1 into TIME2.
+        const word counter_location = cpu.s - 034;
+        if (counter_location == COUNTER_TIME1) {
+            cpu.counters[COUNTER_TIME2] = COUNTER_STATUS::UP;   // Overflow into TIME2
+        }
+
+        cpu.counters[counter_location] = COUNTER_STATUS::NONE;  // Reset the original counter request
     }
 
     void wp(Cpu& cpu) {

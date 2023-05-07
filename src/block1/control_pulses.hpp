@@ -5,6 +5,7 @@
 
 namespace agcplusplus::block1 {
     void ci(Cpu& cpu);
+    void clg(Cpu& cpu);
     void gp(Cpu& cpu);
     void nisq(Cpu& cpu);
     void ra(Cpu& cpu);
@@ -14,6 +15,7 @@ namespace agcplusplus::block1 {
     void rq(Cpu& cpu);
     void rp2(Cpu& cpu);
     void rsc(Cpu& cpu);
+    void rsct(Cpu& cpu);
     void ru(Cpu& cpu);
     void rz(Cpu& cpu);
     void r1(Cpu& cpu);
@@ -34,6 +36,7 @@ namespace agcplusplus::block1 {
     void wg(Cpu& cpu);
     void wovc(Cpu& cpu);
     void wovi(Cpu& cpu);
+    void wovr(Cpu& cpu);
     void wp(Cpu& cpu);
     void wp2(Cpu& cpu);
     void wq(Cpu& cpu);
