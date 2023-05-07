@@ -7,6 +7,7 @@ namespace agcplusplus::block1 {
     void ci(Cpu& cpu);
     void clg(Cpu& cpu);
     void gp(Cpu& cpu);
+    void krpt(Cpu& cpu);
     void nisq(Cpu& cpu);
     void ra(Cpu& cpu);
     void rb(Cpu& cpu);
@@ -23,6 +24,7 @@ namespace agcplusplus::block1 {
     void r2(Cpu& cpu);
     void r22(Cpu& cpu);
     void r24(Cpu& cpu);
+    void rrpa(Cpu& cpu);
     void st1(Cpu& cpu);
     void st2(Cpu& cpu);
     void tmz(Cpu& cpu);

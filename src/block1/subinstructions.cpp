@@ -413,6 +413,77 @@ namespace agcplusplus::block1 {
         }
     }
 
+    void rsm(Cpu& cpu) {
+        switch (cpu.timepulse) {
+            case 1:
+                r24(cpu);
+                ws(cpu);
+                break;
+            case 3:
+                wg(cpu);
+                break;
+            case 7:
+                rg(cpu);
+                wz(cpu);
+                break;
+            case 11:
+                nisq(cpu);
+                break;
+        }
+    }
+
+    void rupt1(Cpu& cpu) {
+        switch (cpu.timepulse) {
+            case 1:
+                r24(cpu);
+                wy(cpu);
+                ws(cpu);
+                ci(cpu);
+                break;
+            case 3:
+                wg(cpu);
+                break;
+            case 9:
+                rz(cpu);
+                wg(cpu);
+                break;
+            case 10:
+                ru(cpu);
+                wz(cpu);
+                break;
+            case 11:
+                st1(cpu);
+                st2(cpu);
+                break;
+        }
+    }
+
+    void rupt3(Cpu& cpu) {
+        switch (cpu.timepulse) {
+            case 1:
+                rz(cpu);
+                ws(cpu);
+                break;
+            case 2:
+                rrpa(cpu);
+                wz(cpu);
+                break;
+            case 3:
+                rz(cpu);
+                krpt(cpu);
+                wg(cpu);
+                break;
+            case 9:
+                rb(cpu);
+                wsc(cpu);
+                wg(cpu);
+                break;
+            case 11:
+                st2(cpu);
+                break;
+        }
+    }
+
     void std2(Cpu& cpu) {
         switch (cpu.timepulse) {
             case 1:

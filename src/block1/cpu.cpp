@@ -104,6 +104,9 @@ namespace agcplusplus::block1 {
                 // If no counters need servicing, and we have a pending subinstruction, get back to it.
                 if (!inkl && prev_inkl) {
                     current_subinstruction = pending_subinstruction;
+                    sq = current_subinstruction.order_code;
+                    extend_next = current_subinstruction.extended;
+                    st = current_subinstruction.stage;
                 }
 
 

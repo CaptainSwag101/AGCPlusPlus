@@ -15,6 +15,12 @@ namespace agcplusplus::block1 {
         // TODO
     }
 
+    void krpt(Cpu& cpu) {
+        word rupt_address = cpu.s;
+        word rupt_index = (rupt_address - 02000) / 4;
+        cpu.interrupts[rupt_index] = false;
+    }
+
     void nisq(Cpu& cpu) {
         cpu.fetch_new_subinstruction = true;
     }
@@ -115,6 +121,16 @@ namespace agcplusplus::block1 {
 
     void r24(Cpu& cpu) {
         cpu.write_bus |= 024;
+    }
+
+    void rrpa(Cpu& cpu) {
+        for (int i = 0; i < 6; ++i) {
+            if (cpu.interrupts[i]) {
+                word rupt_address = 02000 + (i * 4);
+                cpu.write_bus |= rupt_address;
+                break;
+            }
+        }
     }
 
     void st1(Cpu& cpu) {
