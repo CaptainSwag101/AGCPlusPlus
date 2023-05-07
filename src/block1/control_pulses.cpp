@@ -190,7 +190,7 @@ namespace agcplusplus::block1 {
                 {
                     word top_bit = (cpu.write_bus & BITMASK_16);    // Remember bit 16
                     temp = ((cpu.write_bus & ~BITMASK_15_16) >> 1) | top_bit;  // Mask out bits 15 and 16 before shifting so they are blank afterwards
-                    temp |= ((cpu.write_bus & BITMASK_16) >> 2);  // Copy the old bit 16 into bit 14
+                    temp |= (top_bit >> 2);  // Copy bit 16 into bit 14
                     break;
                 }
                 case 022:   // Cycle Left
@@ -200,9 +200,12 @@ namespace agcplusplus::block1 {
                     temp = ((cpu.write_bus & ~BITMASK_14_15) << 1) | top_to_bottom | new_top;  // Mask out bits 14 and 15 before shifting so they are blank afterwards
                     break;
                 }
-                case 023:  // EDOP, move 7 bits right
+                case 023:  // Shift Left
                 {
-                    temp = ((cpu.write_bus & BITMASK_8_14) >> 7);
+                    word top_bit = cpu.write_bus & BITMASK_16;
+                    temp = (temp & ~BITMASK_14_15) << 1;    // Mask out bits 14 and 15 so they don't interfere. Bit 16 is discarded.
+                    temp |= top_bit;    // Restore bit 16 after the shift discarded it
+                    temp |= (top_bit >> 15);    // Bit 16 also goes into bit 1
                     break;
                 }
             }
