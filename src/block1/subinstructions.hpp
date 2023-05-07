@@ -23,6 +23,9 @@ namespace agcplusplus::block1 {
     void minc(Cpu& cpu);
 
     // Interrupt sequences
+    void rupt1(Cpu& cpu);
+    void rupt3(Cpu& cpu);
+    void rsm(Cpu& cpu);
 
     // Subinstruction data array, ordered in the same way as in ND-1021041's table on page 4-121
     const static subinstruction subinstruction_data[] = {
@@ -40,6 +43,10 @@ namespace agcplusplus::block1 {
             {"CCS0", 0, false, 017, 001, ccs0},
             {"CCS1", 1, false, 017, 001, ccs1},
             {"SU0", 0, true, 017, 013, su0},
+
+            {"RUPT1", 1, false, 017, 003, rupt1},
+            {"RUPT3", 3, false, 017, 003, rupt3},
+            {"RSM", 3, false, 017, 002, rsm},
     };
 
     const static subinstruction sub_pinc = {
@@ -48,7 +55,7 @@ namespace agcplusplus::block1 {
     const static subinstruction sub_minc = {
             "MINC", 0, false, 000, 000, minc
     };
-    const static subinstruction sub_rupt0 = {
-
+    const static subinstruction sub_rupt1 = {
+            "RUPT1", 1, false, 017, 003, rupt1
     };
 }

@@ -120,9 +120,10 @@ namespace agcplusplus::block1 {
                 uint8_t a_signs = (a & BITMASK_15_16) >> 14;
                 bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
                 if (rupt_pending && !Agc::configuration.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !pseudo && !a_overflow) {
-                    subinstruction rupt0 = sub_rupt0;
-                    sq = rupt0.order_code;
-                    extend = rupt0.extended;
+                    subinstruction rupt1 = sub_rupt1;
+                    sq = rupt1.order_code;
+                    extend = rupt1.extended;
+                    st = rupt1.stage;
                 } else {
                     sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
                     extend = extend_next;
