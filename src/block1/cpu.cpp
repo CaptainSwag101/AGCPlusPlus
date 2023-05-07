@@ -88,13 +88,14 @@ namespace agcplusplus::block1 {
             // Push stage to its next pending value
             st = st_next;
             st_next = 0;
+            extend = extend_next;
 
             if (fetch_new_subinstruction) {
                 // Check for pending counter requests
                 bool prev_inkl = inkl;
                 inkl = false;
-                for (int c = 0; c < 20; ++c) {
-                    if (counters[c] != COUNTER_STATUS::NONE && !pseudo && !Agc::configuration.ignore_counters) {
+                for (auto & counter : counters) {
+                    if (counter != COUNTER_STATUS::NONE && !pseudo && !Agc::configuration.ignore_counters) {
                         inkl = true;
                         break;
                     }
@@ -104,16 +105,16 @@ namespace agcplusplus::block1 {
                 // If no counters need servicing, and we have a pending subinstruction, get back to it.
                 if (!inkl && prev_inkl) {
                     current_subinstruction = pending_subinstruction;
-                    sq = current_subinstruction.order_code;
-                    extend_next = current_subinstruction.extended;
-                    st = current_subinstruction.stage;
+                    //sq = current_subinstruction.order_code;
+                    //extend_next = current_subinstruction.extended;
+                    //st = current_subinstruction.stage;
                 }
 
 
                 // Check for pending interrupts
                 bool rupt_pending = false;
-                for (int r = 0; r < 5; ++r) {
-                    if (interrupts[r]) {
+                for (bool interrupt : interrupts) {
+                    if (interrupt) {
                         rupt_pending = true;
                         break;
                     }
@@ -129,7 +130,7 @@ namespace agcplusplus::block1 {
                     st = rupt1.stage;
                 } else {
                     sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
-                    extend = extend_next;
+                    //extend = extend_next;
                 }
             }
 
