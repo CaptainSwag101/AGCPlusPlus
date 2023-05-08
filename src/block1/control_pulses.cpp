@@ -16,7 +16,7 @@ namespace agcplusplus::block1 {
     }
 
     void krpt(Cpu& cpu) {
-        word rupt_address = cpu.s;
+        word rupt_address = cpu.write_bus;
         word rupt_index = (rupt_address - 02000) / 4;
         cpu.interrupts[rupt_index] = false;
     }

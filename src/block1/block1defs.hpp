@@ -44,5 +44,12 @@ namespace agcplusplus::block1 {
     constexpr word COUNTER_TRKRY = 17;
     constexpr word COUNTER_TRKRR = 18;
     constexpr word COUNTER_OUTCR3 = 19;
+
+    constexpr word RUPT_RP1 = 0;    // T3RUPT
+    constexpr word RUPT_TRP2 = 1;   // Unused
+    constexpr word RUPT_RP3 = 2;    // Unknown
+    constexpr word RUPT_TRP4 = 3;   // KEYRUPT
+    constexpr word RUPT_RP5 = 4;    // UPRUPT
+    constexpr word RUPT_DKEND = 5;  // DOWNRUPT
 }
 
