@@ -30,6 +30,7 @@ namespace agcplusplus::block1 {
     // Subinstruction data array, ordered in the same way as in ND-1021041's table on page 4-121
     const static subinstruction subinstruction_data[] = {
             {"STD2", 2, false, 000, 000, std2},
+            {"STD2", 2, true, 000, 000, std2},
             {"TC0", 0, false, 017, 000, tc0},
             {"XCH0", 0, false, 017, 003, xch0},
             {"CS0", 0, false, 017, 014, cs0},

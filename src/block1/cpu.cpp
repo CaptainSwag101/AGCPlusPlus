@@ -21,8 +21,7 @@ namespace agcplusplus::block1 {
     }
 
     void Cpu::process_before_timepulse() {
-        if (timepulse == 1)
-        {
+        if (timepulse == 1) {
             // Service INKL
             if (inkl) {
                 // Remember what we wanted to do, so we can come back to it later
@@ -45,9 +44,9 @@ namespace agcplusplus::block1 {
             }
         }
 
-        // Data arrives from memory at T6, rather than T4 on Block II.
+        // Data arrives from memory before T6, rather than T4 on Block II.
         if (timepulse == 6) {
-            s_temp = s;
+            s_temp = s; // Keep track of where the data really came from in case S is modified.
             g = Agc::memory.read(s, bank);
         }
     }
@@ -66,6 +65,9 @@ namespace agcplusplus::block1 {
 
         // If address 016 or 017 is present in S at time 5,
         // release or inhibit interrupts, respectively.
+        // Normally, only the INDEX instruction is used for this purpose,
+        // but the way it's implemented in the hardware, any memory
+        // access to 016 or 017 will cause a RELINT or INHINT.
         if (timepulse == 5) {
             if (s == 016) {
                 inhibit_interrupts = false;
@@ -78,7 +80,10 @@ namespace agcplusplus::block1 {
             }
         }
 
-        // Do erasable memory writes after time 10
+        // Do erasable memory writes after time 10.
+        // This call happens regardless of whether we're actually attempting to
+        // write to erasable or fixed memory, but the function internals
+        // will take care of that for us and ignore writes to fixed memory.
         if (timepulse == 10) {
             Agc::memory.write(s_temp, g);
         }
@@ -88,13 +93,12 @@ namespace agcplusplus::block1 {
             // Push stage to its next pending value
             st = st_next;
             st_next = 0;
-            extend = extend_next;
 
             if (fetch_new_subinstruction) {
-                // Check for pending counter requests
                 bool prev_inkl = inkl;
                 inkl = false;
-                for (auto & counter : counters) {
+                // Check for pending counter requests
+                for (auto& counter : counters) {
                     if (counter != COUNTER_STATUS::NONE && !pseudo && !Agc::configuration.ignore_counters) {
                         inkl = true;
                         break;
@@ -130,7 +134,7 @@ namespace agcplusplus::block1 {
                     st = rupt1.stage;
                 } else {
                     sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
-                    //extend = extend_next;
+                    extend = extend_next;
                 }
             }
 
@@ -173,11 +177,13 @@ namespace agcplusplus::block1 {
         output << " B = " << std::setw(6) << b;
         output << '\n';
 
-        output << " S = " << std::setw(6) << s;
+        output << " BNK = " << std::setw(2) << bank;
+        output << " S = " << std::setw(4) << s;
         output << " SQ = " << std::setw(2) << sq;
         output << " ST = " << (word)st; // Cast from char to integer
         output << " BR = " << (br & 1) << ((br & 2) >> 1);
-        output << " BNK = " << std::setw(2) << bank;
+        output << " IIP = " << static_cast<word>(iip);
+        output << " INKL = " << static_cast<word>(inkl);
         output << '\n';
 
         output << " EXTEND = " << (word)extend;

@@ -22,4 +22,4 @@ T swap_endian(T u) {
     return dest.u;
 }
 
-word get_sign_bits(const word input);
+word get_sign_bits(word input);
