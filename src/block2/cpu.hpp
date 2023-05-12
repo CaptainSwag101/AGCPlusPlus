@@ -76,7 +76,6 @@ public:
     // Instruction data
     uint8_t current_timepulse = 1;
     subinstruction current_subinstruction;
-    subinstruction pending_subinstruction;
 
 private:
     void gojam();

@@ -24,9 +24,6 @@ namespace agcplusplus::block1 {
         if (timepulse == 1) {
             // Service INKL
             if (inkl) {
-                // Remember what we wanted to do, so we can come back to it later
-                pending_subinstruction = current_subinstruction;
-
                 for (auto& counter : counters) {
                     if (counter == COUNTER_STATUS::UP) {
                         current_subinstruction = sub_pinc;
@@ -95,7 +92,6 @@ namespace agcplusplus::block1 {
             st_next = 0;
 
             if (fetch_new_subinstruction) {
-                bool prev_inkl = inkl;
                 inkl = false;
                 // Check for pending counter requests
                 for (auto& counter : counters) {
@@ -104,16 +100,6 @@ namespace agcplusplus::block1 {
                         break;
                     }
                 }
-
-
-                // If no counters need servicing, and we have a pending subinstruction, get back to it.
-                if (!inkl && prev_inkl) {
-                    current_subinstruction = pending_subinstruction;
-                    //sq = current_subinstruction.order_code;
-                    //extend_next = current_subinstruction.extended;
-                    //st = current_subinstruction.stage;
-                }
-
 
                 // Check for pending interrupts
                 bool rupt_pending = false;
