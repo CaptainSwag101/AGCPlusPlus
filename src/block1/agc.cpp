@@ -92,6 +92,7 @@ namespace agcplusplus::block1 {
                                             ((read_buf[2] & 0b00111111) << 5) |
                                             (read_buf[3] & 0b00111111);
 
+                            /*
                             std::cout << "DSKY read success (result = " << result << "), packet data is:" << std::endl;
                             std::oct(std::cout);
                             std::cout << " u = " << bitmask;
@@ -100,6 +101,7 @@ namespace agcplusplus::block1 {
                             std::cout << " data = " << std::setw(6) << (word)data;
                             std::cout << std::endl;
                             std::dec(std::cout);
+                             */
 
 
                             if ((channel == 04 || channel == 05) && !bitmask && !unprogrammed_sequence) {

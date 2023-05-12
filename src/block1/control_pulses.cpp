@@ -19,6 +19,7 @@ namespace agcplusplus::block1 {
         word rupt_address = cpu.write_bus;
         word rupt_index = (rupt_address - 02000) / 4;
         cpu.interrupts[rupt_index] = false;
+        cpu.iip = true;
     }
 
     void nisq(Cpu& cpu) {

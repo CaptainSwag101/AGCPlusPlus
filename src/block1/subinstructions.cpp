@@ -428,6 +428,7 @@ namespace agcplusplus::block1 {
                 break;
             case 11:
                 nisq(cpu);
+                cpu.iip = false;
                 break;
         }
     }
