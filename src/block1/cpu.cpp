@@ -143,7 +143,7 @@ namespace agcplusplus::block1 {
             // Force STD2 on unimplemented subinstruction
             if (!found_good_subinstruction) {
                 current_subinstruction = subinstruction_data[0];
-                std::cout << "Replacing unknown subinstruction at " << std::oct << bank << "," << z << std::dec << " with STD2" << std::endl;
+                std::cout << "Replacing unknown subinstruction at " << std::oct << bank << "," << (z - 1) << std::dec << " with STD2" << std::endl;
             }
         }
 
