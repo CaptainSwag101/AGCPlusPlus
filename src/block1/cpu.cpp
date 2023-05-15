@@ -1,6 +1,7 @@
 #include "cpu.hpp"
 #include "agc.hpp"
 #include "subinstructions.hpp"
+#include "../common/util_functions.hpp"
 
 namespace agcplusplus::block1 {
     void Cpu::go() {
@@ -95,7 +96,7 @@ namespace agcplusplus::block1 {
                 inkl = false;
                 // Check for pending counter requests
                 for (auto& counter : counters) {
-                    if (counter != COUNTER_STATUS::NONE && !pseudo && !Agc::configuration.ignore_counters) {
+                    if (counter != COUNTER_STATUS::NONE && !Agc::configuration.ignore_counters) {
                         inkl = true;
                         break;
                     }
@@ -111,9 +112,13 @@ namespace agcplusplus::block1 {
                 }
 
 
-                uint8_t a_signs = (a & BITMASK_15_16) >> 14;
+                // If an interrupt is pending, and we aren't ignoring them for debugging,
+                // and they aren't currently inhibited, and an interrupt isn't already happening,
+                // and we aren't about to perform an extracode instruction next,
+                // and there isn't overflow in A, perform the interrupt instead of the instruction in B.
+                uint8_t a_signs = get_sign_bits(a);
                 bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
-                if (rupt_pending && !Agc::configuration.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !pseudo && !a_overflow) {
+                if (rupt_pending&& !Agc::configuration.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !a_overflow) {
                     subinstruction rupt1 = sub_rupt1;
                     sq = rupt1.order_code;
                     extend = rupt1.extended;
@@ -124,6 +129,8 @@ namespace agcplusplus::block1 {
                 }
             }
 
+            // With our sequence, stage, and extend status updated, find the appropriate
+            // subinstruction so we can execute it over the next MCT.
             bool found_good_subinstruction = false;
             for (const subinstruction& sub : subinstruction_data) {
                 if (sub.extended == extend && sub.stage == st && (sub.order_code & sub.mask) == (sq & sub.mask)) {
@@ -133,8 +140,8 @@ namespace agcplusplus::block1 {
                 }
             }
 
+            // Force STD2 on unimplemented subinstruction
             if (!found_good_subinstruction) {
-                // Force STD2 on unimplemented subinstruction
                 current_subinstruction = subinstruction_data[0];
                 std::cout << "Replacing unknown subinstruction at " << std::oct << bank << "," << z << std::dec << " with STD2" << std::endl;
             }
