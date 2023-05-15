@@ -3,13 +3,16 @@
 namespace agcplusplus::block1 {
 
     word Memory::read(word address, word bank) {
+        word data = 0;
+
         if (address <= MEM_ERASABLE_END) {
             // Return zero when accessing central and system registers
             if (address < 020) return 0;
 
-            word temp = erasable[address];
+            data = erasable[address];
             erasable[address] = 0;  // Erasable reads are destructive
-            return temp;
+            std::cout << "Read from erasable memory: " << std::oct << std::setw(4) << address;
+            std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
         } else if (address <= MEM_FIXED_BANKED_END) {
             uint32_t fixed_addr = 0;
             if (address <= MEM_FIXED_FIXED_END) {
@@ -19,16 +22,21 @@ namespace agcplusplus::block1 {
                 fixed_addr += (bank - 1) * MEM_FIXED_BANKED_SIZE;
             }
 
-            return fixed[fixed_addr];
+            data = fixed[fixed_addr];
+            std::cout << "Read from fixed memory: " << std::oct << std::setw(2) << bank << "," << std::setw(4) << address;
+            std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
         } else {
             std::cout << "Invalid memory access attempt at " << std::oct << address << "." << std::dec << std::endl;
-            return 0;
         }
+
+        return data;
     }
 
     void Memory::write(word address, word data) {
         if (address >= 020 && address <= MEM_ERASABLE_END) {
             erasable[address] = data;
+            std::cout << "Write to erasable memory: " << std::oct << std::setw(4) << address;
+            std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
         }
     }
 
