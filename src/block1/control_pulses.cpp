@@ -145,8 +145,8 @@ namespace agcplusplus::block1 {
     void tmz(Cpu& cpu) {
         if (cpu.write_bus == 0177777) {
             cpu.br |= 0b01; // Set LSB (BR 2) if -0 is on the write bus.
-        } else if (cpu.write_bus == 0) {
-            cpu.br &= 0b10; // Reset LSB (BR 2) if +0 is on the write bus.
+        } else  {
+            cpu.br &= 0b10; // Reset LSB (BR 2) otherwise.
         }
     }
 
