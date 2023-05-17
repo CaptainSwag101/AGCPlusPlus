@@ -2,6 +2,39 @@
 #include "../common/util_functions.hpp"
 
 namespace agcplusplus::block1 {
+    word _cycle_right(const word input) {
+        word temp;
+        word bottom_to_top = (input & 1) << 15; // Cycle bit 1 to bit 16
+        temp = ((input & ~BITMASK_15_16) >> 1) | bottom_to_top; // Mask out bits 15 and 16 before shifting so they are blank afterwards
+        temp |= ((input & BITMASK_16) >> 2);    // Copy the old bit 16 into bit 14
+        return temp;
+    }
+
+    word _shift_right(const word input) {
+        word temp;
+        word top_bit = (input & BITMASK_16);    // Remember bit 16
+        temp = ((input & ~BITMASK_15_16) >> 1) | top_bit;   // Mask out bits 15 and 16 before shifting so they are blank afterwards
+        temp |= (top_bit >> 2); // Copy bit 16 into bit 14
+        return temp;
+    }
+
+    word _cycle_left(const word input) {
+        word temp;
+        word top_to_bottom = (input & BITMASK_16) >> 15;    // Cycle the most significant bit to the least
+        word new_top = ((input & BITMASK_14) << 2); // Remember bit 14 and double-shift it so it ends up in bit 16
+        temp = ((input & ~BITMASK_14_15) << 1) | top_to_bottom | new_top;   // Mask out bits 14 and 15 before shifting so they are blank afterwards
+        return temp;
+    }
+
+    word _shift_left(const word input) {
+        word temp;
+        word top_bit = input & BITMASK_16;
+        temp = (input & ~BITMASK_14_15) << 1;   // Mask out bits 14 and 15 so they don't interfere. Bit 16 is discarded.
+        temp |= top_bit;    // Restore bit 16 after the shift discarded it
+        temp |= (top_bit >> 15);    // Bit 16 also goes into bit 1
+        return temp;
+    }
+
     void ci(Cpu& cpu) {
         cpu.carry_in = true;
         cpu.update_adder();
@@ -214,8 +247,10 @@ namespace agcplusplus::block1 {
     }
 
     void walp(Cpu& cpu) {
-        cpu.a = cpu.write_bus;
+        word bit_one = cpu.write_bus & 1;
+        cpu.a = _shift_right(cpu.write_bus);
         cpu.lp &= BITMASK_14;
+        cpu.lp |= (bit_one << 13);
     }
 
     void wb(Cpu &cpu) {
@@ -233,31 +268,22 @@ namespace agcplusplus::block1 {
             switch (s_correct) {
                 case 020:   // Cycle Right
                 {
-                    word bottom_to_top = (cpu.write_bus & 1) << 15; // Cycle bit 1 to bit 16
-                    temp = ((cpu.write_bus & ~BITMASK_15_16) >> 1) | bottom_to_top;    // Mask out bits 15 and 16 before shifting so they are blank afterwards
-                    temp |= ((cpu.write_bus & BITMASK_16) >> 2);  // Copy the old bit 16 into bit 14
+                    temp = _cycle_right(cpu.write_bus);
                     break;
                 }
                 case 021:   // Shift Right
                 {
-                    word top_bit = (cpu.write_bus & BITMASK_16);    // Remember bit 16
-                    temp = ((cpu.write_bus & ~BITMASK_15_16) >> 1) | top_bit;  // Mask out bits 15 and 16 before shifting so they are blank afterwards
-                    temp |= (top_bit >> 2);  // Copy bit 16 into bit 14
+                    temp = _shift_right(cpu.write_bus);
                     break;
                 }
                 case 022:   // Cycle Left
                 {
-                    word top_to_bottom = (cpu.write_bus & BITMASK_16) >> 15; // Cycle the most significant bit to the least
-                    word new_top = ((cpu.write_bus & BITMASK_14) << 2); // Remember bit 14 and double-shift it so it ends up in bit 16
-                    temp = ((cpu.write_bus & ~BITMASK_14_15) << 1) | top_to_bottom | new_top;  // Mask out bits 14 and 15 before shifting so they are blank afterwards
+                    temp = _cycle_left(cpu.write_bus);
                     break;
                 }
                 case 023:  // Shift Left
                 {
-                    word top_bit = cpu.write_bus & BITMASK_16;
-                    temp = (temp & ~BITMASK_14_15) << 1;    // Mask out bits 14 and 15 so they don't interfere. Bit 16 is discarded.
-                    temp |= top_bit;    // Restore bit 16 after the shift discarded it
-                    temp |= (top_bit >> 15);    // Bit 16 also goes into bit 1
+                    temp = _shift_left(cpu.write_bus);
                     break;
                 }
             }
@@ -267,7 +293,7 @@ namespace agcplusplus::block1 {
     }
 
     void wlp(Cpu& cpu) {
-        cpu.lp = cpu.write_bus;
+        cpu.lp = _shift_right(cpu.write_bus);
     }
 
     void wovc(Cpu& cpu) {
@@ -321,16 +347,16 @@ namespace agcplusplus::block1 {
         // Determine central register to write to based on contents of S register
         switch (cpu.s) {
             case 0:
-                cpu.a = cpu.write_bus;
+                wa(cpu);
                 break;
             case 1:
-                cpu.q = cpu.write_bus;
+                wq(cpu);
                 break;
             case 2:
-                cpu.z = cpu.write_bus;
+                wz(cpu);
                 break;
             case 3:
-                cpu.lp = cpu.write_bus;
+                wlp(cpu);
                 break;
             case 4:
             case 5:
