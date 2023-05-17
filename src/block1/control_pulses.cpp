@@ -8,8 +8,17 @@ namespace agcplusplus::block1 {
         word top_bit = input & BITMASK_16;
         temp = (input & ~BITMASK_15_16) >> 1; // Mask out bits 15 and 16 before shifting so they are blank afterwards
         temp |= bottom_bit << 15;   // Cycle bit 1 into bit 16
+        temp |= top_bit >> 2;   // Shift the old bit 16 into bit 14
+        return temp;
+    }
+    word _cycle_right_lp(const word input) {
+        word temp;
+        word bottom_bit = input & 1;
+        word top_bit = input & BITMASK_16;
+        temp = (input & ~BITMASK_15_16) >> 1; // Mask out bits 15 and 16 before shifting so they are blank afterwards
+        temp |= bottom_bit << 15;   // Cycle bit 1 into bit 16
         temp |= bottom_bit << 14;   // Cycle bit 1 into bit 15
-        temp |= top_bit >> 2;    // Copy the old bit 16 into bit 14
+        // Don't copy old bit 16 into bit 14
         return temp;
     }
 
@@ -296,10 +305,7 @@ namespace agcplusplus::block1 {
     }
 
     void wlp(Cpu& cpu) {
-        //word bit14 = cpu.lp & BITMASK_14;
-        cpu.lp = _cycle_right(cpu.write_bus);
-        cpu.lp &= ~BITMASK_14;  // Clear out the new bit 14 as it isn't changed in hardware
-        //cpu.lp |= bit14;    // Restore the unchanged bit 14
+        cpu.lp = _cycle_right_lp(cpu.write_bus);
     }
 
     void wovc(Cpu& cpu) {

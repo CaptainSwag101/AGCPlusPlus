@@ -4,10 +4,11 @@
 #pragma once
 
 namespace agcplusplus::block1 {
-    word _shift_right(word input);
     word _cycle_right(word input);
-    word _shift_left(word input);
+    word _cycle_right_lp(word input);
+    word _shift_right(word input);
     word _cycle_left(word input);
+    word _shift_left(word input);
     void ci(Cpu& cpu);
     void clg(Cpu& cpu);
     void ctr(Cpu& cpu);
