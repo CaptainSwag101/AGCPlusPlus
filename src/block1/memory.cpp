@@ -1,4 +1,5 @@
 #include "memory.hpp"
+#include "agc.hpp"
 
 namespace agcplusplus::block1 {
 
@@ -11,9 +12,11 @@ namespace agcplusplus::block1 {
 
             data = erasable[address];
             erasable[address] = 0;  // Erasable reads are destructive
-            std::cout << "Read from erasable memory: " << std::oct << std::setw(4) << address;
-            std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
-        } else if (address <= MEM_FIXED_BANKED_END) {
+            if (Agc::configuration.log_memory) {
+                std::cout << "Read from erasable memory: " << std::oct << std::setw(4) << address;
+                std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
+            }
+        } else if (address <= MEM_FIXED_BANKED_END && bank > 0) {
             uint32_t fixed_addr = 0;
             if (address <= MEM_FIXED_FIXED_END) {
                 fixed_addr = address - MEM_FIXED_FIXED_START;
@@ -23,10 +26,13 @@ namespace agcplusplus::block1 {
             }
 
             data = fixed[fixed_addr];
-            std::cout << "Read from fixed memory: " << std::oct << std::setw(2) << bank << "," << std::setw(4) << address;
-            std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
+            if (Agc::configuration.log_memory) {
+                std::cout << "Read from fixed memory: " << std::oct << std::setw(2) << bank << "," << std::setw(4) << address;
+                std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
+            }
         } else {
-            std::cout << "Invalid memory access attempt at " << std::oct << address << "." << std::dec << std::endl;
+            std::cout << "Invalid memory read: " << std::oct << std::setw(2) << bank << "," << std::setw(4) << address;
+            std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
         }
 
         return data;
@@ -35,8 +41,10 @@ namespace agcplusplus::block1 {
     void Memory::write(word address, word data) {
         if (address >= 020 && address <= MEM_ERASABLE_END) {
             erasable[address] = data;
-            std::cout << "Write to erasable memory: " << std::oct << std::setw(4) << address;
-            std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
+            if (Agc::configuration.log_memory) {
+                std::cout << "Write to erasable memory: " << std::oct << std::setw(4) << address;
+                std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
+            }
         }
     }
 

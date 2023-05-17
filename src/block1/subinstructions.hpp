@@ -9,6 +9,11 @@ namespace agcplusplus::block1 {
     void ccs0(Cpu& cpu);
     void ccs1(Cpu& cpu);
     void cs0(Cpu& cpu);
+    void dv0(Cpu& cpu);
+    void dv1(Cpu& cpu);
+    void mp0(Cpu& cpu);
+    void mp1(Cpu& cpu);
+    void mp3(Cpu& cpu);
     void msk0(Cpu& cpu);
     void ndx0(Cpu& cpu);
     void ndx1(Cpu& cpu);
@@ -44,6 +49,11 @@ namespace agcplusplus::block1 {
             {"CCS0", 0, false, 017, 001, ccs0},
             {"CCS1", 1, false, 017, 001, ccs1},
             {"SU0", 0, true, 017, 013, su0},
+            {"MP0", 0, true, 017, 011, mp0},
+            {"MP1", 1, true, 017, 011, mp1},
+            {"MP3", 3, true, 017, 011, mp3},
+            {"DV0", 0, true, 017, 012, dv0},
+            {"DV1", 1, true, 017, 012, dv1},
 
             {"RUPT1", 1, false, 017, 003, rupt1},
             {"RUPT3", 3, false, 017, 003, rupt3},

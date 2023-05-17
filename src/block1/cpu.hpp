@@ -50,6 +50,7 @@ namespace agcplusplus::block1 {
 
         // Control-related registers
         word sq{}, st{}, st_next{}, s{}, s_temp{}, br{}, bank{}, timepulse = 1;
+        word multiply_counter = 0;
         subinstruction current_subinstruction;
         bool fetch_new_subinstruction = false;
         bool extend = false, extend_next = false, no_eac = false;

@@ -45,6 +45,7 @@ namespace agcplusplus {
     struct InitArguments {
         bool log_mct;
         bool log_timepulse;
+        bool log_memory;
         bool ignore_counters;
         bool ignore_interrupts;
         bool ignore_alarms;

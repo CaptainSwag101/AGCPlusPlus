@@ -11,6 +11,14 @@ namespace agcplusplus::block1 {
         cpu.g = 0;
     }
 
+    void ctr(Cpu& cpu) {
+        if (cpu.multiply_counter == 0) {
+            st2(cpu);   // Set stage 2 when MP1 loop is complete (6 repetitions)
+        } else {
+            cpu.multiply_counter--;
+        }
+    }
+
     void gp(Cpu& cpu) {
         // TODO
     }
@@ -34,6 +42,10 @@ namespace agcplusplus::block1 {
         cpu.write_bus |= cpu.b;
     }
 
+    void rb14(Cpu& cpu) {
+        cpu.write_bus |= BITMASK_14;
+    }
+
     void rc(Cpu& cpu) {
         cpu.write_bus |= ~(cpu.b);
     }
@@ -45,12 +57,24 @@ namespace agcplusplus::block1 {
         cpu.write_bus |= temp;
     }
 
+    void rlp(Cpu& cpu) {
+        cpu.write_bus |= cpu.lp;
+    }
+
     void rq(Cpu& cpu) {
         cpu.write_bus |= cpu.q;
     }
 
     void rp2(Cpu& cpu) {
         // TODO
+    }
+
+    void rs(Cpu& cpu) {
+        cpu.write_bus |= cpu.s;
+    }
+
+    void rsb(Cpu& cpu) {
+        cpu.write_bus |= BITMASK_16;
     }
 
     void rsc(Cpu& cpu) {
@@ -189,6 +213,11 @@ namespace agcplusplus::block1 {
         cpu.a = cpu.write_bus;
     }
 
+    void walp(Cpu& cpu) {
+        cpu.a = cpu.write_bus;
+        cpu.lp &= BITMASK_14;
+    }
+
     void wb(Cpu &cpu) {
         cpu.b = cpu.write_bus;
     }
@@ -235,6 +264,10 @@ namespace agcplusplus::block1 {
         }
 
         cpu.g = temp;
+    }
+
+    void wlp(Cpu& cpu) {
+        cpu.lp = cpu.write_bus;
     }
 
     void wovc(Cpu& cpu) {
