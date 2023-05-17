@@ -419,7 +419,6 @@ namespace agcplusplus::block1 {
         switch (cpu.timepulse) {
             case 1:
                 cpu.multiply_counter = 5;
-                cpu.no_eac = true;
                 rb(cpu);
                 ws(cpu);
                 break;
@@ -650,7 +649,6 @@ namespace agcplusplus::block1 {
                 ru(cpu);
                 walp(cpu);
                 nisq(cpu);
-                cpu.no_eac = false;
                 break;
         }
     }
