@@ -145,6 +145,8 @@ namespace agcplusplus::block1 {
     void tmz(Cpu& cpu) {
         if (cpu.write_bus == 0177777) {
             cpu.br |= 0b01; // Set LSB (BR 2) if -0 is on the write bus.
+        } else if (cpu.write_bus == 0) {
+            cpu.br &= 0b10; // Reset LSB (BR 2) if +0 is on the write bus.
         }
     }
 
@@ -170,12 +172,16 @@ namespace agcplusplus::block1 {
     void tsgn(Cpu& cpu) {
         if ((cpu.write_bus & BITMASK_15) > 0) {
             cpu.br |= 0b10; // Set MSB (BR 1) if sign bit is set
+        } else {
+            cpu.br &= 0b01; // Clear MSB (BR 1) if the sign bit is NOT set
         }
     }
 
     void tsgn2(Cpu& cpu) {
         if ((cpu.write_bus & BITMASK_15) > 0) {
             cpu.br |= 0b01; // Set LSB (BR 2) if sign bit is set
+        } else {
+            cpu.br &= 0b10; // Clear LSB (BR 2) if the sign bit is NOT set
         }
     }
 
