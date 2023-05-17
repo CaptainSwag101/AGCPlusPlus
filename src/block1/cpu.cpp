@@ -43,7 +43,8 @@ namespace agcplusplus::block1 {
         }
 
         // Data arrives from memory before T6, rather than T4 on Block II.
-        if (timepulse == 6) {
+        // Inhibit memory reads when performing MP and DV.
+        if (timepulse == 6 && s >= 020) {
             s_temp = s; // Keep track of where the data really came from in case S is modified.
             g = Agc::memory.read(s, bank);
         }
