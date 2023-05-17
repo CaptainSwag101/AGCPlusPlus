@@ -261,7 +261,7 @@ namespace agcplusplus::block1 {
     void walp(Cpu& cpu) {
         word bit_one = cpu.write_bus & 1;
         cpu.a = _shift_right(cpu.write_bus);
-        cpu.lp &= BITMASK_14;
+        cpu.lp &= ~BITMASK_14;  // Mask out bit 14
         cpu.lp |= (bit_one << 13);
     }
 
