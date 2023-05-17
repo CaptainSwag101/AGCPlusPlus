@@ -43,10 +43,14 @@ namespace agcplusplus::block1 {
         }
 
         // Data arrives from memory before T6, rather than T4 on Block II.
-        // Inhibit memory reads when performing MP and DV.
         if (timepulse == 6 && s >= 020) {
             s_temp = s; // Keep track of where the data really came from in case S is modified.
-            g = Agc::memory.read(s, bank);
+            // Inhibit memory access when performing MP1, DV1.
+            if (extend && st == 1 && (sq == 011 || sq == 012)) {
+                std::cout << "Inhibited memory read due to MP1 or DV1" << std::endl;
+            } else {
+                g = Agc::memory.read(s, bank);
+            }
         }
     }
 
@@ -84,7 +88,12 @@ namespace agcplusplus::block1 {
         // write to erasable or fixed memory, but the function internals
         // will take care of that for us and ignore writes to fixed memory.
         if (timepulse == 10) {
-            Agc::memory.write(s_temp, g);
+            // Inhibit memory access when performing MP1, DV1.
+            if (extend && st == 1 && (sq == 011 || sq == 012)) {
+                std::cout << "Inhibited memory write due to MP1 or DV1" << std::endl;
+            } else {
+                Agc::memory.write(s_temp, g);
+            }
         }
 
         // Fetch next subinstruction, or the next stage of the current one

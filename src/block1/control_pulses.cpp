@@ -32,9 +32,11 @@ namespace agcplusplus::block1 {
 
     word _cycle_left(const word input) {
         word temp;
-        word top_to_bottom = (input & BITMASK_16) >> 15;    // Cycle the most significant bit to the least
-        word new_top = ((input & BITMASK_14) << 2); // Remember bit 14 and double-shift it so it ends up in bit 16
-        temp = ((input & ~BITMASK_14_15) << 1) | top_to_bottom | new_top;   // Mask out bits 14 and 15 before shifting so they are blank afterwards
+        word top_bit = input & BITMASK_16;
+        word bit_14 = input & BITMASK_14;
+        temp = (input & ~BITMASK_14_15) << 1;   // Mask out bits 14 and 15 before shifting so they are blank afterwards
+        temp |= bit_14 << 2;    // Shift bit 14 into bit 16
+        temp |= top_bit >> 15;  // Cycle bit 16 into bit 1
         return temp;
     }
 
@@ -43,7 +45,7 @@ namespace agcplusplus::block1 {
         word top_bit = input & BITMASK_16;
         temp = (input & ~BITMASK_14_15) << 1;   // Mask out bits 14 and 15 so they don't interfere. Bit 16 is discarded.
         temp |= top_bit;    // Restore bit 16 after the shift discarded it
-        temp |= (top_bit >> 15);    // Bit 16 also goes into bit 1
+        temp |= top_bit >> 15;    // Bit 16 also goes into bit 1
         return temp;
     }
 
@@ -274,7 +276,7 @@ namespace agcplusplus::block1 {
         temp |= (cpu.write_bus & BITMASK_15) << 1;  // Copy bit 15 into bit 16
         temp &= ~BITMASK_15;    // Mask out bit 15
 
-        word s_correct = (cpu.s_temp > 0) ? cpu.s_temp : cpu.s;
+        word s_correct = cpu.s;
 
         if (s_correct >= 020 && s_correct <= 023) {
             switch (s_correct) {
