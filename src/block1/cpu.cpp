@@ -101,9 +101,9 @@ namespace agcplusplus::block1 {
             // Push stage to its next pending value
             st = st_next;
             st_next = 0;
+            inkl = false;
 
             if (fetch_new_subinstruction) {
-                inkl = false;
                 // Check for pending counter requests
                 for (auto& counter : counters) {
                     if (counter != COUNTER_STATUS::NONE && !Agc::configuration.ignore_counters) {

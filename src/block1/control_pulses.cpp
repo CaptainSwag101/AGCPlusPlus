@@ -272,35 +272,24 @@ namespace agcplusplus::block1 {
     }
 
     void wg(Cpu& cpu) {
-        word temp = cpu.write_bus & ~BITMASK_16;    // Mask out bit 16 (SG)
-        temp |= (cpu.write_bus & BITMASK_15) << 1;  // Copy bit 15 into bit 16
-        temp &= ~BITMASK_15;    // Mask out bit 15
+        word temp;
 
-        word s_correct = cpu.s;
-
-        if (s_correct >= 020 && s_correct <= 023) {
-            switch (s_correct) {
-                case 020:   // Cycle Right
-                {
-                    temp = _cycle_right(cpu.write_bus);
-                    break;
-                }
-                case 021:   // Shift Right
-                {
-                    temp = _shift_right(cpu.write_bus);
-                    break;
-                }
-                case 022:   // Cycle Left
-                {
-                    temp = _cycle_left(cpu.write_bus);
-                    break;
-                }
-                case 023:  // Shift Left
-                {
-                    temp = _shift_left(cpu.write_bus);
-                    break;
-                }
-            }
+        switch (cpu.s) {
+            case 020:   // Cycle Right
+                temp = _cycle_right(cpu.write_bus);
+                break;
+            case 021:   // Shift Right
+                temp = _shift_right(cpu.write_bus);
+                break;
+            case 022:   // Cycle Left
+                temp = _cycle_left(cpu.write_bus);
+                break;
+            case 023:  // Shift Left
+                temp = _shift_left(cpu.write_bus);
+                break;
+            default:
+                temp = cpu.write_bus;
+                break;
         }
 
         cpu.g = temp;
@@ -313,8 +302,10 @@ namespace agcplusplus::block1 {
     void wovc(Cpu& cpu) {
         // If uncorrected sign and generated sign do not match, we have an overflow.
         word sign_bits = get_sign_bits(cpu.write_bus);
-        if (sign_bits == 0b01 || sign_bits == 0b10) {
+        if (sign_bits == 0b01) {
             cpu.counters[COUNTER_OVCTR] = COUNTER_STATUS::UP;
+        } else if (sign_bits == 0b10) {
+            cpu.counters[COUNTER_OVCTR] = COUNTER_STATUS::DOWN;
         }
     }
 

@@ -11,6 +11,8 @@ namespace agcplusplus::block1 {
             if (address < 020) return 0;
 
             data = erasable[address];
+            data &= ~BITMASK_15;    // Mask out parity bit
+            data |= (data & BITMASK_16) >> 1;   // Copy bit 16 into bit 15
             erasable[address] = 0;  // Erasable reads are destructive
             if (Agc::configuration.log_memory) {
                 std::cout << "Read from erasable memory: " << std::oct << std::setw(4) << address;
@@ -26,6 +28,8 @@ namespace agcplusplus::block1 {
             }
 
             data = fixed[fixed_addr];
+            data &= ~BITMASK_15;    // Mask out parity bit
+            data |= (data & BITMASK_16) >> 1;   // Copy bit 16 into bit 15
             if (Agc::configuration.log_memory) {
                 std::cout << "Read from fixed memory: " << std::oct << std::setw(2) << bank << "," << std::setw(4) << address;
                 std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
@@ -40,6 +44,8 @@ namespace agcplusplus::block1 {
 
     void Memory::write(word address, word data) {
         if (address >= 020 && address <= MEM_ERASABLE_END) {
+            data &= ~BITMASK_15;    // Mask out sign bit
+            data |= (data & BITMASK_16) >> 1;   // Copy uncorrected sign into sign bit
             erasable[address] = data;
             if (Agc::configuration.log_memory) {
                 std::cout << "Write to erasable memory: " << std::oct << std::setw(4) << address;
