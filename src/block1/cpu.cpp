@@ -47,7 +47,8 @@ namespace agcplusplus::block1 {
             s_temp = s; // Keep track of where the data really came from in case S is modified.
             // Inhibit memory access when performing MP1, DV1.
             if (extend && st == 1 && (sq == 011 || sq == 012)) {
-                std::cout << "Inhibited memory read due to MP1 or DV1" << std::endl;
+                if (Agc::configuration.log_memory)
+                    std::cout << "Inhibited memory read due to MP1 or DV1" << std::endl;
             } else {
                 g = Agc::memory.read(s, bank);
             }
@@ -90,7 +91,8 @@ namespace agcplusplus::block1 {
         if (timepulse == 10) {
             // Inhibit memory access when performing MP1, DV1.
             if (extend && st == 1 && (sq == 011 || sq == 012)) {
-                std::cout << "Inhibited memory write due to MP1 or DV1" << std::endl;
+                if (Agc::configuration.log_memory)
+                    std::cout << "Inhibited memory write due to MP1 or DV1" << std::endl;
             } else {
                 Agc::memory.write(s_temp, g);
             }
