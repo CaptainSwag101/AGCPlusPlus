@@ -318,14 +318,22 @@ namespace agcplusplus::block1 {
     }
 
     void wovr(Cpu& cpu) {
-        // TODO: This may be implemented incorrectly, as far as I know
-        // the only counter that should overflow is TIME1 into TIME2.
         const word counter_location = cpu.s - 034;
-        if (counter_location == COUNTER_TIME1) {
-            // If uncorrected sign and generated sign do not match, we have an overflow.
-            word sign_bits = get_sign_bits(cpu.write_bus);
-            if (sign_bits == 0b01 || sign_bits == 0b10) {
-                cpu.counters[COUNTER_TIME2] = COUNTER_STATUS::UP;   // Overflow into TIME2
+        // If uncorrected sign and generated sign do not match, we have an overflow.
+        word sign_bits = get_sign_bits(cpu.write_bus);
+        if (sign_bits == 0b01 || sign_bits == 0b10) {
+            switch (counter_location) {
+                case COUNTER_TIME1:
+                    cpu.counters[COUNTER_TIME2] = COUNTER_STATUS::UP;   // Overflow into TIME2
+                    break;
+                case COUNTER_TIME3:
+                    cpu.interrupts[RUPT_T3RUPT] = true;
+                    std::cout << "T3RUPT\n";
+                    break;
+                case COUNTER_TIME4:
+                    cpu.interrupts[RUPT_T4RUPT] = true;
+                    std::cout << "T4RUPT\n";
+                    break;
             }
         }
 

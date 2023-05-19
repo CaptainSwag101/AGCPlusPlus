@@ -19,7 +19,7 @@ namespace agcplusplus::block1 {
                 word data = std::get<1>(dsky_update);
                 if (channel == 4 || channel == 5) {
                     Agc::cpu.in[channel - 4] = data;
-                    Agc::cpu.interrupts[RUPT_TRP4] = true;
+                    Agc::cpu.interrupts[RUPT_KEYRUPT] = true;
                     dsky_queue.pop();
                 }
             }
