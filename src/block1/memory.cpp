@@ -6,6 +6,8 @@ namespace agcplusplus::block1 {
     word Memory::read(word address, word bank) {
         word data = 0;
 
+        std::cout << std::setfill('0');
+
         if (address <= MEM_ERASABLE_END) {
             // Return zero when accessing central and system registers
             if (address < 020) return 0;
