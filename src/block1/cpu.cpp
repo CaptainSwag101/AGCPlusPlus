@@ -78,9 +78,6 @@ namespace agcplusplus::block1 {
             if (s == 017) {
                 inhibit_interrupts = true;
             }
-            if (b == 0147777 && sq == 02) { // EXTEND
-                extend_next = true;
-            }
         }
 
         // Do erasable memory writes after time 10.
@@ -122,6 +119,10 @@ namespace agcplusplus::block1 {
                     }
                 }
 
+                // Check if the next instruction is EXTENDed (there is negative overflow in B)
+                if (get_sign_bits(b) == 0b10) {
+                    extend_next = true;
+                }
 
                 // If an interrupt is pending, and we aren't ignoring them for debugging,
                 // and they aren't currently inhibited, and an interrupt isn't already happening,
