@@ -154,6 +154,8 @@ namespace agcplusplus::block1 {
                 break;
             case 015:
                 cpu.write_bus |= (cpu.bank << 10);
+                // Copy bit 15 into bit 16 to avoid spurious overflow detection.
+                cpu.write_bus |= (cpu.write_bus & BITMASK_15) << 1;
                 break;
         }
     }
@@ -328,11 +330,11 @@ namespace agcplusplus::block1 {
                     break;
                 case COUNTER_TIME3:
                     cpu.interrupts[RUPT_T3RUPT] = true;
-                    std::cout << "T3RUPT\n";
+                    //std::cout << "T3RUPT" << std::endl;
                     break;
                 case COUNTER_TIME4:
                     cpu.interrupts[RUPT_T4RUPT] = true;
-                    std::cout << "T4RUPT\n";
+                    //std::cout << "T4RUPT" << std::endl;
                     break;
             }
         }
