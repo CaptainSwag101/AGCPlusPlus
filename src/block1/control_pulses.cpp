@@ -321,7 +321,7 @@ namespace agcplusplus::block1 {
         const word counter_location = cpu.s - 034;
         // If uncorrected sign and generated sign do not match, we have an overflow.
         word sign_bits = get_sign_bits(cpu.write_bus);
-        if (sign_bits == 0b01 || sign_bits == 0b10) {
+        if (sign_bits == 0b01) {
             switch (counter_location) {
                 case COUNTER_TIME1:
                     cpu.counters[COUNTER_TIME2] = COUNTER_STATUS::UP;   // Overflow into TIME2
