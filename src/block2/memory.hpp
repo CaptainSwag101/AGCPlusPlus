@@ -3,11 +3,11 @@
 #include <cstdint>
 #include <iostream>
 #include <random>
-#include "globaldefs.hpp"
+#include "block2defs.hpp"
 
 #pragma once
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 enum class MemoryInitState {
     BitsClear,
     BitsSet,
@@ -28,7 +28,7 @@ public:
     std::minstd_rand rand_gen;
 
 private:
-    std::array<word, SIZE_FIXED_MEM> fixed;
-    std::array<word, SIZE_ERASABLE_MEM> erasable;
+    std::array<word, SIZE_FIXED_MEM> fixed{};
+    std::array<word, SIZE_ERASABLE_MEM> erasable{};
 };
 }

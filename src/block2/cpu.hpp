@@ -1,12 +1,12 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
-#include "globaldefs.hpp"
+#include "block2defs.hpp"
 #include "memory.hpp"
 
 #pragma once
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 
 // Forward declaration of Cpu class for subinstruction struct
 class Cpu;
@@ -76,7 +76,6 @@ public:
     // Instruction data
     uint8_t current_timepulse = 1;
     subinstruction current_subinstruction;
-    subinstruction pending_subinstruction;
 
 private:
     void gojam();

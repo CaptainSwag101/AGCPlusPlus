@@ -1,9 +1,9 @@
-#include "globaldefs.hpp"
+#include "block2defs.hpp"
 #include "cpu.hpp"
 
 #pragma once
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 // Involuntary control pulse implicitly triggered by
 // T1 of DV0, which clears G to avoid cross-contamination
 // between the pulses of RG and RSC in T7 of DV1.
@@ -138,7 +138,7 @@ static void rsc(Cpu& cpu);
 // Read the address of the highest priority counter request.
 static void rsct(Cpu& cpu);
 
-// Place octal 004000 = Block 2 start address on the WL's.
+// Place octal 004000 = Block 2 run address on the WL's.
 static void rstrt(Cpu& cpu);
 
 // Reset the divide T03 staging condition.

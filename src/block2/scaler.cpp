@@ -1,6 +1,6 @@
 #include "scaler.hpp"
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 Scaler::Scaler(InitArguments init_args)
 {
     std::cout << "Initializing scaler..." << std::endl;

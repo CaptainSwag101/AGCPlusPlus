@@ -1,11 +1,11 @@
-#include "globaldefs.hpp"
+#include "block2defs.hpp"
 #include "cpu.hpp"
 #include <tuple>
 #include <queue>
 
 #pragma once
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 class Scaler
 {
 public:

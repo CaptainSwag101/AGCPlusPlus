@@ -1,5 +1,5 @@
 #include "cpu.hpp"
-#include "globaldefs.hpp"
+#include "block2defs.hpp"
 #include "memory.hpp"
 #include "scaler.hpp"
 
@@ -10,13 +10,13 @@
 
 #pragma once
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 class Timer
 {
 public:
     Timer();
-    void start_timer();
-    void stop_timer();
+    void start();
+    void stop();
     void assign_cpu(std::shared_ptr<Cpu> cpu);
     void assign_memory(std::shared_ptr<Memory> mem);
     void assign_scaler(std::shared_ptr<Scaler> scaler);
@@ -26,7 +26,7 @@ private:
     void process_dsky(sockpp::tcp_socket sock);
     std::array<uint8_t, 4> generate_dsky_packet(uint8_t channel, word data);
 
-    bool stop = false;
+    bool enable = false;
 
     std::shared_ptr<Cpu> cpu_ref;
     std::shared_ptr<Memory> memory_ref;

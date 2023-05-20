@@ -1,7 +1,7 @@
 #include "cpu.hpp"
 #include "subinstructions.hpp"
 
-namespace agcplusplus {
+namespace agcplusplus::block2 {
 Cpu::Cpu(InitArguments init_args) {
     std::cout << "Initializing CPU..." << std::endl;
 
@@ -107,7 +107,7 @@ void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
 }
 
 void Cpu::tick() {
-    // At the start of every timepulse, clear MCRO
+    // At the run of every timepulse, clear MCRO
     mcro = false;
 
 
@@ -119,9 +119,6 @@ void Cpu::tick() {
     if (current_timepulse == 1) {
         // Service INKL
         if (inkl) {
-            // Remember what we wanted to do, so we can come back to it later
-            pending_subinstruction = current_subinstruction;
-
             for (int c = 0; c < 20; ++c) {
                 if (counters[c] & COUNT_DIRECTION_UP) {
                     if (c >= COUNTER_TIME2 && c <= COUNTER_TIME5) {
@@ -223,12 +220,6 @@ void Cpu::tick() {
                     inkl = true;
                     break;
                 }
-            }
-
-
-            // If no counters need servicing and we have a pending subinstruction, get back to it.
-            if (!inkl && prev_inkl) {
-                current_subinstruction = pending_subinstruction;
             }
 
 
