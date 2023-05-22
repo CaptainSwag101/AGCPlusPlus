@@ -14,7 +14,6 @@ namespace agcplusplus::block1 {
     word _cycle_right_lp(const word input) {
         word temp;
         word bottom_bit = input & 1;
-        word top_bit = input & BITMASK_16;
         temp = (input & ~BITMASK_15_16) >> 1; // Mask out bits 15 and 16 before shifting so they are blank afterwards
         temp |= bottom_bit << 15;   // Cycle bit 1 into bit 16
         temp |= bottom_bit << 14;   // Cycle bit 1 into bit 15

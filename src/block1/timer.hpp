@@ -5,7 +5,6 @@
 namespace agcplusplus::block1 {
     class Timer {
     public:
-        void start();
         void execute_tick_batch();
         void tick();
 

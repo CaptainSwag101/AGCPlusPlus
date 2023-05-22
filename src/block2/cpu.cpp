@@ -5,43 +5,11 @@ namespace agcplusplus::block2 {
 Cpu::Cpu(InitArguments init_args) {
     std::cout << "Initializing CPU..." << std::endl;
 
-    if (init_args.log_timepulse) verbosity = LoggingVerbosity::CpuStatePerTimepulse;
-    else if (init_args.log_mct) verbosity = LoggingVerbosity::CpuStatePerMCT;
-    else verbosity = LoggingVerbosity::None;
-
     config = init_args;
 
     // Init CPU registers, counters, interrupts
-    a = 0;
-    b = 0;
-    g = 0;
-    l = 0;
-    s = 0;
-    s_temp = 0;
-    no_eac = false;
-    night_watchman = 0;
-    sq = 0;
-    st = 0;
-    st_next = 0;
-    br = 0;
-    fext = 0;
-    bb = 0;
     update_eb_fb();
-    x = 0;
-    y = 0;
-    explicit_carry = false;
     update_adder();
-    q = 0;
-    z = 0;
-    write_bus = 0;
-    inhibit_interrupts = false;
-    extend = false;
-    extend_next = false;
-    dv = false;
-    dv_stage = 0;
-    iip = false;
-    pseudo = false;
-    mcro = false;
     current_timepulse = 1;
 
     for (word &c : counters) {
@@ -195,7 +163,7 @@ void Cpu::tick() {
 
 
     // Print CPU state information before we clear the write bus
-    if ((verbosity == LoggingVerbosity::CpuStatePerMCT && current_timepulse == 1) || verbosity == LoggingVerbosity::CpuStatePerTimepulse) {
+    if ((config.log_mct && current_timepulse == 1) || config.log_timepulse) {
         print_state_info(std::cout);
     }
 
@@ -213,10 +181,9 @@ void Cpu::tick() {
 
         if (fetch_next_instruction) {
             // Check for pending counter requests
-            bool prev_inkl = inkl;
             inkl = false;
-            for (int c = 0; c < 20; ++c) {
-                if (counters[c] != COUNT_DIRECTION_NONE && !pseudo && !config.ignore_counters) {
+            for (const word& counter : counters) {
+                if (counter != COUNT_DIRECTION_NONE && !pseudo && !config.ignore_counters) {
                     inkl = true;
                     break;
                 }
@@ -225,8 +192,8 @@ void Cpu::tick() {
 
             // Check for pending interrupts
             bool rupt_pending = false;
-            for (int r = 0; r < 11; ++r) {
-                if (interrupts[r] == true) {
+            for (const bool& interrupt : interrupts) {
+                if (interrupt) {
                     rupt_pending = true;
                     break;
                 }
@@ -343,7 +310,7 @@ void Cpu::update_eb_fb() {
 }
 
 word Cpu::get_erasable_absolute_addr() {
-    word abs_addr = 0;
+    word abs_addr;
 
     if (s >= MEM_ERASABLE_BANKED_START && s <= MEM_ERASABLE_BANKED_END) {
         abs_addr = s & 0377;
@@ -361,7 +328,7 @@ word Cpu::get_erasable_absolute_addr() {
 }
 
 word Cpu::get_fixed_absolute_addr() const {
-    word abs_addr = 0;
+    word abs_addr;
 
     if (s >= MEM_FIXED_BANKED_START && s <= MEM_FIXED_BANKED_END) {
         abs_addr = s & 01777;

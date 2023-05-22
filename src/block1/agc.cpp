@@ -19,11 +19,12 @@ namespace agcplusplus::block1 {
     }
 
     [[noreturn]] void Agc::run() {
-        timer.start();
         cpu.current_subinstruction = subinstruction_data[0];
         // Start a thread where we can look for incoming connections
         std::thread socket_thread(&Agc::accept_dsky_connections, *this);
 
+        // Start ticking our various functions at their given intervals
+        std::cout << "Starting CPU..." << std::endl;
         while (true) {
             timer.execute_tick_batch();
         }
@@ -61,7 +62,6 @@ namespace agcplusplus::block1 {
                 auto x = started_at + std::chrono::milliseconds(1);
 
                 if (sock.is_open()) {
-
                     // Read from the DSKY first to check its state
                     char read_buf[4];
                     size_t result = sock.read(read_buf, 4);

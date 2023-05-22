@@ -209,7 +209,7 @@ static void rq(Cpu& cpu) {
 
 static void rrpa(Cpu& cpu) {
     for (int r = 0; r < 11; ++r) {
-        if (cpu.interrupts[r] == true) {
+        if (cpu.interrupts[r]) {
             cpu.write_bus |= 04000 + (r * 4);   // Interrupt handlers located at octal 4000 + (4r)
             break;
         }
@@ -389,32 +389,32 @@ static void wg(Cpu& cpu) {
 
     if (s_correct >= 020 && s_correct <= 023) {
         switch (s_correct) {
-        case 020:   // Cycle Right
-        {
-            word bottom_to_top = (cpu.write_bus & 1) << 15; // Cycle bit 1 to bit 16
-            temp = ((cpu.write_bus & ~BITMASK_15_16) >> 1) | bottom_to_top;    // Mask out bits 15 and 16 before shifting so they are blank afterwards
-            temp |= ((cpu.write_bus & BITMASK_16) >> 2);  // Copy the old bit 16 into bit 14
-            break;
-        }
-        case 021:   // Shift Right
-        {
-            word top_bit = (cpu.write_bus & BITMASK_16);    // Remember bit 16
-            temp = ((cpu.write_bus & ~BITMASK_15_16) >> 1) | top_bit;  // Mask out bits 15 and 16 before shifting so they are blank afterwards
-            temp |= ((cpu.write_bus & BITMASK_16) >> 2);  // Copy the old bit 16 into bit 14
-            break;
-        }
-        case 022:   // Cycle Left
-        {
-            word top_to_bottom = (cpu.write_bus & BITMASK_16) >> 15; // Cycle the most significant bit to the least
-            word new_top = ((cpu.write_bus & BITMASK_14) << 2); // Remember bit 14 and double-shift it so it ends up in bit 16
-            temp = ((cpu.write_bus & ~BITMASK_14_15) << 1) | top_to_bottom | new_top;  // Mask out bits 14 and 15 before shifting so they are blank afterwards
-            break;
-        }
-        case 023:  // EDOP, move 7 bits right
-        {
-            temp = ((cpu.write_bus & BITMASK_8_14) >> 7);
-            break;
-        }
+            case 020:   // Cycle Right
+            {
+                word bottom_to_top = (cpu.write_bus & 1) << 15; // Cycle bit 1 to bit 16
+                temp = ((cpu.write_bus & ~BITMASK_15_16) >> 1) | bottom_to_top;    // Mask out bits 15 and 16 before shifting so they are blank afterwards
+                temp |= ((cpu.write_bus & BITMASK_16) >> 2);  // Copy the old bit 16 into bit 14
+                break;
+            }
+            case 021:   // Shift Right
+            {
+                word top_bit = (cpu.write_bus & BITMASK_16);    // Remember bit 16
+                temp = ((cpu.write_bus & ~BITMASK_15_16) >> 1) | top_bit;  // Mask out bits 15 and 16 before shifting so they are blank afterwards
+                temp |= ((cpu.write_bus & BITMASK_16) >> 2);  // Copy the old bit 16 into bit 14
+                break;
+            }
+            case 022:   // Cycle Left
+            {
+                word top_to_bottom = (cpu.write_bus & BITMASK_16) >> 15; // Cycle the most significant bit to the least
+                word new_top = ((cpu.write_bus & BITMASK_14) << 2); // Remember bit 14 and double-shift it so it ends up in bit 16
+                temp = ((cpu.write_bus & ~BITMASK_14_15) << 1) | top_to_bottom | new_top;  // Mask out bits 14 and 15 before shifting so they are blank afterwards
+                break;
+            }
+            case 023:  // EDOP, move 7 bits right
+            {
+                temp = ((cpu.write_bus & BITMASK_8_14) >> 7);
+                break;
+            }
         }
     }
 
@@ -430,18 +430,18 @@ static void wovr(Cpu& cpu) {
     if (((cpu.write_bus & BITMASK_15_16) >> 14) == 0b01)
     {
         switch (cpu.s - 024) {
-        case COUNTER_TIME1:
-            cpu.counters[COUNTER_TIME2] |= COUNT_DIRECTION_UP;
-            break;
-        case COUNTER_TIME3:
-            cpu.interrupts[RUPT_T3RUPT] = true;
-            break;
-        case COUNTER_TIME4:
-            cpu.interrupts[RUPT_T4RUPT] = true;
-            break;
-        case COUNTER_TIME5:
-            cpu.interrupts[RUPT_T5RUPT] = true;
-            break;
+            case COUNTER_TIME1:
+                cpu.counters[COUNTER_TIME2] |= COUNT_DIRECTION_UP;
+                break;
+            case COUNTER_TIME3:
+                cpu.interrupts[RUPT_T3RUPT] = true;
+                break;
+            case COUNTER_TIME4:
+                cpu.interrupts[RUPT_T4RUPT] = true;
+                break;
+            case COUNTER_TIME5:
+                cpu.interrupts[RUPT_T5RUPT] = true;
+                break;
         }
     }
 }
@@ -484,7 +484,7 @@ static void wsc(Cpu& cpu) {
             cpu.bb |= ((cpu.write_bus & BITMASK_16) >> 1);  // Move bit 16 into bit 15
             cpu.update_eb_fb();
             break;
-    };
+    }
 }
 
 static void wy(Cpu& cpu) {
@@ -541,41 +541,41 @@ static void zip(Cpu& cpu) {
     cpu.mcro = false;
 
     switch (state_bits) {
-    case 0b000:
-        wy(cpu);
-        break;
-    case 0b001:
-        rb(cpu);
-        wy(cpu);
-        break;
-    case 0b010:
-        rb(cpu);
-        wyd(cpu);
-        break;
-    case 0b011:
-        rc(cpu);
-        wy(cpu);
-        ci(cpu);
-        cpu.mcro = true;
-        break;
-    case 0b100:
-        rb(cpu);
-        wy(cpu);
-        break;
-    case 0b101:
-        rb(cpu);
-        wyd(cpu);
-        break;
-    case 0b110:
-        rc(cpu);
-        wy(cpu);
-        ci(cpu);
-        cpu.mcro = true;
-        break;
-    case 0b111:
-        wy(cpu);
-        cpu.mcro = true;
-        break;
+        case 0b000:
+            wy(cpu);
+            break;
+        case 0b001:
+            rb(cpu);
+            wy(cpu);
+            break;
+        case 0b010:
+            rb(cpu);
+            wyd(cpu);
+            break;
+        case 0b011:
+            rc(cpu);
+            wy(cpu);
+            ci(cpu);
+            cpu.mcro = true;
+            break;
+        case 0b100:
+            rb(cpu);
+            wy(cpu);
+            break;
+        case 0b101:
+            rb(cpu);
+            wyd(cpu);
+            break;
+        case 0b110:
+            rc(cpu);
+            wy(cpu);
+            ci(cpu);
+            cpu.mcro = true;
+            break;
+        case 0b111:
+            wy(cpu);
+            cpu.mcro = true;
+            break;
     }
 
     a2x(cpu);
@@ -584,15 +584,13 @@ static void zip(Cpu& cpu) {
 
 static void zout(Cpu& cpu) {
     switch (cpu.s - 024) {
-    case COUNTER_TIME6:
-        {
+        case COUNTER_TIME6:
             // Clear bit 16 of I/O channel 13
             word temp = cpu.read_io_channel(013);
             temp &= ~BITMASK_16;
             cpu.write_io_channel(013, temp);
             cpu.interrupts[RUPT_T6RUPT] = true;
-        }
-        break;
+            break;
     }
 }
 }

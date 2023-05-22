@@ -1,8 +1,7 @@
 #include "agc.hpp"
-#include <chrono>
 
 namespace agcplusplus::block2 {
-Agc::Agc(std::vector<word>& rope, std::map<word, word> padload, InitArguments init_args) {
+Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args) {
     std::cout << "Initializing computer state..." << std::endl;
 
     cpu = std::make_shared<Cpu>(init_args);
@@ -11,7 +10,7 @@ Agc::Agc(std::vector<word>& rope, std::map<word, word> padload, InitArguments in
     timer = std::make_shared<Timer>();
 
     std::cout << "Loading rope into fixed memory...";
-    for (word w : rope) {
+    for (const word& w : rope) {
         static int fixed_addr = 0;
         memory->write_fixed_word(fixed_addr++, w);
     }

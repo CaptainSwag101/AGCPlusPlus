@@ -21,7 +21,7 @@ namespace agcplusplus::block1 {
                 std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
             }
         } else if (address <= MEM_FIXED_BANKED_END && bank > 0) {
-            uint32_t fixed_addr = 0;
+            uint32_t fixed_addr;
             if (address <= MEM_FIXED_FIXED_END) {
                 fixed_addr = address - MEM_FIXED_FIXED_START;
             } else {
