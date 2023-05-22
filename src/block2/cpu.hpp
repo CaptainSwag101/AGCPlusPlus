@@ -20,16 +20,10 @@ struct subinstruction {
     std::function<void(Cpu&)> function;
 };
 
-enum class LoggingVerbosity {
-    None,
-    CpuStatePerMCT,
-    CpuStatePerTimepulse,
-};
-
 class Cpu {
 public:
     // Init functions
-    Cpu(InitArguments init_args);
+    explicit Cpu(InitArguments init_args);
     void assign_memory(std::shared_ptr<Memory> mem);
 
     // Activity functions

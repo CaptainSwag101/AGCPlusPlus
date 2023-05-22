@@ -74,8 +74,8 @@ void Timer::start() {
         }
 
         auto ended_at = std::chrono::steady_clock::now();
-        auto batch_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(ended_at - started_at);
 
+        //auto batch_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(ended_at - started_at);
         //std::cout << "Batched ticks took " << (batch_duration.count() / 1000000.0) << " milliseconds." << std::endl;
 
         // DEBUG: Stop timer after 1 second
@@ -86,11 +86,6 @@ void Timer::start() {
         // Wait the remaining amount of time before ticking the clock again
         std::this_thread::sleep_until(x);
     }
-}
-
-void Timer::stop() {
-    std::cout << "Stopping main clock after " << total_ticks << " ticks." << std::endl;
-    enable = false;
 }
 
 void Timer::accept_dsky_connections() {
@@ -166,7 +161,7 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
                         std::dec(std::cout);
                         */
 
-                        if (channel == 015 || channel == 016 || (channel == 032 && bitmask == false)) {
+                        if (channel == 015 || channel == 016 || (channel == 032 && !bitmask)) {
                             scaler_ref->queue_dsky_update(channel, data);
                             // Reset RESTART light upon RESET key press
                             if (channel == 015 && data == 022) {
@@ -234,7 +229,7 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
             // Wait the remaining amount of time before checking the DSKY again
             std::this_thread::sleep_until(x);
         }
-    } catch (std::runtime_error err) {
+    } catch (std::runtime_error& err) {
         sock.close();
     }
 }

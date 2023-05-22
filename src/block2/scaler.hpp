@@ -9,7 +9,7 @@ namespace agcplusplus::block2 {
 class Scaler
 {
 public:
-    Scaler(InitArguments init_args);
+    explicit Scaler(InitArguments init_args);
     void tick();
     void assign_cpu(std::shared_ptr<Cpu> cpu);
     void queue_dsky_update(word channel, word data);

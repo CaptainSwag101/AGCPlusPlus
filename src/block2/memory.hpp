@@ -18,7 +18,7 @@ class Memory {
 public:
     // Initializes the AGC's two sections of memory with the
     // specified initialization pattern.
-    Memory(MemoryInitState initState = MemoryInitState::BitsClear);
+    explicit Memory(MemoryInitState initState = MemoryInitState::BitsClear);
     word read_fixed_word(word address, bool raw_parity = false) const;
     word read_erasable_word(word address);
     void write_fixed_word(word address, word data);

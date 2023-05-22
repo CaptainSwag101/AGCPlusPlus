@@ -18,7 +18,7 @@ void Scaler::assign_cpu(std::shared_ptr<Cpu> cpu)
 }
 
 void Scaler::queue_dsky_update(word channel, word data) {
-    dsky_queue.push({channel, data});
+    dsky_queue.emplace(channel, data);
 }
 
 void Scaler::tick() {

@@ -16,7 +16,6 @@ class Timer
 public:
     Timer();
     void start();
-    void stop();
     void assign_cpu(std::shared_ptr<Cpu> cpu);
     void assign_memory(std::shared_ptr<Memory> mem);
     void assign_scaler(std::shared_ptr<Scaler> scaler);
