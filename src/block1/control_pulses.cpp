@@ -74,6 +74,11 @@ namespace agcplusplus::block1 {
         word rupt_index = (rupt_address - 02000) / 4;
         cpu.interrupts[rupt_index] = false;
         cpu.iip = true;
+        /*if (rupt_index == RUPT_T3RUPT) {
+            std::cout << "T3RUPT FLAGGED AS BEING HANDLED" << std::endl;
+        } else if (rupt_index == RUPT_KEYRUPT) {
+            std::cout << "KEYRUPT FLAGGED AS BEING HANDLED" << std::endl;
+        }*/
     }
 
     void nisq(Cpu& cpu) {
@@ -199,6 +204,11 @@ namespace agcplusplus::block1 {
     void rrpa(Cpu& cpu) {
         for (int i = 0; i < 6; ++i) {
             if (cpu.interrupts[i]) {
+                /*if (i == RUPT_T3RUPT) {
+                    std::cout << "T3RUPT WILL BE SERVICED" << std::endl;
+                } else if (i == RUPT_KEYRUPT) {
+                    std::cout << "KEYRUPT WILL BE SERVICED" << std::endl;
+                }*/
                 word rupt_address = 02000 + (i * 4);
                 cpu.write_bus |= rupt_address;
                 break;

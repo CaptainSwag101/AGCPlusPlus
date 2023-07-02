@@ -18,8 +18,11 @@ namespace agcplusplus::block1 {
                 word channel = std::get<0>(dsky_update);
                 word data = std::get<1>(dsky_update);
                 if (channel == 4 || channel == 5) {
-                    Agc::cpu.in[channel - 4] = data;
-                    Agc::cpu.interrupts[RUPT_KEYRUPT] = true;
+                    if (data != 0) {
+                        Agc::cpu.in[channel - 4] = data;
+                        Agc::cpu.interrupts[RUPT_KEYRUPT] = true;
+                        //std::cout << "KEYRUPT" << std::endl;
+                    }
                     dsky_queue.pop();
                 }
             }
