@@ -61,8 +61,12 @@ target_include_directories(AGCPlusPlus PUBLIC
                            "${PROJECT_BINARY_DIR}/generated_src"
                            )
 
-# If on Windows, copy the sockpp DLL to the output directory because Windows is stupid and can't find it otherwise
+# If on Windows, copy the sockpp DLL to the executable directory because Windows can't find it otherwise.
 if(WIN32)
-    file(COPY ${sockpp_BINARY_DIR}/sockpp.dll
+    # Uncomment only one, or add your own if your environment calls the DLL something else.
+    set(SOCKPP_DLL_NAME libsockpp.dll)  # For CLion
+    #set(SOCKPP_DLL_NAME sockpp.dll)     # For Visual Studio
+
+    file(COPY ${sockpp_BINARY_DIR}/${SOCKPP_DLL_NAME}
         DESTINATION ${PROJECT_BINARY_DIR})
 endif()
