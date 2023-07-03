@@ -130,8 +130,8 @@ int main(int argc, char* argv[]) {
     auto machine_type = mainArgs.get<std::string>("machine-type");
     if (machine_type == "block1") {
         // Check rope length
-        if ((rope_buffer.size() - 1) != block1::MEM_FIXED_TOTAL_SIZE) {
-            std::cout << "Warning: The core rope does not match the size of the machine's fixed memory." << std::endl;
+        if ((rope_buffer.size() - 1) > block1::MEM_FIXED_TOTAL_SIZE) {
+            std::cout << "Warning: The core rope exceeds the size of the machine's fixed memory." << std::endl;
         }
 
         // Initialize the Block I computer
@@ -139,8 +139,8 @@ int main(int argc, char* argv[]) {
         computer.run();
     } else if (machine_type == "block2") {
         // Check rope length
-        if ((rope_buffer.size() - 1) != block2::SIZE_FIXED_MEM) {
-            std::cout << "Warning: The core rope does not match the size of the machine's fixed memory." << std::endl;
+        if ((rope_buffer.size() - 1) > block2::SIZE_FIXED_MEM) {
+            std::cout << "Warning: The core rope exceeds the size of the machine's fixed memory." << std::endl;
         }
 
         // Initialize the Block II computer
