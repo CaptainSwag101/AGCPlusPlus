@@ -53,10 +53,16 @@ FetchContent_MakeAvailable(sockpp)
 add_executable(AGCPlusPlus ${SOURCES})
 
 # Link our libraries
-target_link_libraries(AGCPlusPlus PUBLIC sockpp)
 target_link_libraries(AGCPlusPlus PUBLIC argparse)
+target_link_libraries(AGCPlusPlus PUBLIC sockpp)
 
 # Add the extra generated header file for our version number
 target_include_directories(AGCPlusPlus PUBLIC
                            "${PROJECT_BINARY_DIR}/generated_src"
                            )
+
+# If on Windows, copy the sockpp DLL to the output directory because Windows is stupid and can't find it otherwise
+if(WIN32)
+    file(COPY ${sockpp_BINARY_DIR}/sockpp.dll
+        DESTINATION ${PROJECT_BINARY_DIR})
+endif()
