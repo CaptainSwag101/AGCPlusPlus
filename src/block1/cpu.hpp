@@ -54,6 +54,6 @@ namespace agcplusplus::block1 {
         subinstruction current_subinstruction;
         bool fetch_new_subinstruction = false;
         bool extend = false, extend_next = false, no_eac = false;
-        bool inkl = false, iip = false, inhibit_interrupts = false;
+        bool inkl = false, iip = false, inhibit_interrupts = false, overflow = false;
     };
 }

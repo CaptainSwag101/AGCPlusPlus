@@ -34,9 +34,7 @@ namespace agcplusplus::block1 {
                         break;
                     }
                 }
-            }
-
-            if (st != 2) {
+            } else if (st != 2) {
                 fetch_new_subinstruction = false;
                 extend_next = false;
             }
@@ -128,9 +126,9 @@ namespace agcplusplus::block1 {
                 // and they aren't currently inhibited, and an interrupt isn't already happening,
                 // and we aren't about to perform an extracode instruction next,
                 // and there isn't overflow in A, perform the interrupt instead of the instruction in B.
-                uint8_t a_signs = get_sign_bits(a);
-                bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
-                if (rupt_pending&& !Agc::configuration.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !a_overflow) {
+                //uint8_t a_signs = get_sign_bits(a);
+                //bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
+                if (rupt_pending && !Agc::configuration.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !overflow) {
                     subinstruction rupt1 = sub_rupt1;
                     sq = rupt1.order_code;
                     extend = rupt1.extended;

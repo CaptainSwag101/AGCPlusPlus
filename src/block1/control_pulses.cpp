@@ -74,9 +74,9 @@ namespace agcplusplus::block1 {
         word rupt_index = (rupt_address - 02000) / 4;
         cpu.interrupts[rupt_index] = false;
         cpu.iip = true;
-        /*if (rupt_index == RUPT_T3RUPT) {
+        if (rupt_index == RUPT_T3RUPT) {
             std::cout << "T3RUPT FLAGGED AS BEING HANDLED" << std::endl;
-        } else if (rupt_index == RUPT_KEYRUPT) {
+        } /*else if (rupt_index == RUPT_KEYRUPT) {
             std::cout << "KEYRUPT FLAGGED AS BEING HANDLED" << std::endl;
         }*/
     }
@@ -204,9 +204,9 @@ namespace agcplusplus::block1 {
     void rrpa(Cpu& cpu) {
         for (int i = 0; i < 6; ++i) {
             if (cpu.interrupts[i]) {
-                /*if (i == RUPT_T3RUPT) {
+                if (i == RUPT_T3RUPT) {
                     std::cout << "T3RUPT WILL BE SERVICED" << std::endl;
-                } else if (i == RUPT_KEYRUPT) {
+                } /*else if (i == RUPT_KEYRUPT) {
                     std::cout << "KEYRUPT WILL BE SERVICED" << std::endl;
                 }*/
                 word rupt_address = 02000 + (i * 4);
@@ -324,7 +324,9 @@ namespace agcplusplus::block1 {
         // If uncorrected sign and generated sign do not match, we have an overflow.
         word sign_bits = get_sign_bits(cpu.write_bus);
         if (sign_bits == 0b01 || sign_bits == 0b10) {
-            cpu.inhibit_interrupts = true;
+            cpu.overflow = true;
+        } else {
+            cpu.overflow = false;
         }
     }
 
@@ -339,7 +341,7 @@ namespace agcplusplus::block1 {
                     break;
                 case COUNTER_TIME3:
                     cpu.interrupts[RUPT_T3RUPT] = true;
-                    //std::cout << "T3RUPT" << std::endl;
+                    std::cout << "T3RUPT" << std::endl;
                     break;
                 case COUNTER_TIME4:
                     cpu.interrupts[RUPT_T4RUPT] = true;
