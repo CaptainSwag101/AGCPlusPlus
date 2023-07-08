@@ -124,11 +124,11 @@ namespace agcplusplus::block1 {
 
                 // If an interrupt is pending, and we aren't ignoring them for debugging,
                 // and they aren't currently inhibited, and an interrupt isn't already happening,
-                // and we aren't about to perform an extracode instruction next,
+                // and we aren't about to perform an extracode instruction next (implied by overflow pulse WOVI during the index),
                 // and there isn't overflow in A, perform the interrupt instead of the instruction in B.
                 //uint8_t a_signs = get_sign_bits(a);
                 //bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
-                if (rupt_pending && !Agc::configuration.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !overflow) {
+                if (rupt_pending && !Agc::configuration.ignore_interrupts && !inhibit_interrupts && !iip && !overflow) {
                     subinstruction rupt1 = sub_rupt1;
                     sq = rupt1.order_code;
                     extend = rupt1.extended;
@@ -187,6 +187,7 @@ namespace agcplusplus::block1 {
         output << " BR = " << (br & 1) << ((br & 2) >> 1);
         output << " IIP = " << static_cast<word>(iip);
         output << " INKL = " << static_cast<word>(inkl);
+        output << " OVR = " << static_cast<word>(overflow);
         output << '\n';
 
         output << " EXTEND = " << (word)extend;
