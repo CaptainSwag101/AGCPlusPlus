@@ -94,20 +94,22 @@ namespace agcplusplus::block1 {
 
         // Fetch next subinstruction, or the next stage of the current one
         if (timepulse == 12) {
-            // Push stage to its next pending value
-            st = st_next;
-            st_next = 0;
+            // Push stage to its next pending value if we weren't just interrupted by a counter
+            if (!inkl) {
+                st = st_next;
+                st_next = 0;
+            }
+
+            // Check for pending counter requests
             inkl = false;
+            for (auto& counter : counters) {
+                if (counter != COUNTER_STATUS::NONE && !Agc::configuration.ignore_counters) {
+                    inkl = true;
+                    break;
+                }
+            }
 
             if (fetch_new_subinstruction) {
-                // Check for pending counter requests
-                for (auto& counter : counters) {
-                    if (counter != COUNTER_STATUS::NONE && !Agc::configuration.ignore_counters) {
-                        inkl = true;
-                        break;
-                    }
-                }
-
                 // Check for pending interrupts
                 bool rupt_pending = false;
                 for (bool interrupt : interrupts) {
