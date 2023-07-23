@@ -327,8 +327,6 @@ namespace agcplusplus::block1 {
         word sign_bits = get_sign_bits(cpu.write_bus);
         if (sign_bits == 0b01 || sign_bits == 0b10) {
             cpu.overflow = true;
-        } else {
-            cpu.overflow = false;
         }
     }
 

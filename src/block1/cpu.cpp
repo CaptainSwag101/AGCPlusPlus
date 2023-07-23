@@ -138,6 +138,7 @@ namespace agcplusplus::block1 {
                 } else {
                     sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
                     extend = extend_next;
+                    overflow = false;
                 }
 
                 //DEBUG: Test the timing of RUPTCHK
