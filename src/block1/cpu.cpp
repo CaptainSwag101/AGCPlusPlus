@@ -138,35 +138,6 @@ namespace agcplusplus::block1 {
                     sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
                     extend = extend_next;
                 }
-
-                //DEBUG: Test the timing of RUPTCHK
-                if (bank == 06 && z == 06334) {
-                    debug_start_mct = Agc::timer.total_ticks / 12;
-
-                    std::cout << "RUPTCHK started" << std::endl;
-
-                    //Agc::configuration.log_mct = true;
-                }
-
-                if (bank == 06 && z == 06417) {
-                    debug_end_mct = Agc::timer.total_ticks / 12;
-
-                    std::cout << "RUPTCHK took " << debug_end_mct - debug_start_mct << " MCTs to complete" << std::endl;
-
-                    //Agc::configuration.log_mct = false;
-                }
-
-                if (bank == 06 && z == 06352) {
-                    std::cout << "Hit 7-8WAIT, A = " << std::oct << a << std::dec << std::endl;
-                }
-
-                if (bank == 06 && z == 06365) {
-                    std::cout << "Hit WAIT1, A = " << std::oct << a << std::dec << std::endl;
-                }
-
-                if (z == 02125) {
-                    std::cout << "WAITLIST called with a delay of " << std::oct << a << std::dec << std::endl;
-                }
             }
 
             // With our sequence, stage, and extend status updated, find the appropriate

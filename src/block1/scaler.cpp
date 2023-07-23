@@ -22,7 +22,6 @@ namespace agcplusplus::block1 {
                     if (data != 0) {
                         Agc::cpu.in[channel - 4] = data;
                         Agc::cpu.interrupts[RUPT_KEYRUPT] = true;
-                        //std::cout << "KEYRUPT" << std::endl;
                     }
                     dsky_queue.pop();
                 }
@@ -31,12 +30,7 @@ namespace agcplusplus::block1 {
 
         if (F10A) {
             Agc::cpu.counters[COUNTER_TIME1] = COUNTER_STATUS::UP;
-
-            debug_end_tick = Agc::timer.total_ticks;
-            double duration = (debug_end_tick - debug_start_tick * 1.0) / Timer::TIMEPULSES_PER_MILLISECOND;
-            //std::cout << "TIME3 increment took " << duration << " milliseconds" << std::endl;
             Agc::cpu.counters[COUNTER_TIME3] = COUNTER_STATUS::UP;
-            debug_start_tick = Agc::timer.total_ticks;
         }
 
         if (F10B) {

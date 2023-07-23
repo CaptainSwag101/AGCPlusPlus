@@ -55,9 +55,5 @@ namespace agcplusplus::block1 {
         bool fetch_new_subinstruction = false;
         bool extend = false, extend_next = false, no_eac = false;
         bool inkl = false, iip = false, inhibit_interrupts = false, overflow = false;
-
-        //DEBUG: Timing related debug info
-        uint64_t debug_start_mct = 0;
-        uint64_t debug_end_mct = 0;
     };
 }

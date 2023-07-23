@@ -74,11 +74,6 @@ namespace agcplusplus::block1 {
         word rupt_index = (rupt_address - 02000) / 4;
         cpu.interrupts[rupt_index] = false;
         cpu.iip = true;
-        /*if (rupt_index == RUPT_T3RUPT) {
-            std::cout << "KRPT IDENTIFIED T3RUPT" << std::endl;
-        } else if (rupt_index == RUPT_KEYRUPT) {
-            std::cout << "KRPT IDENTIFIED KEYRUPT" << std::endl;
-        }*/
     }
 
     void nisq(Cpu& cpu) {
@@ -204,11 +199,6 @@ namespace agcplusplus::block1 {
     void rrpa(Cpu& cpu) {
         for (int i = 0; i < 6; ++i) {
             if (cpu.interrupts[i]) {
-                /*if (i == RUPT_T3RUPT) {
-                    std::cout << "RRPA SELECTED T3RUPT FOR SERVICING" << std::endl;
-                } else if (i == RUPT_KEYRUPT) {
-                    std::cout << "RRPA SELECTED KEYRUPT FOR SERVICING" << std::endl;
-                }*/
                 word rupt_address = 02000 + (i * 4);
                 cpu.write_bus |= rupt_address;
                 break;
@@ -338,15 +328,12 @@ namespace agcplusplus::block1 {
             switch (counter_location) {
                 case COUNTER_TIME1:
                     cpu.counters[COUNTER_TIME2] = COUNTER_STATUS::UP;   // Overflow into TIME2
-                    //std::cout << "TIME1 OVERFLOW" << std::endl;
                     break;
                 case COUNTER_TIME3:
                     cpu.interrupts[RUPT_T3RUPT] = true;
-                    std::cout << "T3RUPT PENDING" << std::endl;
                     break;
                 case COUNTER_TIME4:
                     cpu.interrupts[RUPT_T4RUPT] = true;
-                    //std::cout << "T4RUPT PENDING" << std::endl;
                     break;
             }
         }
