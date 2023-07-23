@@ -30,8 +30,13 @@ namespace agcplusplus::block1 {
 
 
         if (F10A) {
+            Agc::timer.debug_end_tick = Agc::timer.total_ticks;
+            double duration = (Agc::timer.debug_end_tick - Agc::timer.debug_start_tick * 1.0) / Timer::TIMEPULSES_PER_MILLISECOND;
+            if (duration != 10.0)
+                std::cout << "TIME3 increment took a bad amount of time! " << duration << " milliseconds" << std::endl;
             Agc::cpu.counters[COUNTER_TIME1] = COUNTER_STATUS::UP;
             Agc::cpu.counters[COUNTER_TIME3] = COUNTER_STATUS::UP;
+            Agc::timer.debug_start_tick = Agc::timer.total_ticks;
         }
 
         if (F10B) {
