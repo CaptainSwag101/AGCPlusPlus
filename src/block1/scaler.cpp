@@ -11,6 +11,7 @@ namespace agcplusplus::block1 {
         bool F10A = (((current_tick & BITMASK_10) ^ (previous_tick & BITMASK_10)) && (current_tick & BITMASK_10) == 0);
         bool F10B = (((current_tick & BITMASK_10) ^ (previous_tick & BITMASK_10)) && (current_tick & BITMASK_10) != 0);
 
+
         if (F09B) {
             // Generate KEYRUPT if keys are pending
             if (!dsky_queue.empty()) {
@@ -21,13 +22,11 @@ namespace agcplusplus::block1 {
                     if (data != 0) {
                         Agc::cpu.in[channel - 4] = data;
                         Agc::cpu.interrupts[RUPT_KEYRUPT] = true;
-                        //std::cout << "KEYRUPT" << std::endl;
                     }
                     dsky_queue.pop();
                 }
             }
         }
-
 
         if (F10A) {
             Agc::cpu.counters[COUNTER_TIME1] = COUNTER_STATUS::UP;
