@@ -20,13 +20,16 @@ namespace agcplusplus::block1 {
                 std::cout << "Read from erasable memory: " << std::oct << std::setw(4) << address;
                 std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
             }
-        } else if (address <= MEM_FIXED_BANKED_END && bank > 0) {
+        } else if (address <= MEM_FIXED_BANKED_END) {
             uint32_t fixed_addr;
             if (address <= MEM_FIXED_FIXED_END) {
                 fixed_addr = address - MEM_FIXED_FIXED_START;
-            } else {
+            } else if (bank > 0) {
                 fixed_addr = address - MEM_FIXED_BANKED_START;
                 fixed_addr += (bank - 1) * MEM_FIXED_BANKED_SIZE;
+            } else {
+                std::cout << "Invalid fixed-banked memory read: " << std::oct << std::setw(2) << bank << "," << std::setw(4) << address;
+                std::cout << ": " << std::setw(6) << data << std::dec << std::endl;
             }
 
             data = fixed[fixed_addr];
