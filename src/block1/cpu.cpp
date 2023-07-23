@@ -154,6 +154,10 @@ namespace agcplusplus::block1 {
                     std::cout << "RUPTCHK took " << debug_end_mct - debug_start_mct << " MCTs to complete" << std::endl;
                 }
 
+                if (bank == 06 && z == 06365) {
+                    std::cout << "Hit WAIT1, A = " << std::oct << a << std::dec << std::endl;
+                }
+
                 if (z == 02125) {
                     std::cout << "WAITLIST called with a delay of " << a << std::endl;
                 }

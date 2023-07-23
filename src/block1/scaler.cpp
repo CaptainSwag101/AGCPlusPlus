@@ -11,6 +11,7 @@ namespace agcplusplus::block1 {
         bool F10A = (((current_tick & BITMASK_10) ^ (previous_tick & BITMASK_10)) && (current_tick & BITMASK_10) == 0);
         bool F10B = (((current_tick & BITMASK_10) ^ (previous_tick & BITMASK_10)) && (current_tick & BITMASK_10) != 0);
 
+
         if (F09B) {
             // Generate KEYRUPT if keys are pending
             if (!dsky_queue.empty()) {
@@ -28,15 +29,14 @@ namespace agcplusplus::block1 {
             }
         }
 
-
         if (F10A) {
-            Agc::timer.debug_end_tick = Agc::timer.total_ticks;
-            double duration = (Agc::timer.debug_end_tick - Agc::timer.debug_start_tick * 1.0) / Timer::TIMEPULSES_PER_MILLISECOND;
-            if (duration != 10.0)
-                std::cout << "TIME3 increment took a bad amount of time! " << duration << " milliseconds" << std::endl;
             Agc::cpu.counters[COUNTER_TIME1] = COUNTER_STATUS::UP;
+
+            debug_end_tick = Agc::timer.total_ticks;
+            double duration = (debug_end_tick - debug_start_tick * 1.0) / Timer::TIMEPULSES_PER_MILLISECOND;
+            //std::cout << "TIME3 increment took " << duration << " milliseconds" << std::endl;
             Agc::cpu.counters[COUNTER_TIME3] = COUNTER_STATUS::UP;
-            Agc::timer.debug_start_tick = Agc::timer.total_ticks;
+            debug_start_tick = Agc::timer.total_ticks;
         }
 
         if (F10B) {
