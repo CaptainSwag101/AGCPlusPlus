@@ -34,9 +34,10 @@ namespace agcplusplus::block1 {
                         break;
                     }
                 }
-            } else if (st != 2) {
+            } else if (fetch_new_subinstruction) {
                 fetch_new_subinstruction = false;
                 extend_next = false;
+                overflow = false;
             }
         }
 
@@ -127,9 +128,7 @@ namespace agcplusplus::block1 {
                 // If an interrupt is pending, and we aren't ignoring them for debugging,
                 // and they aren't currently inhibited, and an interrupt isn't already happening,
                 // and we aren't about to perform an extracode instruction next (implied by overflow pulse WOVI during the index),
-                // and there isn't overflow in A, perform the interrupt instead of the instruction in B.
-                //uint8_t a_signs = get_sign_bits(a);
-                //bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
+                // and there isn't overflow, perform the interrupt instead of the instruction in B.
                 if (rupt_pending && !Agc::configuration.ignore_interrupts && !inhibit_interrupts && !iip && !overflow) {
                     subinstruction rupt1 = sub_rupt1;
                     sq = rupt1.order_code;
@@ -138,7 +137,6 @@ namespace agcplusplus::block1 {
                 } else {
                     sq = (b & BITMASK_13_16) >> 12;  // B13-16 to SQ1-4
                     extend = extend_next;
-                    overflow = false;
                 }
 
                 //DEBUG: Test the timing of RUPTCHK
@@ -146,12 +144,20 @@ namespace agcplusplus::block1 {
                     debug_start_mct = Agc::timer.total_ticks / 12;
 
                     std::cout << "RUPTCHK started" << std::endl;
+
+                    //Agc::configuration.log_mct = true;
                 }
 
                 if (bank == 06 && z == 06417) {
                     debug_end_mct = Agc::timer.total_ticks / 12;
 
                     std::cout << "RUPTCHK took " << debug_end_mct - debug_start_mct << " MCTs to complete" << std::endl;
+
+                    //Agc::configuration.log_mct = false;
+                }
+
+                if (bank == 06 && z == 06352) {
+                    std::cout << "Hit 7-8WAIT, A = " << std::oct << a << std::dec << std::endl;
                 }
 
                 if (bank == 06 && z == 06365) {
@@ -159,7 +165,7 @@ namespace agcplusplus::block1 {
                 }
 
                 if (z == 02125) {
-                    std::cout << "WAITLIST called with a delay of " << a << std::endl;
+                    std::cout << "WAITLIST called with a delay of " << std::oct << a << std::dec << std::endl;
                 }
             }
 
