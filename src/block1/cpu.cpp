@@ -5,12 +5,14 @@
 
 namespace agcplusplus::block1 {
     void Cpu::go() {
+        should_gojam = false;
         write_bus = 02030;
         inhibit_interrupts = false;
         inkl = false;
-        b = 0;
+        b = 02030;
         current_subinstruction = subinstruction_data[0];
         fetch_new_subinstruction = false;
+        extend = false;
         st = 2;
         bank = 1;
     }
@@ -164,6 +166,11 @@ namespace agcplusplus::block1 {
         } else {
             timepulse = 1;
         }
+
+        // If we are performing GOJAM, override all else and do it
+        if (should_gojam) {
+            go();
+        }
     }
 
     void Cpu::print_state_info(std::ostream& output) const {
@@ -213,5 +220,9 @@ namespace agcplusplus::block1 {
         temp += carry;
 
         u = (word)temp;
+    }
+
+    void Cpu::queue_gojam() {
+        should_gojam = true;
     }
 }

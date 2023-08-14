@@ -1,5 +1,6 @@
 #include "control_pulses.hpp"
 #include "../common/util_functions.hpp"
+#include "agc.hpp"
 
 namespace agcplusplus::block1 {
     word _cycle_right(const word input) {
@@ -74,6 +75,7 @@ namespace agcplusplus::block1 {
         word rupt_index = (rupt_address - 02000) / 4;
         cpu.interrupts[rupt_index] = false;
         cpu.iip = true;
+        Agc::scaler.interrupt_active();
     }
 
     void nisq(Cpu& cpu) {

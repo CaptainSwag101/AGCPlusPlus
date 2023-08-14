@@ -10,6 +10,8 @@ namespace agcplusplus::block1 {
         bool F09B = (((current_tick & BITMASK_9) ^ (previous_tick & BITMASK_9)) && (current_tick & BITMASK_9) != 0);
         bool F10A = (((current_tick & BITMASK_10) ^ (previous_tick & BITMASK_10)) && (current_tick & BITMASK_10) == 0);
         bool F10B = (((current_tick & BITMASK_10) ^ (previous_tick & BITMASK_10)) && (current_tick & BITMASK_10) != 0);
+        bool F14A = (((current_tick & BITMASK_14) ^ (previous_tick & BITMASK_14)) && (current_tick & BITMASK_14) == 0);
+        bool F14B = (((current_tick & BITMASK_14) ^ (previous_tick & BITMASK_14)) && (current_tick & BITMASK_14) != 0);
 
 
         if (F09B) {
@@ -36,5 +38,20 @@ namespace agcplusplus::block1 {
         if (F10B) {
             Agc::cpu.counters[COUNTER_TIME4] = COUNTER_STATUS::UP;
         }
+
+        if (F14A) {
+            nrptal_disarm = false;
+        }
+
+        if (F14B) {
+            if (!nrptal_disarm) {
+                std::cout << "RUPT LOCK: NO RUPTS IN 80ms" << std::endl;
+                Agc::cpu.queue_gojam();
+            }
+        }
+    }
+
+    void Scaler::interrupt_active() {
+        nrptal_disarm = true;
     }
 }

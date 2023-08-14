@@ -27,8 +27,9 @@ namespace agcplusplus::block1 {
         void process_before_timepulse();
         void process_timepulse();
         void process_after_timepulse();
-        void update_adder();
         void print_state_info(std::ostream& output) const;
+        void update_adder();
+        void queue_gojam();
 
         // Central registers
         word a{}, q{}, z{}, lp{}, x{}, y{}, b{}, g{};
@@ -55,5 +56,7 @@ namespace agcplusplus::block1 {
         bool fetch_new_subinstruction = false;
         bool extend = false, extend_next = false, no_eac = false;
         bool inkl = false, iip = false, inhibit_interrupts = false, overflow = false;
+
+        bool should_gojam = false;
     };
 }
