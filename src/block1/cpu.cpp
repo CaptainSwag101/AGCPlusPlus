@@ -48,6 +48,14 @@ namespace agcplusplus::block1 {
             }
         }
 
+        // If we aren't performing an INKL or a TC instruction at time 3,
+        // indicate to the hardware alarm logic that all is well.
+        if (timepulse == 3) {
+            if (!inkl && current_subinstruction.name != "TC0") {
+                Agc::scaler.tc_ended();
+            }
+        }
+
         // Data arrives from memory before T6, rather than T4 on Block II.
         if (timepulse == 6 && s >= 020) {
             // Inhibit memory access when performing MP1, DV1.

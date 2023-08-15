@@ -32,7 +32,17 @@ namespace agcplusplus::block1 {
 
         if (F10A) {
             if (!rptal_disarm) {
-                std::cout << "RUPT LOCK: RUPT LASTED LONGER THAN 10ms" << std::endl;
+                //std::cout << "RUPT LOCK: RUPT LASTED LONGER THAN 10ms" << std::endl;
+                //Agc::cpu.queue_gojam();
+            }
+
+            if (!tcal_disarm) {
+                std::cout << "TC TRAP: ONLY TC FOR 10ms" << std::endl;
+                Agc::cpu.queue_gojam();
+            }
+
+            if (!ntcal_disarm) {
+                std::cout << "TC TRAP: NO TC FOR 10ms" << std::endl;
                 Agc::cpu.queue_gojam();
             }
 
@@ -43,6 +53,9 @@ namespace agcplusplus::block1 {
             // by an interrupt finishing before the next F10A to avoid causing an alarm.
             if (Agc::cpu.iip)
                 rptal_disarm = false;
+
+            ntcal_disarm = false;
+            tcal_disarm = false;
         }
 
         if (F10B) {
@@ -67,5 +80,13 @@ namespace agcplusplus::block1 {
 
     void Scaler::interrupt_ended() {
         rptal_disarm = true;
+    }
+
+    void Scaler::tc_started() {
+        ntcal_disarm = true;
+    }
+
+    void Scaler::tc_ended() {
+        tcal_disarm = true;
     }
 }

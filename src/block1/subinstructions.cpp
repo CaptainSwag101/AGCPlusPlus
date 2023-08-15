@@ -968,6 +968,7 @@ namespace agcplusplus::block1 {
     void tc0(Cpu& cpu) {
         switch (cpu.timepulse) {
             case 1:
+                Agc::scaler.tc_started();
                 rb(cpu);
                 wy(cpu);
                 ws(cpu);
