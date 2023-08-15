@@ -32,8 +32,8 @@ namespace agcplusplus::block1 {
 
         if (F10A) {
             if (!rptal_disarm) {
-                //std::cout << "RUPT LOCK: RUPT LASTED LONGER THAN 10ms" << std::endl;
-                //Agc::cpu.queue_gojam();
+                std::cout << "RUPT LOCK: RUPT LASTED LONGER THAN 10ms" << std::endl;
+                Agc::cpu.queue_gojam();
             }
 
             if (!tcal_disarm) {
