@@ -8,11 +8,13 @@ namespace agcplusplus::block1 {
     public:
         void tick();
         std::queue<std::tuple<word, word>> dsky_queue;
-        void interrupt_active();
+        void interrupt_started();
+        void interrupt_ended();
 
     private:
         uint64_t current_tick = 0;
         uint64_t previous_tick = 0;
-        bool nrptal_disarm = false;
+        bool nrptal_disarm = true;
+        bool rptal_disarm = true;
     };
 }

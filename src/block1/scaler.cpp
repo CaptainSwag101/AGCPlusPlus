@@ -31,8 +31,18 @@ namespace agcplusplus::block1 {
         }
 
         if (F10A) {
+            if (!rptal_disarm) {
+                std::cout << "RUPT LOCK: RUPT LASTED LONGER THAN 10ms" << std::endl;
+                Agc::cpu.queue_gojam();
+            }
+
             Agc::cpu.counters[COUNTER_TIME1] = COUNTER_STATUS::UP;
             Agc::cpu.counters[COUNTER_TIME3] = COUNTER_STATUS::UP;
+
+            // Reset the RPTAL flip-flop if we're in an interrupt, this should be set
+            // by an interrupt finishing before the next F10A to avoid causing an alarm.
+            if (Agc::cpu.iip)
+                rptal_disarm = false;
         }
 
         if (F10B) {
@@ -51,7 +61,11 @@ namespace agcplusplus::block1 {
         }
     }
 
-    void Scaler::interrupt_active() {
+    void Scaler::interrupt_started() {
         nrptal_disarm = true;
+    }
+
+    void Scaler::interrupt_ended() {
+        rptal_disarm = true;
     }
 }

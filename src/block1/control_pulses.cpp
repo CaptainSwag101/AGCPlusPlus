@@ -75,7 +75,7 @@ namespace agcplusplus::block1 {
         word rupt_index = (rupt_address - 02000) / 4;
         cpu.interrupts[rupt_index] = false;
         cpu.iip = true;
-        Agc::scaler.interrupt_active();
+        Agc::scaler.interrupt_started();
     }
 
     void nisq(Cpu& cpu) {

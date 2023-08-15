@@ -1,5 +1,6 @@
 #include "subinstructions.hpp"
 #include "control_pulses.hpp"
+#include "agc.hpp"
 
 namespace agcplusplus::block1 {
     void ad0(Cpu& cpu) {
@@ -831,6 +832,7 @@ namespace agcplusplus::block1 {
             case 11:
                 nisq(cpu);
                 cpu.iip = false;
+                Agc::scaler.interrupt_ended();
                 break;
         }
     }
