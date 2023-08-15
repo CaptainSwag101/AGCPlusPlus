@@ -15,10 +15,6 @@ namespace agcplusplus::block1 {
         extend = false;
         st = 2;
         bank = 1;
-
-        for (auto& rupt : interrupts) {
-            rupt = false;
-        }
     }
 
     void Cpu::tick() {
