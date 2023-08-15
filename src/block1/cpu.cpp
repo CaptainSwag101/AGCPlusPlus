@@ -15,6 +15,11 @@ namespace agcplusplus::block1 {
         extend = false;
         st = 2;
         bank = 1;
+
+        // Clear all output registers except OUT4, per ND-1021041 page 4-231
+        for (int o = 0; o < 4; ++o) {
+            out[o] = 0;
+        }
     }
 
     void Cpu::tick() {
