@@ -6,15 +6,19 @@
 namespace agcplusplus::block1 {
     void Cpu::go() {
         should_gojam = false;
-        write_bus = 02030;
         inhibit_interrupts = false;
         inkl = false;
-        b = 02030;
+        iip = false;
+        z = 02030;
         current_subinstruction = subinstruction_data[0];
         fetch_new_subinstruction = false;
         extend = false;
         st = 2;
         bank = 1;
+
+        for (auto& rupt : interrupts) {
+            rupt = false;
+        }
     }
 
     void Cpu::tick() {
@@ -25,6 +29,11 @@ namespace agcplusplus::block1 {
 
     void Cpu::process_before_timepulse() {
         if (timepulse == 1) {
+            // If we are performing GOJAM, override all else and do it
+            if (should_gojam) {
+                go();
+            }
+
             // Service INKL
             if (inkl) {
                 for (auto& counter : counters) {
@@ -165,11 +174,6 @@ namespace agcplusplus::block1 {
             ++timepulse;
         } else {
             timepulse = 1;
-        }
-
-        // If we are performing GOJAM, override all else and do it
-        if (should_gojam) {
-            go();
         }
     }
 
