@@ -22,9 +22,9 @@ namespace agcplusplus::block1 {
             }
         } else if (address <= MEM_FIXED_BANKED_END) {
             uint32_t fixed_addr;
-            if (address <= MEM_FIXED_FIXED_END) {
+            if (address <= MEM_FIXED_FIXED_END || bank <= 3) {
                 fixed_addr = address - MEM_FIXED_FIXED_START;
-            } else if (bank > 0) {
+            } else if (bank <= 034) {
                 fixed_addr = address - MEM_FIXED_BANKED_START;
                 fixed_addr += (bank - 1) * MEM_FIXED_BANKED_SIZE;
             } else {
