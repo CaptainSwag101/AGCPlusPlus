@@ -144,6 +144,10 @@ namespace agcplusplus::block1 {
             case 5:
             case 6:
             case 7:
+                if (Agc::configuration.log_memory) {
+                    std::cout << "Read from input channel: " << std::oct << std::setw(4) << (cpu.s - 4);
+                    std::cout << ": " << std::setw(6) << cpu.in[cpu.s - 4] << std::dec << std::endl;
+                }
                 cpu.write_bus |= cpu.in[cpu.s - 4];
                 break;
             case 010:
@@ -151,6 +155,10 @@ namespace agcplusplus::block1 {
             case 012:
             case 013:
             case 014:
+                if (Agc::configuration.log_memory) {
+                    std::cout << "Read from output channel: " << std::oct << std::setw(4) << (cpu.s - 010);
+                    std::cout << ": " << std::setw(6) << cpu.out[cpu.s - 010] << std::dec << std::endl;
+                }
                 cpu.write_bus |= cpu.out[cpu.s - 010];
                 break;
             case 015:
@@ -378,13 +386,20 @@ namespace agcplusplus::block1 {
             case 5:
             case 6:
             case 7:
-                cpu.in[cpu.s - 4] = cpu.write_bus;
+                if (Agc::configuration.log_memory) {
+                    std::cout << "Clearing input channel: " << std::oct << std::setw(4) << (cpu.s - 4) << std::endl;
+                }
+                cpu.in[cpu.s - 4] = 0;
                 break;
             case 010:
             case 011:
             case 012:
             case 013:
             case 014:
+                if (Agc::configuration.log_memory) {
+                    std::cout << "Write to output channel: " << std::oct << std::setw(4) << (cpu.s - 010);
+                    std::cout << ": " << std::setw(6) << cpu.write_bus << std::dec << std::endl;
+                }
                 cpu.out[cpu.s - 010] = cpu.write_bus;
                 break;
             case 015:
