@@ -24,7 +24,7 @@ namespace agcplusplus::block1 {
         std::thread socket_thread(&Agc::accept_dsky_connections, *this);
 
         // Start ticking our various functions at their given intervals
-        std::cout << "Starting CPU..." << std::endl;
+        std::cout << "Computer started." << std::endl;
         while (true) {
             timer.execute_tick_batch();
         }

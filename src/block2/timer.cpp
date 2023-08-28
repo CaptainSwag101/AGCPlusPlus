@@ -11,7 +11,6 @@ void Timer::start() {
     std::thread socket_thread(&Timer::accept_dsky_connections, *this);
 
     // Start ticking our various functions at their given intervals
-    std::cout << "Starting CPU clock." << std::endl;
     while (true) {
         // Calculate the time that we should tick the clock next, before any code executes
         auto started_at = std::chrono::steady_clock::now();
@@ -47,11 +46,6 @@ void Timer::start() {
 
         //auto batch_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(ended_at - started_at);
         //std::cout << "Batched ticks took " << (batch_duration.count() / 1000000.0) << " milliseconds." << std::endl;
-
-        // DEBUG: Stop timer after 1 second
-        if ((total_ticks % (TIMEPULSES_PER_MILLISECOND * 10000)) == 0) {
-            //stop_timer();
-        }
 
         // Wait the remaining amount of time before ticking the clock again
         std::this_thread::sleep_until(x);
