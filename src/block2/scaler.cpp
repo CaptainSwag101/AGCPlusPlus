@@ -4,12 +4,8 @@
 namespace agcplusplus::block2 {
 Scaler::Scaler()
 {
-    std::cout << "Initializing scaler..." << std::endl;
-
     cur_state = 0;
     prev_state = 0;
-
-    std::cout << "Initializing scaler done." << std::endl;
 }
 
 void Scaler::queue_dsky_update(word channel, word data) {

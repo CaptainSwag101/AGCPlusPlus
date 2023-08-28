@@ -23,7 +23,7 @@ struct subinstruction {
 class Cpu {
 public:
     // Init functions
-    explicit Cpu();
+    void start();
 
     // Activity functions
     void tick();

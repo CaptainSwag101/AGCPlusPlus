@@ -14,7 +14,6 @@ namespace agcplusplus::block2 {
 class Timer
 {
 public:
-    Timer();
     void start();
 
 private:
@@ -22,7 +21,7 @@ private:
     void process_dsky(sockpp::tcp_socket sock);
     std::array<uint8_t, 4> generate_dsky_packet(uint8_t channel, word data);
 
-    uint64_t total_ticks;
+    uint64_t total_ticks = 0;
 
     // Timing variables for batching execution for timing accuracy
     constexpr static uint64_t TIMEPULSES_PER_SECOND = 1024000;

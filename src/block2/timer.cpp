@@ -5,13 +5,6 @@
 #include <sockpp/socket.h>
 
 namespace agcplusplus::block2 {
-Timer::Timer() {
-    std::cout << "Initializing timer..." << std::endl;
-
-    total_ticks = 0;
-
-    std::cout << "Initializing timer done." << std::endl;
-}
 
 void Timer::start() {
     // Start a thread where we can look for incoming connections

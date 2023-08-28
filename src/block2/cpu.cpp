@@ -3,13 +3,10 @@
 #include "agc.hpp"
 
 namespace agcplusplus::block2 {
-Cpu::Cpu() {
-    std::cout << "Initializing CPU..." << std::endl;
-
+void Cpu::start() {
     // Init CPU registers, counters, interrupts
     update_eb_fb();
     update_adder();
-    current_timepulse = 1;
 
     for (word &c : counters) {
         c = COUNT_DIRECTION_NONE;
@@ -28,8 +25,6 @@ Cpu::Cpu() {
 
     // GOJAM to initialize state
     gojam();
-
-    std::cout << "Initializing CPU done." << std::endl;
 }
 
 void Cpu::queue_gojam() {

@@ -10,10 +10,7 @@ namespace agcplusplus::block2 {
 Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args) {
     std::cout << "Initializing computer state..." << std::endl;
 
-    cpu = Cpu();
     memory = Memory(MemoryInitState::BitsClear);
-    scaler = Scaler();
-    timer = Timer();
     config = init_args;
 
     std::cout << "Loading rope into fixed memory...";
@@ -33,6 +30,7 @@ Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, Ini
 }
 
 void Agc::run() {
+    cpu.start();
     timer.start();
 }
 }
