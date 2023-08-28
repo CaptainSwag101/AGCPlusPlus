@@ -9,9 +9,8 @@ namespace agcplusplus::block2 {
 class Scaler
 {
 public:
-    explicit Scaler(InitArguments init_args);
+    explicit Scaler();
     void tick();
-    void assign_cpu(std::shared_ptr<Cpu> cpu);
     void queue_dsky_update(word channel, word data);
     bool dsky_flash_state();
     void update_interrupt_state(bool new_iip);
@@ -19,7 +18,6 @@ public:
     void signal_tc_ended();
 
 private:
-    InitArguments config;
     uint64_t cur_state = 0;
     uint64_t prev_state = 0;
     bool dsky_flash_on = false;
@@ -29,6 +27,5 @@ private:
     bool tc_started = false;
     bool tc_ended = false;
     std::queue<std::tuple<word, word>> dsky_queue;
-    std::shared_ptr<Cpu> cpu_ref;
 };
 }

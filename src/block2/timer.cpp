@@ -1,4 +1,5 @@
 #include "timer.hpp"
+#include "agc.hpp"
 #include <functional>
 #include <thread>
 #include <sockpp/socket.h>
@@ -12,37 +13,13 @@ Timer::Timer() {
     std::cout << "Initializing timer done." << std::endl;
 }
 
-void Timer::assign_cpu(std::shared_ptr<Cpu> cpu) {
-    cpu_ref = cpu;
-}
-
-void Timer::assign_memory(std::shared_ptr<Memory> mem) {
-    memory_ref = mem;
-}
-
-void Timer::assign_scaler(std::shared_ptr<Scaler> scaler) {
-    scaler_ref = scaler;
-}
-
 void Timer::start() {
-    enable = true;
-
-    if (!cpu_ref) {
-        std::cerr << "Timer CPU reference has not been assigned." << std::endl;
-        return;
-    }
-
-    if (!memory_ref) {
-        std::cerr << "Timer memory reference has not been assigned." << std::endl;
-        return;
-    }
-
     // Start a thread where we can look for incoming connections
     std::thread socket_thread(&Timer::accept_dsky_connections, *this);
 
     // Start ticking our various functions at their given intervals
     std::cout << "Starting CPU clock." << std::endl;
-    while (enable) {
+    while (true) {
         // Calculate the time that we should tick the clock next, before any code executes
         auto started_at = std::chrono::steady_clock::now();
         auto x = started_at + std::chrono::milliseconds(1); // We can complete 1024 timepulses in 1 millisecond
@@ -51,23 +28,23 @@ void Timer::start() {
             ++total_ticks;
 
             // Perform CPU timepulse every tick
-            cpu_ref->tick();
+            Agc::cpu.tick();
 
             // Copy the CPU's IIP signal to the scaler for RUPT lock checking
-            scaler_ref->update_interrupt_state(cpu_ref->iip);
+            Agc::scaler.update_interrupt_state(Agc::cpu.iip);
 
             // If the CPU is executing a TC instruction at any time, tell the scaler
-            bool check_notbuggy = (cpu_ref->current_subinstruction.name == "TC0" || cpu_ref->current_subinstruction.name == "TCF0");
+            bool check_notbuggy = (Agc::cpu.current_subinstruction.name == "TC0" || Agc::cpu.current_subinstruction.name == "TCF0");
             if (check_notbuggy) {
-                scaler_ref->signal_tc_started();
-            } else if (cpu_ref->current_timepulse == 4 && !cpu_ref->inkl) {
+                Agc::scaler.signal_tc_started();
+            } else if (Agc::cpu.current_timepulse == 4 && !Agc::cpu.inkl) {
                 // If it's timepulse 4 and the CPU is not processing a counter or executing TC/TCF, tell the scaler
-                scaler_ref->signal_tc_ended();
+                Agc::scaler.signal_tc_ended();
             }
 
             // Tick the scaler every 10 ticks (every 10 milliseconds)
             if ((total_ticks % 10) == 0) {
-                scaler_ref->tick();
+                Agc::scaler.tick();
             }
 
             // Other ticks go here
@@ -89,7 +66,7 @@ void Timer::start() {
 }
 
 void Timer::accept_dsky_connections() {
-    while (enable) {
+    while (true) {
         // Set up the socket to connect to the DSKY server
         sockpp::socket_initializer::initialize();
         in_port_t port = 19697;
@@ -114,7 +91,7 @@ void Timer::accept_dsky_connections() {
 void Timer::process_dsky(sockpp::tcp_socket sock) {
     try {
         sock.set_non_blocking(true);
-        while (enable) {
+        while (true) {
             // Calculate the time that we should process the DSKY next, before any code executes
             auto started_at = std::chrono::steady_clock::now();
             auto x = started_at + std::chrono::milliseconds(1);
@@ -162,10 +139,10 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
                         */
 
                         if (channel == 015 || channel == 016 || (channel == 032 && !bitmask)) {
-                            scaler_ref->queue_dsky_update(channel, data);
+                            Agc::scaler.queue_dsky_update(channel, data);
                             // Reset RESTART light upon RESET key press
                             if (channel == 015 && data == 022) {
-                                cpu_ref->restart = false;
+                                Agc::cpu.restart = false;
                             }
                         }
                     }
@@ -174,28 +151,28 @@ void Timer::process_dsky(sockpp::tcp_socket sock) {
                 // If we're in a good state, write any new updated I/O channel data to it
 
                 // Write the contents of channel 10, 11 and 12
-                word chan10_data = cpu_ref->read_io_channel(010);
-                word chan11_data = cpu_ref->read_io_channel(011);
-                word chan12_data = cpu_ref->read_io_channel(012);
-                word chan13_data = cpu_ref->read_io_channel(013);
+                word chan10_data = Agc::cpu.read_io_channel(010);
+                word chan11_data = Agc::cpu.read_io_channel(011);
+                word chan12_data = Agc::cpu.read_io_channel(012);
+                word chan13_data = Agc::cpu.read_io_channel(013);
 
                 // Write channel 163 stuff for RESTART, OPR ERR, etc.
                 word chan163_data = 0;
 
                 // Check for KEY REL
-                if ((chan11_data & BITMASK_5) && !scaler_ref->dsky_flash_state()) {
+                if ((chan11_data & BITMASK_5) && !Agc::scaler.dsky_flash_state()) {
                     chan163_data |= BITMASK_5;
                 }
                 // Check for verb/noun flashing
-                if ((chan11_data & BITMASK_6) && scaler_ref->dsky_flash_state()) {
+                if ((chan11_data & BITMASK_6) && Agc::scaler.dsky_flash_state()) {
                     chan163_data |= BITMASK_6;
                 }
                 // Check for OPR ERR
-                if ((chan11_data & BITMASK_7) && !scaler_ref->dsky_flash_state()) {
+                if ((chan11_data & BITMASK_7) && !Agc::scaler.dsky_flash_state()) {
                     chan163_data |= BITMASK_7;
                 }
                 // Check for restart light
-                if (cpu_ref->restart) {
+                if (Agc::cpu.restart) {
                     chan163_data |= BITMASK_8;
                 }
                 // Check for lights test signal

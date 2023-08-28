@@ -16,6 +16,7 @@ public:
     static Memory memory;
     static Scaler scaler;
     static Timer timer;
+    static InitArguments config;
 
     Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args);
     void run();

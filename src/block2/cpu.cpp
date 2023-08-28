@@ -1,11 +1,10 @@
 #include "cpu.hpp"
 #include "subinstructions.hpp"
+#include "agc.hpp"
 
 namespace agcplusplus::block2 {
-Cpu::Cpu(InitArguments init_args) {
+Cpu::Cpu() {
     std::cout << "Initializing CPU..." << std::endl;
-
-    config = init_args;
 
     // Init CPU registers, counters, interrupts
     update_eb_fb();
@@ -70,10 +69,6 @@ void Cpu::gojam() {
     }
 }
 
-void Cpu::assign_memory(std::shared_ptr<Memory> mem) {
-    memory = mem;
-}
-
 void Cpu::tick() {
     // At the run of every timepulse, clear MCRO
     mcro = false;
@@ -127,7 +122,7 @@ void Cpu::tick() {
             if (s >= 010) {
                 s_temp = s; // Preserve S in case it's changed before the writeback
                 word erasable_addr = get_erasable_absolute_addr();
-                g = memory->read_erasable_word(erasable_addr);
+                g = Agc::memory.read_erasable_word(erasable_addr);
             }
         } else {    // Fixed memory
             // Don't read from fixed memory during division steps 3, 7, 6, or 4.
@@ -136,16 +131,16 @@ void Cpu::tick() {
                 word fixed_addr = get_fixed_absolute_addr();
                 // Check parity by reading raw value
                 // Adapted from http://graphics.stanford.edu/~seander/bithacks.html#ParityMultiply
-                word v = memory->read_fixed_word(fixed_addr, true);
+                word v = Agc::memory.read_fixed_word(fixed_addr, true);
                 v ^= v >> 1;
                 v ^= v >> 2;
                 v = (v & 0x1111) * 0x1111;
-                if ((((v >> 12) & 1) == 0) && !config.ignore_alarms) {    // Invalid parity
+                if ((((v >> 12) & 1) == 0) && !Agc::config.ignore_alarms) {    // Invalid parity
                     std::cout << "HARDWARE ALARM: FIXED MEMORY PARITY FAIL" << std::endl;
                     write_io_channel(077, 1);
                     queue_gojam();
                 }
-                g = memory->read_fixed_word(fixed_addr);
+                g = Agc::memory.read_fixed_word(fixed_addr);
             }
         }
     }
@@ -156,14 +151,14 @@ void Cpu::tick() {
         // Preserve S but replace it so we can use get_erasable_absolute_addr()
         word s_temp2 = s;
         s = s_temp;
-        memory->write_erasable_word(get_erasable_absolute_addr(), g);
+        Agc::memory.write_erasable_word(get_erasable_absolute_addr(), g);
         s = s_temp2;    // Restore S now that we've properly calculated the erasable address
         s_temp = 0;
     }
 
 
     // Print CPU state information before we clear the write bus
-    if ((config.log_mct && current_timepulse == 1) || config.log_timepulse) {
+    if ((Agc::config.log_mct && current_timepulse == 1) || Agc::config.log_timepulse) {
         print_state_info(std::cout);
     }
 
@@ -183,7 +178,7 @@ void Cpu::tick() {
             // Check for pending counter requests
             inkl = false;
             for (const word& counter : counters) {
-                if (counter != COUNT_DIRECTION_NONE && !pseudo && !config.ignore_counters) {
+                if (counter != COUNT_DIRECTION_NONE && !pseudo && !Agc::config.ignore_counters) {
                     inkl = true;
                     break;
                 }
@@ -202,7 +197,7 @@ void Cpu::tick() {
 
             uint8_t a_signs = (a & BITMASK_15_16) >> 14;
             bool a_overflow = (a_signs == 0b01 || a_signs == 0b10);
-            if (rupt_pending && !config.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !pseudo && !a_overflow) {
+            if (rupt_pending && !Agc::config.ignore_interrupts && !inhibit_interrupts && !iip && !extend_next && !pseudo && !a_overflow) {
                 subinstruction rupt0 = RUPT_SUBINST_RUPT0;
                 sq = rupt0.sequence_opcode;
                 extend = rupt0.sequence_extend;

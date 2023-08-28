@@ -1,16 +1,20 @@
 #include "agc.hpp"
 
 namespace agcplusplus::block2 {
-    Timer Agc::timer;
-    Scaler Agc::scaler;
-    Memory Agc::memory;
     Cpu Agc::cpu;
+    Memory Agc::memory;
+    Scaler Agc::scaler;
+    Timer Agc::timer;
+    InitArguments Agc::config;
 
 Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args) {
     std::cout << "Initializing computer state..." << std::endl;
 
-    cpu = Cpu(init_args);
+    cpu = Cpu();
     memory = Memory(MemoryInitState::BitsClear);
+    scaler = Scaler();
+    timer = Timer();
+    config = init_args;
 
     std::cout << "Loading rope into fixed memory...";
     for (const word& w : rope) {

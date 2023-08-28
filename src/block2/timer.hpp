@@ -16,20 +16,11 @@ class Timer
 public:
     Timer();
     void start();
-    void assign_cpu(std::shared_ptr<Cpu> cpu);
-    void assign_memory(std::shared_ptr<Memory> mem);
-    void assign_scaler(std::shared_ptr<Scaler> scaler);
 
 private:
     void accept_dsky_connections();
     void process_dsky(sockpp::tcp_socket sock);
     std::array<uint8_t, 4> generate_dsky_packet(uint8_t channel, word data);
-
-    bool enable = false;
-
-    std::shared_ptr<Cpu> cpu_ref;
-    std::shared_ptr<Memory> memory_ref;
-    std::shared_ptr<Scaler> scaler_ref;
 
     uint64_t total_ticks;
 
