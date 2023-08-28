@@ -12,13 +12,12 @@
 namespace agcplusplus::block2 {
 class Agc {
 public:
+    static Cpu cpu;
+    static Memory memory;
+    static Scaler scaler;
+    static Timer timer;
+
     Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args);
     void run();
-
-private:
-    std::shared_ptr<Cpu> cpu;
-    std::shared_ptr<Memory> memory;
-    std::shared_ptr<Scaler> scaler;
-    std::shared_ptr<Timer> timer;
 };
 }
