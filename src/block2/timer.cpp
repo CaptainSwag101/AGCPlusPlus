@@ -29,7 +29,7 @@ void Timer::start() {
             bool check_notbuggy = (Agc::cpu.current_subinstruction.name == "TC0" || Agc::cpu.current_subinstruction.name == "TCF0");
             if (check_notbuggy) {
                 Agc::scaler.signal_tc_started();
-            } else if (Agc::cpu.current_timepulse == 4 && !Agc::cpu.inkl) {
+            } else if (Agc::cpu.timepulse == 4 && !Agc::cpu.inkl) {
                 // If it's timepulse 4 and the CPU is not processing a counter or executing TC/TCF, tell the scaler
                 Agc::scaler.signal_tc_ended();
             }

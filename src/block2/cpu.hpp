@@ -27,6 +27,9 @@ public:
 
     // Activity functions
     void tick();
+    void process_before_timepulse();
+    void process_timepulse();
+    void process_after_timepulse();
     void queue_gojam();
     void update_adder();
     void update_bb();
@@ -61,7 +64,7 @@ public:
     bool night_watchman{};
 
     // Instruction data
-    uint8_t current_timepulse = 1;
+    uint8_t timepulse = 1;
     subinstruction current_subinstruction{};
 
 private:
