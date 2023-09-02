@@ -112,16 +112,9 @@ namespace agcplusplus::block2 {
         if (timepulse == 2 || timepulse == 5 || timepulse == 8 || timepulse == 11) {
             pifl = false;
         }
-    }
 
-    void Cpu::process_timepulse() {
-        // Actually execute the portion of the current subinstruction for the current timepulse
-        current_subinstruction.function(*this);
-    }
-
-    void Cpu::process_after_timepulse() {
-        // Memory reads are done after T4
-        if (timepulse == 4) {
+        // Memory reads are done before T5
+        if (timepulse == 5) {
             // Determine whether we are targeting fixed or erasable memory
             if (s <= MEM_ERASABLE_END) {    // Erasable memory
                 if (s >= 010) {
@@ -150,8 +143,8 @@ namespace agcplusplus::block2 {
             }
         }
 
-        // Memory writebacks are done after T9 if we performed an erasable read
-        if (timepulse == 9 && s_temp > 0) {
+        // Memory writebacks are done before T10 if we performed an erasable read
+        if (timepulse == 10 && s_temp > 0) {
             // Preserve S but replace it so we can use get_erasable_absolute_addr()
             word s_temp2 = s;
             s = s_temp;
@@ -159,7 +152,14 @@ namespace agcplusplus::block2 {
             s = s_temp2;    // Restore S now that we've properly calculated the erasable address
             s_temp = 0;
         }
+    }
 
+    void Cpu::process_timepulse() {
+        // Actually execute the portion of the current subinstruction for the current timepulse
+        current_subinstruction.function(*this);
+    }
+
+    void Cpu::process_after_timepulse() {
         // Print CPU state information before we clear the write bus
         if ((Agc::config.log_mct && timepulse == 12) || Agc::config.log_timepulse) {
             print_state_info(std::cout);
@@ -228,11 +228,11 @@ namespace agcplusplus::block2 {
             }
         }
 
-        // Increment or reset timepulse count
-        if (timepulse == 12) {
-            timepulse = 1;
-        } else {
+        // Increment/reset timepulse count
+        if (timepulse < 12) {
             ++timepulse;
+        } else {
+            timepulse = 1;
         }
     }
 
