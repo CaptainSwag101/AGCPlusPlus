@@ -13,12 +13,31 @@
 #include <string>
 #include <vector>
 
+#include <csignal>
+#include <cstdlib>
+#include <cstdio>
+
 #include <argparse/argparse.hpp>
 #include <filesystem>
 
 using namespace agcplusplus;
 
+void my_handler(int s){
+    std::cerr << "Caught signal " << s << std::endl;
+    std::exit(0);
+}
+
 int main(int argc, char* argv[]) {
+    struct sigaction sigIntHandler;
+
+    sigIntHandler.sa_handler = my_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+
+    sigaction(SIGINT, &sigIntHandler, nullptr);
+    sigaction(SIGTERM, &sigIntHandler, nullptr);
+    sigaction(SIGKILL, &sigIntHandler, nullptr);
+
     // Set up output stream, default to std::cout, but could be a log file, etc.
     std::ostream& output = std::cout;
 

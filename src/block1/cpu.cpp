@@ -79,7 +79,7 @@ namespace agcplusplus::block1 {
 
     void Cpu::process_after_timepulse() {
         if ((Agc::configuration.log_mct && timepulse == 12) || Agc::configuration.log_timepulse) {
-            print_state_info(std::cout);
+            print_state_info();
         }
 
         // Reset write bus
@@ -186,42 +186,39 @@ namespace agcplusplus::block1 {
         }
     }
 
-    void Cpu::print_state_info(std::ostream& output) const {
+    void Cpu::print_state_info() const {
+        std::stringstream output;
         std::dec(output);
 
-        output << std::endl;
-
-        output << current_subinstruction.name << " (T" << std::setw(2) << std::setfill('0') << (word)timepulse <<")" << std::endl;
+        output << "'" << current_subinstruction.name << "', ";
+        output << timepulse << ", ";
 
         std::oct(output);
 
-        output << " A = " << std::setw(6) << a;
-        output << " Q = " << std::setw(6) << q;
-        output << " Z = " << std::setw(6) << z;
-        output << " LP = " << std::setw(6) << lp;
-        output << " G = " << std::setw(6) << g;
-        output << " B = " << std::setw(6) << b;
-        output << '\n';
+        output << std::setw(6) << a << ", ";
+        output << std::setw(6) << q << ", ";
+        output << std::setw(6) << z << ", ";
+        output << std::setw(6) << lp << ", ";
+        output << std::setw(6) << g << ", ";
+        output << std::setw(6) << b << ", ";
 
-        output << " BNK = " << std::setw(2) << bank;
-        output << " S = " << std::setw(4) << s;
-        output << " SQ = " << std::setw(2) << sq;
-        output << " ST = " << (word)st; // Cast from char to integer
-        output << " BR = " << (br & 1) << ((br & 2) >> 1);
-        output << " IIP = " << static_cast<word>(iip);
-        output << " INKL = " << static_cast<word>(inkl);
-        output << " OVR = " << static_cast<word>(overflow);
-        output << '\n';
+        output << std::setw(2) << bank << ", ";
+        output << std::setw(4) << s << ", ";
+        output << std::setw(2) << sq << ", ";
+        output << (word)st << ", "; // Cast from char to integer
+        output << (br & 1) << ((br & 2) >> 1) << ", ";
+        output << static_cast<word>(iip) << ", ";
+        output << static_cast<word>(inkl) << ", ";
+        output << static_cast<word>(overflow) << ", ";
 
-        output << " EXTEND = " << (word)extend;
-        output << " INHINT = " << (word)inhibit_interrupts;
-        output << " X = " << std::setw(6) << x;
-        output << " Y = " << std::setw(6) << y;
-        output << " U = " << std::setw(6) << u;
-        output << " WL = " << std::setw(6) << write_bus;
-        output << std::endl;
+        output << static_cast<word>(extend) << ", ";
+        output << static_cast<word>(inhibit_interrupts) << ", ";
+        output << std::setw(6) << x << ", ";
+        output << std::setw(6) << y << ", ";
+        output << std::setw(6) << u << ", ";
+        output << std::setw(6) << write_bus;
 
-        std::dec(output);
+        Agc::logger.log_cpu(output.str());
     }
 
     void Cpu::update_adder() {

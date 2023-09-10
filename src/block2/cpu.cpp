@@ -23,7 +23,7 @@ namespace agcplusplus::block2 {
         io_channels[032] = 0177777;
         io_channels[033] = 0177777;
 
-        // GOJAM to initialize state
+        // GOJAM to initialize_log state
         gojam();
     }
 

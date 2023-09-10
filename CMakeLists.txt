@@ -34,7 +34,9 @@ set(SOURCES src/main.cpp
         src/block2/subinstructions.hpp src/block2/subinstructions.cpp
         src/block2/timer.hpp src/block2/timer.cpp
         src/block2/scaler.hpp src/block2/scaler.cpp
-        )
+        src/common/logger.cpp
+        src/common/logger.h
+)
 
 # fetch latest argparse
 include(FetchContent)
@@ -48,6 +50,11 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/fpagliughi/sockpp.git
 )
 FetchContent_MakeAvailable(sockpp)
+FetchContent_Declare(
+        SQLiteCpp
+        GIT_REPOSITORY https://github.com/SRombauts/SQLiteCpp.git
+)
+FetchContent_MakeAvailable(SQLiteCpp)
 
 # Define the project target
 add_executable(AGCPlusPlus ${SOURCES})
@@ -55,6 +62,7 @@ add_executable(AGCPlusPlus ${SOURCES})
 # Link our libraries
 target_link_libraries(AGCPlusPlus PUBLIC argparse)
 target_link_libraries(AGCPlusPlus PUBLIC sockpp)
+target_link_libraries(AGCPlusPlus PUBLIC SQLiteCpp)
 
 # Add the extra generated header file for our version number
 target_include_directories(AGCPlusPlus PUBLIC

@@ -8,13 +8,16 @@ namespace agcplusplus::block1 {
     void Timer::execute_tick_batch() {
         // Calculate the time that we should tick the clock next, before any code executes
         auto started_at = std::chrono::steady_clock::now();
-        auto x = started_at + std::chrono::milliseconds(1); // We can complete 1024 timepulses in 1 millisecond
+        auto x = started_at + std::chrono::seconds(1); // We can complete 1,024,000 timepulses in 1 second
 
-        for (auto t = 0; t < TIMEPULSES_PER_MILLISECOND; ++t) {
+        for (auto t = 0; t < TIMEPULSES_PER_SECOND; ++t) {
             tick();
         }
 
         auto ended_at = std::chrono::steady_clock::now();
+
+        // Commit any batched log transactions
+        Agc::logger.commit_cpu();
 
         //auto batch_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(ended_at - started_at);
         //std::cout << "Batched ticks took " << (batch_duration.count() / 1000000.0) << " milliseconds." << std::endl;

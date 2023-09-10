@@ -27,7 +27,7 @@ namespace agcplusplus::block1 {
         void process_before_timepulse();
         void process_timepulse();
         void process_after_timepulse();
-        void print_state_info(std::ostream& output) const;
+        void print_state_info() const;
         void update_adder();
         void queue_gojam();
 

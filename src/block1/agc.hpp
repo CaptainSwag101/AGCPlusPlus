@@ -4,6 +4,7 @@
 #include "scaler.hpp"
 #include "timer.hpp"
 #include "sockpp/tcp_socket.h"
+#include "../common/logger.h"
 
 #include <memory>
 #include <thread>
@@ -18,6 +19,7 @@ namespace agcplusplus::block1 {
         static Memory memory;
         static Cpu cpu;
         static InitArguments configuration;
+        static Logger logger;
 
         Agc(std::vector<word> rope_buffer, InitArguments init_args);
         [[noreturn]] void run();
