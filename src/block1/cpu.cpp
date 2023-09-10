@@ -189,6 +189,8 @@ namespace agcplusplus::block1 {
     void Cpu::print_state_info(std::ostream& output) const {
         std::dec(output);
 
+        output << std::endl;
+
         output << current_subinstruction.name << " (T" << std::setw(2) << std::setfill('0') << (word)timepulse <<")" << std::endl;
 
         std::oct(output);
@@ -217,7 +219,7 @@ namespace agcplusplus::block1 {
         output << " Y = " << std::setw(6) << y;
         output << " U = " << std::setw(6) << u;
         output << " WL = " << std::setw(6) << write_bus;
-        output << std::endl << std::endl;
+        output << std::endl;
 
         std::dec(output);
     }

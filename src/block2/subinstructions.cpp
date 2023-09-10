@@ -2,7 +2,7 @@
 
 namespace agcplusplus::block2 {
 void ad0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -33,7 +33,7 @@ void ad0(Cpu& cpu) {
 }
 
 void ads0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -86,7 +86,7 @@ void ads0(Cpu& cpu) {
 }
 
 void aug0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -129,7 +129,7 @@ void aug0(Cpu& cpu) {
 }
 
 void bzf0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         ra(cpu);
         wg(cpu);
@@ -183,7 +183,7 @@ void bzf0(Cpu& cpu) {
 }
 
 void bzmf0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         ra(cpu);
         wg(cpu);
@@ -239,7 +239,7 @@ void bzmf0(Cpu& cpu) {
 }
 
 void ca0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -265,7 +265,7 @@ void ca0(Cpu& cpu) {
 }
 
 void ccs0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -345,7 +345,7 @@ void ccs0(Cpu& cpu) {
 }
 
 void cs0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -371,7 +371,7 @@ void cs0(Cpu& cpu) {
 }
 
 void das0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -440,7 +440,7 @@ void das0(Cpu& cpu) {
 }
 
 void das1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -509,7 +509,7 @@ void das1(Cpu& cpu) {
 }
 
 void dca0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rb(cpu);
         wy12(cpu);
@@ -541,7 +541,7 @@ void dca0(Cpu& cpu) {
 }
 
 void dca1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -567,7 +567,7 @@ void dca1(Cpu& cpu) {
 }
 
 void dcs0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rb(cpu);
         wy12(cpu);
@@ -599,7 +599,7 @@ void dcs0(Cpu& cpu) {
 }
 
 void dcs1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -625,7 +625,7 @@ void dcs1(Cpu& cpu) {
 }
 
 void dim0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -666,7 +666,7 @@ void dim0(Cpu& cpu) {
 }
 
 void dinc(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rsct(cpu);
         ws(cpu);
@@ -712,7 +712,7 @@ void dinc(Cpu& cpu) {
 }
 
 void dv0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         _1xp10(cpu);
         ra(cpu);
@@ -744,7 +744,7 @@ void dv0(Cpu& cpu) {
 }
 
 void dv1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 4:
         switch (cpu.br) {
         case 0b00:
@@ -864,7 +864,7 @@ void dv1(Cpu& cpu) {
 }
 
 void dv3(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 4:
         l2gd(cpu);
         rb(cpu);
@@ -975,7 +975,7 @@ void dv3(Cpu& cpu) {
 }
 
 void dv7(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 4:
         l2gd(cpu);
         rb(cpu);
@@ -1086,7 +1086,7 @@ void dv7(Cpu& cpu) {
 }
 
 void dv6(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 4:
         l2gd(cpu);
         rb(cpu);
@@ -1197,7 +1197,7 @@ void dv6(Cpu& cpu) {
 }
 
 void dv4(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 4:
         l2gd(cpu);
         rb(cpu);
@@ -1260,7 +1260,7 @@ void dv4(Cpu& cpu) {
 }
 
 void dxch0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -1297,7 +1297,7 @@ void dxch0(Cpu& cpu) {
 }
 
 void dxch1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -1328,7 +1328,7 @@ void dxch1(Cpu& cpu) {
 }
 
 void goj1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -1342,7 +1342,7 @@ void goj1(Cpu& cpu) {
 }
 
 void lxch0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -1373,7 +1373,7 @@ void lxch0(Cpu& cpu) {
 }
 
 void incr0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -1407,7 +1407,7 @@ void incr0(Cpu& cpu) {
 }
 
 void mp0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -1488,7 +1488,7 @@ void mp0(Cpu& cpu) {
 }
 
 void mp1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         zip(cpu);
         break;
@@ -1528,7 +1528,7 @@ void mp1(Cpu& cpu) {
 }
 
 void mp3(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         zap(cpu);
         break;
@@ -1591,7 +1591,7 @@ void mp3(Cpu& cpu) {
 }
 
 void msk0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -1630,7 +1630,7 @@ void msk0(Cpu& cpu) {
 }
 
 void msu0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -1681,7 +1681,7 @@ void msu0(Cpu& cpu) {
 }
 
 void ndx0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -1708,7 +1708,7 @@ void ndx0(Cpu& cpu) {
 }
 
 void ndx1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rz(cpu);
         wy12(cpu);
@@ -1756,7 +1756,7 @@ void ndx1(Cpu& cpu) {
 }
 
 void ndxx0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -1780,7 +1780,7 @@ void ndxx0(Cpu& cpu) {
 }
 
 void ndxx1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rz(cpu);
         wy12(cpu);
@@ -1829,7 +1829,7 @@ void ndxx1(Cpu& cpu) {
 }
 
 void pinc(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rsct(cpu);
         ws(cpu);
@@ -1862,7 +1862,7 @@ void pinc(Cpu& cpu) {
 }
 
 void qxch0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -1893,7 +1893,7 @@ void qxch0(Cpu& cpu) {
 }
 
 void rand0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -1932,7 +1932,7 @@ void rand0(Cpu& cpu) {
 }
 
 void read0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -1965,7 +1965,7 @@ void read0(Cpu& cpu) {
 }
 
 void ror0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -2000,7 +2000,7 @@ void ror0(Cpu& cpu) {
 }
 
 void rsm3(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         r15(cpu);
         ws(cpu);
@@ -2028,7 +2028,7 @@ void rsm3(Cpu& cpu) {
 }
 
 void rxor0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -2077,7 +2077,7 @@ void rxor0(Cpu& cpu) {
 }
 
 void rupt0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         r15(cpu);
         ws(cpu);
@@ -2097,7 +2097,7 @@ void rupt0(Cpu& cpu) {
 }
 
 void rupt1(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         r15(cpu);
         rb2(cpu);
@@ -2125,7 +2125,7 @@ void rupt1(Cpu& cpu) {
 }
 
 void std2(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rz(cpu);
         wy12(cpu);
@@ -2149,7 +2149,7 @@ void std2(Cpu& cpu) {
 }
 
 void su0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 2:
         rsc(cpu);
         wg(cpu);
@@ -2180,7 +2180,7 @@ void su0(Cpu& cpu) {
 }
 
 void tc0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rb(cpu);
         wy12(cpu);
@@ -2208,7 +2208,7 @@ void tc0(Cpu& cpu) {
 }
 
 void tcf0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rb(cpu);
         wy12(cpu);
@@ -2232,7 +2232,7 @@ void tcf0(Cpu& cpu) {
 }
 
 void ts0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -2291,7 +2291,7 @@ void ts0(Cpu& cpu) {
 }
 
 void wand0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -2331,7 +2331,7 @@ void wand0(Cpu& cpu) {
 }
 
 void wor0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -2367,7 +2367,7 @@ void wor0(Cpu& cpu) {
 }
 
 void write0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);
@@ -2401,7 +2401,7 @@ void write0(Cpu& cpu) {
 }
 
 void xch0(Cpu& cpu) {
-    switch (cpu.current_timepulse) {
+    switch (cpu.timepulse) {
     case 1:
         rl10bb(cpu);
         ws(cpu);

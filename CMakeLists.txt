@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Define the project and version
-project(AGCPlusPlus VERSION 0.4)
+project(AGCPlusPlus VERSION 0.5)
 
 # Let's try to take advantage of the latest C++ standards
 set(CMAKE_CXX_STANDARD 17)

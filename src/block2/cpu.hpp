@@ -23,11 +23,13 @@ struct subinstruction {
 class Cpu {
 public:
     // Init functions
-    explicit Cpu(InitArguments init_args);
-    void assign_memory(std::shared_ptr<Memory> mem);
+    void start();
 
     // Activity functions
     void tick();
+    void process_before_timepulse();
+    void process_timepulse();
+    void process_after_timepulse();
     void queue_gojam();
     void update_adder();
     void update_bb();
@@ -39,12 +41,6 @@ public:
 
     // Debug functions
     void print_state_info(std::ostream& output) const;
-
-    // Helper data
-    InitArguments config{};
-
-    // Pointers
-    std::shared_ptr<Memory> memory;
 
     // Registers
     word a{}, l{}, g{}, b{}, z{}, q{}, s{}, s_temp{};
@@ -68,7 +64,7 @@ public:
     bool night_watchman{};
 
     // Instruction data
-    uint8_t current_timepulse = 1;
+    uint8_t timepulse = 1;
     subinstruction current_subinstruction{};
 
 private:

@@ -1,51 +1,29 @@
 #include "agc.hpp"
 
 namespace agcplusplus::block2 {
+    Cpu Agc::cpu;
+    Memory Agc::memory;
+    Scaler Agc::scaler;
+    Timer Agc::timer;
+    InitArguments Agc::config;
+
 Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args) {
-    std::cout << "Initializing computer state..." << std::endl;
+    memory = Memory(MemoryInitState::BitsClear);
+    config = init_args;
 
-    cpu = std::make_shared<Cpu>(init_args);
-    memory = std::make_shared<Memory>(MemoryInitState::BitsClear);
-    scaler = std::make_shared<Scaler>(init_args);
-    timer = std::make_shared<Timer>();
-
-    std::cout << "Loading rope into fixed memory...";
     for (const word& w : rope) {
         static int fixed_addr = 0;
-        memory->write_fixed_word(fixed_addr++, w);
+        memory.write_fixed_word(fixed_addr++, w);
     }
-    std::cout << " done!" << std::endl;
 
-    std::cout << "Loading pad-loaded values into erasable memory...";
     for (auto pair : padload) {
-        memory->write_erasable_word(pair.first, pair.second);
+        memory.write_erasable_word(pair.first, pair.second);
     }
-    std::cout << " done!" << std::endl;
-
-    std::cout << "Assigning memory pointer for CPU...";
-    cpu->assign_memory(memory);
-    std::cout << " done!" << std::endl;
-
-    std::cout << "Assigning CPU pointer for timer...";
-    timer->assign_cpu(cpu);
-    std::cout << " done!" << std::endl;
-
-    std::cout << "Assigning memory pointer for timer...";
-    timer->assign_memory(memory);
-    std::cout << " done!" << std::endl;
-
-    std::cout << "Assigning CPU pointer for scaler...";
-    scaler->assign_cpu(cpu);
-    std::cout << " done!" << std::endl;
-
-    std::cout << "Assigning scaler pointer for timer...";
-    timer->assign_scaler(scaler);
-    std::cout << " done!" << std::endl;
-
-    std::cout << "Initializing computer state done." << std::endl;
 }
 
 void Agc::run() {
-    timer->start();
+    std::cout << "Computer started." << std::endl;
+    cpu.start();
+    timer.start();
 }
 }
