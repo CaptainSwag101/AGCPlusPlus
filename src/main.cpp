@@ -15,7 +15,6 @@
 
 #include <csignal>
 #include <cstdlib>
-#include <cstdio>
 
 #include <argparse/argparse.hpp>
 #include <filesystem>
@@ -92,6 +91,8 @@ int main(int argc, char* argv[]) {
             (mainArgs["--ignore-counters"] == true),
             (mainArgs["--ignore-interrupts"] == true),
             (mainArgs["--ignore-alarms"] == true),
+            mainArgs.get<std::string>("rope-file"),
+            mainArgs.get<std::string>("machine-type"),
     };
 
     // Get the rope file path from our startup arguments

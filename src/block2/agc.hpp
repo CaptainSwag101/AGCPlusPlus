@@ -20,7 +20,7 @@ public:
     static InitArguments config;
     static Logger logger;
 
-    Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args);
+    Agc(const std::vector<word>& rope, const std::map<word, word>& padload, const InitArguments& init_args);
     void run();
 };
 }

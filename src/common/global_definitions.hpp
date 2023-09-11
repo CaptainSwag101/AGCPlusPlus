@@ -49,5 +49,7 @@ namespace agcplusplus {
         bool ignore_counters;
         bool ignore_interrupts;
         bool ignore_alarms;
+        std::string rope_file;
+        std::string machine_type;
     };
 }

@@ -13,13 +13,13 @@ namespace agcplusplus::block1 {
     InitArguments Agc::configuration;
     Logger Agc::logger;
 
-    Agc::Agc(std::vector<word> rope_buffer, InitArguments init_args) {
+    Agc::Agc(std::vector<word> rope_buffer, const InitArguments& init_args) {
         memory.assign_fixed_memory(std::move(rope_buffer));
         configuration = init_args;
         cpu.go();
 
         // Set up logger
-        logger.initialize_database("log.db3");
+        logger.initialize_database("log.db3", init_args);
         logger.initialize_cpu_table(std::string("'Subinstruction' TEXT, 'Timepulse' INTEGER, 'A' TEXT, 'Q' TEXT, 'Z' TEXT, 'LP' TEXT, 'G' TEXT, 'B' TEXT, 'BNK' TEXT, 'S' TEXT, 'SQ' TEXT, 'ST' TEXT, 'BR' TEXT, 'IIP' INTEGER, 'INKL' INTEGER, 'OVR' INTEGER, 'EXTEND' INTEGER, 'INHINT' INTEGER, 'X' TEXT, 'Y' TEXT, 'U' TEXT, 'WL' TEXT"));
     }
 
