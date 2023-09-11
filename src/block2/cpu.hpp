@@ -40,7 +40,7 @@ public:
     word get_fixed_absolute_addr() const;
 
     // Debug functions
-    void print_state_info(std::ostream& output) const;
+    void print_state_info() const;
 
     // Registers
     word a{}, l{}, g{}, b{}, z{}, q{}, s{}, s_temp{};

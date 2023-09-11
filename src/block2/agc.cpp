@@ -6,10 +6,15 @@ namespace agcplusplus::block2 {
     Scaler Agc::scaler;
     Timer Agc::timer;
     InitArguments Agc::config;
+    Logger Agc::logger;
 
 Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args) {
     memory = Memory(MemoryInitState::BitsClear);
     config = init_args;
+
+    // Set up logger
+    logger.initialize_database("log.db3");
+    logger.initialize_cpu_table(std::string("'Subinstruction' TEXT, 'Timepulse' INTEGER, 'A' TEXT, 'L' TEXT, 'Q' TEXT, 'Z' TEXT, 'G' TEXT, 'B' TEXT, 'S' TEXT, 'SQ' TEXT, 'ST' TEXT, 'BR' TEXT, 'EB' TEXT, 'FB' TEXT, 'BB' TEXT, 'FEXT' TEXT, 'EXTEND' INTEGER, 'INHINT' INTEGER, 'IIP' INTEGER, 'INKL' INTEGER, 'X' TEXT, 'Y' TEXT, 'U' TEXT, 'WL' TEXT"));
 
     for (const word& w : rope) {
         static int fixed_addr = 0;

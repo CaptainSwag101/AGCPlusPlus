@@ -162,7 +162,7 @@ namespace agcplusplus::block2 {
     void Cpu::process_after_timepulse() {
         // Print CPU state information before we clear the write bus
         if ((Agc::config.log_mct && timepulse == 12) || Agc::config.log_timepulse) {
-            print_state_info(std::cout);
+            print_state_info();
         }
 
         // Clear the write bus after every timepulse
@@ -220,7 +220,6 @@ namespace agcplusplus::block2 {
 
             if (!found_implemented_subinstruction) {
                 std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
-                print_state_info(std::cout);
 
                 subinstruction std2 = subinstruction_list[0];
                 current_subinstruction = std2;
@@ -236,42 +235,44 @@ namespace agcplusplus::block2 {
         }
     }
 
-    void Cpu::print_state_info(std::ostream& output) const {
+    void Cpu::print_state_info() const {
+        std::stringstream output;
+
         std::dec(output);
 
-        output << std::endl;
+        output << std::setfill('0');
 
-        output << current_subinstruction.name << " (T" << std::setw(2) << std::setfill('0') << (word)timepulse << ")" << std::endl;
+        output << "'" << current_subinstruction.name << "', ";
+        output << std::setw(2) << (word)timepulse << ", ";
 
         std::oct(output);
 
-        output << " A = " << std::setw(6) << a;
-        output << " L = " << std::setw(6) << l;
-        output << " Q = " << std::setw(6) << q;
-        output << " Z = " << std::setw(6) << z;
-        output << " G = " << std::setw(6) << g;
-        output << " B = " << std::setw(6) << b;
-        output << '\n';
+        output << std::setw(6) << a << ", ";
+        output << std::setw(6) << l << ", ";
+        output << std::setw(6) << q << ", ";
+        output << std::setw(6) << z << ", ";
+        output << std::setw(6) << g << ", ";
+        output << std::setw(6) << b << ", ";
 
-        output << " S = " << std::setw(4) << s;
-        output << " SQ = " << std::setw(2) << sq;
-        output << " ST = " << (word)st; // Cast from char to integer
-        output << " BR = " << (br & 1) << ((br & 2) >> 1);
-        output << " EB = " << std::setw(2) << (eb >> 8);
-        output << " FB = " << std::setw(2) << (fb >> 10);
-        output << " BB = " << std::setw(6) << bb;
-        output << " FEXT = " << (word)((fext & 0160) >> 4);
-        output << '\n';
+        output << std::setw(4) << s << ", ";
+        output << std::setw(2) << sq << ", ";
+        output << (word)st << ", "; // Cast from char to integer
+        output << (br & 1) << ((br & 2) >> 1) << ", ";
+        output << std::setw(2) << (eb >> 8) << ", ";
+        output << std::setw(2) << (fb >> 10) << ", ";
+        output << std::setw(6) << bb << ", ";
+        output << (word)((fext & 0160) >> 4) << ", ";
 
-        output << " EXTEND = " << (word)extend;
-        output << " INHINT = " << (word)inhibit_interrupts;
-        output << " X = " << std::setw(6) << x;
-        output << " Y = " << std::setw(6) << y;
-        output << " U = " << std::setw(6) << u;
-        output << " WL = " << std::setw(6) << write_bus;
-        output << std::endl;
+        output << (word)extend << ", ";
+        output << (word)inhibit_interrupts << ", ";
+        output << (word)iip << ", ";
+        output << (word)inkl << ", ";
+        output << std::setw(6) << x << ", ";
+        output << std::setw(6) << y << ", ";
+        output << std::setw(6) << u << ", ";
+        output << std::setw(6) << write_bus;
 
-        std::dec(output);
+        Agc::logger.log_cpu(output.str());
     }
 
     void Cpu::update_adder()
