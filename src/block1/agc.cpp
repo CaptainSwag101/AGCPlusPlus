@@ -20,7 +20,7 @@ namespace agcplusplus::block1 {
 
         // Set up logger
         logger.initialize_database("log.db3", init_args);
-        logger.initialize_cpu_table(std::string("'Subinstruction' TEXT, 'Timepulse' INTEGER, 'A' TEXT, 'Q' TEXT, 'Z' TEXT, 'LP' TEXT, 'G' TEXT, 'B' TEXT, 'BNK' TEXT, 'S' TEXT, 'SQ' TEXT, 'ST' TEXT, 'BR' TEXT, 'IIP' INTEGER, 'INKL' INTEGER, 'OVR' INTEGER, 'EXTEND' INTEGER, 'INHINT' INTEGER, 'X' TEXT, 'Y' TEXT, 'U' TEXT, 'WL' TEXT"));
+        logger.initialize_cpu_table(std::string("'Subinstruction' TEXT, 'Timepulse' INTEGER, 'A' INTEGER, 'Q' INTEGER, 'Z' INTEGER, 'LP' INTEGER, 'G' INTEGER, 'B' INTEGER, 'BNK' INTEGER, 'S' INTEGER, 'SQ' INTEGER, 'ST' INTEGER, 'BR' INTEGER, 'IIP' INTEGER, 'INKL' INTEGER, 'OVR' INTEGER, 'EXTEND' INTEGER, 'INHINT' INTEGER, 'X' INTEGER, 'Y' INTEGER, 'U' INTEGER, 'WL' INTEGER"));
     }
 
     [[noreturn]] void Agc::run() {

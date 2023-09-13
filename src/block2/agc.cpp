@@ -14,7 +14,7 @@ Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, con
 
     // Set up logger
     logger.initialize_database("log.db3", init_args);
-    logger.initialize_cpu_table(std::string("'Subinstruction' TEXT, 'Timepulse' INTEGER, 'A' TEXT, 'L' TEXT, 'Q' TEXT, 'Z' TEXT, 'G' TEXT, 'B' TEXT, 'S' TEXT, 'SQ' TEXT, 'ST' TEXT, 'BR' TEXT, 'EB' TEXT, 'FB' TEXT, 'BB' TEXT, 'FEXT' TEXT, 'EXTEND' INTEGER, 'INHINT' INTEGER, 'IIP' INTEGER, 'INKL' INTEGER, 'X' TEXT, 'Y' TEXT, 'U' TEXT, 'WL' TEXT"));
+    logger.initialize_cpu_table(std::string("'Subinstruction' TEXT, 'Timepulse' INTEGER, 'A' INTEGER, 'L' INTEGER, 'Q' INTEGER, 'Z' INTEGER, 'G' INTEGER, 'B' INTEGER, 'S' INTEGER, 'SQ' INTEGER, 'ST' INTEGER, 'BR' INTEGER, 'EB' INTEGER, 'FB' INTEGER, 'BB' INTEGER, 'FEXT' INTEGER, 'EXTEND' INTEGER, 'INHINT' INTEGER, 'IIP' INTEGER, 'INKL' INTEGER, 'X' INTEGER, 'Y' INTEGER, 'U' INTEGER, 'WL' INTEGER"));
 
     for (const word& w : rope) {
         static int fixed_addr = 0;
