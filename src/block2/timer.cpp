@@ -16,7 +16,7 @@ void Timer::start() {
         auto started_at = std::chrono::steady_clock::now();
         auto x = started_at + std::chrono::seconds(1); // We can complete 1,024,000 timepulses in 1 second
 
-        for (word t = 0; t < TIMEPULSES_PER_SECOND; ++t) {
+        for (auto t = 0; t < TIMEPULSES_PER_SECOND; ++t) {
             ++total_ticks;
 
             // Perform CPU timepulse every tick
