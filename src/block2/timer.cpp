@@ -10,13 +10,16 @@ void Timer::start() {
     // Start a thread where we can look for incoming connections
     std::thread socket_thread(&Timer::accept_dsky_connections, *this);
 
+    // Start a thread to commit our log changes (if any) every second
+    std::thread log_commit_thread(&Timer::commit_log_transactions);
+
     // Start ticking our various functions at their given intervals
     while (true) {
         // Calculate the time that we should tick the clock next, before any code executes
         auto started_at = std::chrono::steady_clock::now();
-        auto x = started_at + std::chrono::seconds(1); // We can complete 1,024,000 timepulses in 1 second
+        auto x = started_at + std::chrono::milliseconds(10); // We can complete 1024 timepulses in 1 millisecond
 
-        for (auto t = 0; t < TIMEPULSES_PER_SECOND; ++t) {
+        for (auto t = 0; t < TIMEPULSES_PER_MILLISECOND * 10; ++t) {
             ++total_ticks;
 
             // Perform CPU timepulse every tick
@@ -43,9 +46,6 @@ void Timer::start() {
         }
 
         auto ended_at = std::chrono::steady_clock::now();
-
-        // Commit any batched log transactions
-        Agc::logger.commit_cpu();
 
         //auto batch_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(ended_at - started_at);
         //std::cout << "Batched ticks took " << (batch_duration.count() / 1000000.0) << " milliseconds." << std::endl;
@@ -232,4 +232,13 @@ std::array<uint8_t, 4> Timer::generate_dsky_packet(uint8_t channel, word data) {
 
     return write_buf;
 }
+
+    void Timer::commit_log_transactions() {
+        while (true) {
+            // Commit any batched log transactions
+            Agc::logger.commit_cpu();
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+    }
 }

@@ -22,7 +22,7 @@ public:
 
 private:
     SQLite::Database* database;
-    SQLite::Transaction* cpu_transaction;
+    SQLite::Transaction* transaction;
     bool cpu_table_initialized = false;
     bool memory_table_initialized = false;
 };

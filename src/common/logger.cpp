@@ -4,6 +4,10 @@ Logger::Logger() = default;
 
 void Logger::initialize_database(const std::string& filename, const InitArguments& config) {
     database = new SQLite::Database(filename, SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
+    database->exec("PRAGMA journal_mode = WAL;");
+    database->exec("PRAGMA synchronous = NORMAL;");
+
+    transaction = new SQLite::Transaction(*database, SQLite::TransactionBehavior::DEFERRED);
 
     database->exec("DROP TABLE IF EXISTS 'INFO';");
     database->exec("CREATE TABLE 'INFO' ('Timestamp' TEXT, 'Machine Type' TEXT, 'Rope File' TEXT);");
@@ -32,20 +36,20 @@ void Logger::log_cpu(const std::string& state_info) {
     if (!cpu_table_initialized)
         throw std::runtime_error("The CPU state table was used before being initialized.");
 
-    if (cpu_transaction == nullptr)
-        cpu_transaction = new SQLite::Transaction(*database);
+    if (transaction == nullptr)
+        transaction = new SQLite::Transaction(*database, SQLite::TransactionBehavior::DEFERRED);
 
     database->exec("INSERT INTO 'CPU STATE' VALUES (" + state_info + ");");
 }
 
 void Logger::commit_cpu() {
-    if (cpu_transaction != nullptr) {
-        cpu_transaction->commit();
-        delete cpu_transaction;
-        cpu_transaction = nullptr;
+    if (transaction != nullptr) {
+        transaction->commit();
+        delete transaction;
+        transaction = nullptr;
     }
 }
 
 Logger::~Logger() {
-    if (cpu_transaction != nullptr) cpu_transaction->commit();
+    if (transaction != nullptr) transaction->commit();
 }

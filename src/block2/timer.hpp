@@ -19,6 +19,7 @@ public:
 private:
     void accept_dsky_connections();
     void process_dsky(sockpp::tcp_socket sock);
+    static void commit_log_transactions();
     std::array<uint8_t, 4> generate_dsky_packet(uint8_t channel, word data);
 
     uint64_t total_ticks = 0;
