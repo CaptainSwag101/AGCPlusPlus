@@ -46,6 +46,7 @@ FetchContent_MakeAvailable(argparse)
 FetchContent_Declare(
         sockpp
         GIT_REPOSITORY https://github.com/fpagliughi/sockpp.git
+        GIT_TAG v0.8.2
 )
 FetchContent_MakeAvailable(sockpp)
 
