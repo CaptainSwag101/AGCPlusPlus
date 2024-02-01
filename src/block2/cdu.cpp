@@ -64,8 +64,8 @@ namespace agcplusplus::block2 {
                     count_down = std::signbit(fine_error);
                 }
 
-                std::cout << coarse_error << std::endl;
-                std::cout << fine_error << std::endl;
+                //std::cout << coarse_error << std::endl;
+                //std::cout << fine_error << std::endl;
 
                 if (C1 || F2) {
                     channel.read_counter += (!count_down) ? 1 : -1;
@@ -94,20 +94,24 @@ namespace agcplusplus::block2 {
         while (true) {
             auto started_at = std::chrono::steady_clock::now();
             auto x = started_at + std::chrono::seconds(1 / 800);
+            static bool converged = false;
 
             for (auto& channel : channels) {
-                const double coarse_error = channel.compute_angle_error(RESOLVER_1X) * RAD_TO_DEG;
-                const double fine_error = channel.compute_angle_error(RESOLVER_16X) * RAD_TO_DEG / 16;
+                double coarse_error = channel.compute_angle_error(RESOLVER_1X) * RAD_TO_DEG;
+                double fine_error = channel.compute_angle_error(RESOLVER_16X) * RAD_TO_DEG / 16;
 
                 // Coarse and fine mixing logic
+                const bool C1 = std::abs(coarse_error) >= 7.0;
+                const bool F2 = std::abs(fine_error) >= 0.1;
                 const bool F1 = std::abs(fine_error) >= TWENTY_ARCSECONDS && std::abs(fine_error) < 0.1;
 
-                std::cout << coarse_error << std::endl;
-                std::cout << fine_error << std::endl;
-
-                if (F1) {
+                if (F1 && !(C1 || F2)) {
                     const bool count_down = std::signbit(fine_error);
                     channel.read_counter += (!count_down) ? 1 : -1;
+                }
+                else if (std::abs(fine_error) < TWENTY_ARCSECONDS && !converged) {
+                    std::cout << "Converged!" << std::endl;
+                    converged = true;
                 }
             }
 

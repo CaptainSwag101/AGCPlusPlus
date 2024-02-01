@@ -14,7 +14,7 @@ constexpr static uint8_t RESOLVER_64X = 64;
 
 class CduChannel {
 public:
-    double theta = 10.0 * DEG_TO_RAD; // Radians
+    double theta = 20.0 * DEG_TO_RAD; // Radians
     uint16_t read_counter = 0;  // Multiplied by 20 arc-seconds to get degrees
 
     [[nodiscard]] double sin_theta(uint8_t resolver_speed) const;
