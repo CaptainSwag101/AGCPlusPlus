@@ -16,13 +16,10 @@ class CduChannel {
 public:
     double theta = 10.0 * DEG_TO_RAD; // Radians
     uint16_t read_counter = 0;  // Multiplied by 20 arc-seconds to get degrees
-    double coarse_error = 0.0;  // Degrees
-    double fine_error = 0.0;    // Degrees
 
     [[nodiscard]] double sin_theta(uint8_t resolver_speed) const;
     [[nodiscard]] double cos_theta(uint8_t resolver_speed) const;
     [[nodiscard]] double compute_angle_error(uint8_t resolver_speed) const;
-    void refresh();
 };
 
 class Cdu {

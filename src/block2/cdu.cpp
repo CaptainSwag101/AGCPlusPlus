@@ -26,11 +26,6 @@ namespace agcplusplus::block2 {
         return step1 + (-1.0 * step2);
     }
 
-    void CduChannel::refresh() {
-        coarse_error = compute_angle_error(RESOLVER_1X) * RAD_TO_DEG;
-        fine_error = compute_angle_error(RESOLVER_16X) * RAD_TO_DEG;
-    }
-
     void Cdu::tick_cmc() {
         if (!iss_timing_thread.joinable()) {
             iss_timing_thread = std::thread(&Cdu::tick_iss, this);
@@ -51,16 +46,19 @@ namespace agcplusplus::block2 {
         if (pulse_phase1) {
             //std::cout << "phase1" << std::endl;
             for (auto& channel : channels) {
+                double coarse_error = channel.compute_angle_error(RESOLVER_1X) * RAD_TO_DEG;
+                double fine_error = channel.compute_angle_error(RESOLVER_16X) * RAD_TO_DEG / 16;
+
                 // Coarse and fine mixing logic
-                const bool C1 = std::abs(channel.coarse_error) >= 7.0;
+                const bool C1 = std::abs(coarse_error) >= 7.0;
                 // Yes this is intentionally still using coarse error, with fine error I can't get a good value
-                const bool F2 = std::abs(channel.coarse_error) >= 0.1;
+                const bool F2 = std::abs(fine_error) >= 0.1;
 
                 bool count_down = false;
                 if (C1) {
-                    count_down = std::signbit(channel.coarse_error);
+                    count_down = std::signbit(coarse_error);
                 } else if (F2) {
-                    count_down = std::signbit(channel.fine_error);
+                    count_down = std::signbit(fine_error);
                 }
 
                 if (C1 || F2) {
@@ -84,11 +82,6 @@ namespace agcplusplus::block2 {
         if (pulse_phase4_slow) {
             //std::cout << "phase4_slow" << std::endl;
         }
-
-
-        for (auto& channel : channels) {
-            channel.refresh();
-        }
     }
 
     [[noreturn]] void Cdu::tick_iss() {
@@ -97,15 +90,16 @@ namespace agcplusplus::block2 {
             auto x = started_at + std::chrono::seconds(1 / 800);
 
             for (auto& channel : channels) {
+                //double coarse_error = channel.compute_angle_error(RESOLVER_1X) * RAD_TO_DEG;
+                double fine_error = channel.compute_angle_error(RESOLVER_16X) * RAD_TO_DEG / 16;
+
                 // Coarse and fine mixing logic
-                const bool F1 = std::abs(channel.coarse_error) >= TWENTY_ARCSECONDS && std::abs(channel.coarse_error) < 0.1;
+                const bool F1 = std::abs(fine_error) >= TWENTY_ARCSECONDS && std::abs(fine_error) < 0.1;
 
                 if (F1) {
-                    const bool count_down = std::signbit(channel.fine_error);
+                    const bool count_down = std::signbit(fine_error);
                     channel.read_counter += (!count_down) ? 1 : -1;
                 }
-
-                channel.refresh();
             }
 
             //auto ended_at = std::chrono::steady_clock::now();
