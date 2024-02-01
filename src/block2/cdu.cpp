@@ -54,7 +54,6 @@ namespace agcplusplus::block2 {
 
                 // Coarse and fine mixing logic
                 const bool C1 = std::abs(coarse_error) >= 7.0;
-                // Yes this is intentionally still using coarse error, with fine error I can't get a good value
                 const bool F2 = std::abs(fine_error) >= 0.1;
 
                 bool count_down = false;
