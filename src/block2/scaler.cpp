@@ -16,7 +16,7 @@ void Scaler::tick() {
     prev_state = cur_state;
     ++cur_state;
 
-    //bool F01B = (((cur_state & 1) ^ (prev_state & 1)) && (cur_state & 1) != 0);
+    bool F02B = (((cur_state & 2) ^ (prev_state & 2)) && (cur_state & 2) != 0);
     bool F06B = (((cur_state & BITMASK_6) ^ (prev_state & BITMASK_6)) && (cur_state & BITMASK_6) != 0);
     bool F09B = (((cur_state & BITMASK_9) ^ (prev_state & BITMASK_9)) && (cur_state & BITMASK_9) != 0);
     bool F10A = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) == 0);
@@ -30,6 +30,11 @@ void Scaler::tick() {
     bool FS16 = ((cur_state & BITMASK_16) != 0);
     bool FS17 = ((cur_state & BITMASK_17) != 0);
     bool F14H = (F12B && FS13 && !FS14);    // Used for RUPT lock check
+
+    // Send 51.2 kpps tick rate to CDU
+    if (F02B) {
+        Agc::cdu.tick();
+    }
 
     // Process timer counts
     if (F06B) {

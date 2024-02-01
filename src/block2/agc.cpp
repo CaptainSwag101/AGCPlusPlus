@@ -5,6 +5,7 @@ namespace agcplusplus::block2 {
     Memory Agc::memory;
     Scaler Agc::scaler;
     Timer Agc::timer;
+    Cdu Agc::cdu;
     InitArguments Agc::config;
 
 Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args) {
