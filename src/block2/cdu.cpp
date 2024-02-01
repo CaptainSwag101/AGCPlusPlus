@@ -18,12 +18,15 @@ namespace agcplusplus::block2 {
     double CduChannel::compute_angle_error(const uint8_t resolver_speed) const {
         const double psi = TWENTY_ARCSECONDS * read_counter * DEG_TO_RAD;
 
-        // We do it in two steps...
-        const double step1 = sin_theta(resolver_speed) * std::cos(psi);
-        const double step2 = cos_theta(resolver_speed) * std::sin(psi);
+        // We can do it in two steps...
+        //const double step1 = sin_theta(resolver_speed) * std::cos(psi);
+        //const double step2 = cos_theta(resolver_speed) * std::sin(psi);
 
         // +/- sin(theta) cos(psi) -/+ cos(theta) sin(psi)
-        return step1 + (-1.0 * step2);
+        //return step1 + (-1.0 * step2);
+
+        // ...Or one step.
+        return std::sin((theta * resolver_speed) - (psi * resolver_speed));
     }
 
     void Cdu::tick_cmc() {
@@ -61,6 +64,9 @@ namespace agcplusplus::block2 {
                     count_down = std::signbit(fine_error);
                 }
 
+                std::cout << coarse_error << std::endl;
+                std::cout << fine_error << std::endl;
+
                 if (C1 || F2) {
                     channel.read_counter += (!count_down) ? 1 : -1;
                 }
@@ -90,11 +96,14 @@ namespace agcplusplus::block2 {
             auto x = started_at + std::chrono::seconds(1 / 800);
 
             for (auto& channel : channels) {
-                //double coarse_error = channel.compute_angle_error(RESOLVER_1X) * RAD_TO_DEG;
-                double fine_error = channel.compute_angle_error(RESOLVER_16X) * RAD_TO_DEG / 16;
+                const double coarse_error = channel.compute_angle_error(RESOLVER_1X) * RAD_TO_DEG;
+                const double fine_error = channel.compute_angle_error(RESOLVER_16X) * RAD_TO_DEG / 16;
 
                 // Coarse and fine mixing logic
                 const bool F1 = std::abs(fine_error) >= TWENTY_ARCSECONDS && std::abs(fine_error) < 0.1;
+
+                std::cout << coarse_error << std::endl;
+                std::cout << fine_error << std::endl;
 
                 if (F1) {
                     const bool count_down = std::signbit(fine_error);
