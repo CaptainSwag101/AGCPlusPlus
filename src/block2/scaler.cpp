@@ -33,7 +33,7 @@ void Scaler::tick() {
 
     // Send 51.2 kpps tick rate to CDU
     if (F02B) {
-        Agc::cdu.tick();
+        Agc::cdu.tick_cmc();
     }
 
     // Process timer counts
