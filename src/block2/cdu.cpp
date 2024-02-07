@@ -92,7 +92,7 @@ namespace agcplusplus::block2 {
     [[noreturn]] void Cdu::tick_iss() {
         while (true) {
             auto started_at = std::chrono::steady_clock::now();
-            auto x = started_at + std::chrono::seconds(1 / 800);
+            auto x = started_at + std::chrono::microseconds(1250);  // 800 Hz
             static bool converged = false;
 
             for (auto& channel : channels) {
@@ -108,8 +108,10 @@ namespace agcplusplus::block2 {
                     const bool count_down = std::signbit(fine_error);
                     channel.read_counter += (!count_down) ? 1 : -1;
                 }
-                else if (std::abs(fine_error) < TWENTY_ARCSECONDS && !converged) {
-                    std::cout << "Converged!" << std::endl;
+
+                if (!F1 && !(C1 || F2) && std::abs(fine_error) < TWENTY_ARCSECONDS && !converged) {
+                    const double psi = TWENTY_ARCSECONDS * channel.read_counter;
+                    std::cout << "Converged. True Angle: " << channel.theta * RAD_TO_DEG << ", Computed Angle: " << psi << std::endl;
                     converged = true;
                 }
             }
