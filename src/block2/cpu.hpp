@@ -1,6 +1,6 @@
 #include <functional>
+#include <map>
 #include <memory>
-#include <unordered_map>
 #include "block2defs.hpp"
 #include "memory.hpp"
 
@@ -55,7 +55,7 @@ public:
     // I/O
     word read_io_channel(word address);
     void write_io_channel(word address, word data);
-    std::unordered_map<word, word> io_channels;
+    std::map<int, word> io_channels{};
 
     // Internal CPU data
     word write_bus{}, dv_stage{};

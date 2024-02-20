@@ -190,7 +190,8 @@ namespace agcplusplus::block2 {
                     //converged = true;
                 //}
 
-                channel.theta += 0.01 * DEG_TO_RAD;
+                // Debug hack: constantly rotate the gimbal
+                //channel.theta += 0.01 * DEG_TO_RAD;
             }
 
             //auto ended_at = std::chrono::steady_clock::now();

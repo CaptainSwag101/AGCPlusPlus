@@ -17,6 +17,7 @@ void Scaler::tick() {
     ++cur_state;
 
     bool F02B = (((cur_state & 2) ^ (prev_state & 2)) && (cur_state & 2) != 0);
+    bool F05A = (((cur_state & BITMASK_5) ^ (prev_state & BITMASK_5)) && (cur_state & BITMASK_5) == 0);
     bool F06B = (((cur_state & BITMASK_6) ^ (prev_state & BITMASK_6)) && (cur_state & BITMASK_6) != 0);
     bool F09B = (((cur_state & BITMASK_9) ^ (prev_state & BITMASK_9)) && (cur_state & BITMASK_9) != 0);
     bool F10A = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) == 0);
@@ -34,6 +35,30 @@ void Scaler::tick() {
     // Send 51.2 kpps tick rate to CDU
     if (F02B) {
         Agc::cdu.tick_cmc();
+    }
+
+    // Process CDU commands from AGC, if their corresponding channel bit enables them.
+    if (F05A) {
+        const word chan14 = Agc::cpu.read_io_channel(014);
+        if ((chan14 & BITMASK_15) != 0) {
+            Agc::cpu.counters[COUNTER_CDUXD] = COUNT_DIRECTION_DOWN;
+        }
+
+        if ((chan14 & BITMASK_14) != 0) {
+            Agc::cpu.counters[COUNTER_CDUYD] = COUNT_DIRECTION_DOWN;
+        }
+
+        if ((chan14 & BITMASK_13) != 0) {
+            Agc::cpu.counters[COUNTER_CDUZD] = COUNT_DIRECTION_DOWN;
+        }
+
+        if ((chan14 & BITMASK_12) != 0) {
+            Agc::cpu.counters[COUNTER_TRUND] = COUNT_DIRECTION_DOWN;
+        }
+
+        if ((chan14 & BITMASK_11) != 0) {
+            Agc::cpu.counters[COUNTER_SHAFTD] = COUNT_DIRECTION_DOWN;
+        }
     }
 
     // Process timer counts

@@ -91,13 +91,16 @@ namespace agcplusplus::block2 {
 
                     if (direction != COUNT_DIRECTION_NONE) {
                         if ((direction & COUNT_DIRECTION_UP) != 0) {
-                            if (c < COUNTER_CDUX)
+                            if (c < COUNTER_CDUX || c > COUNTER_SHFT)
                                 current_subinstruction = COUNT_SUBINST_PINC;
                             else
                                 current_subinstruction = COUNT_SUBINST_PCDU;
                         } else if ((direction & COUNT_DIRECTION_DOWN) != 0) {
-                            if (c < COUNTER_CDUX)
-                                current_subinstruction = COUNT_SUBINST_MINC;
+                            if (c < COUNTER_CDUX || c > COUNTER_SHFT)
+                                if (c == COUNTER_TIME6 || (c >= COUNTER_CDUXD && c <= COUNTER_SHAFTD))
+                                    current_subinstruction = COUNT_SUBINST_DINC;
+                                else
+                                    current_subinstruction = COUNT_SUBINST_MINC;
                             else
                                 current_subinstruction = COUNT_SUBINST_MCDU;
                         }
