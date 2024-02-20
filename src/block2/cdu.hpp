@@ -82,8 +82,8 @@ constexpr uint16_t DC12_MASK = B9;
 
 class CduChannel {
 public:
-    double theta = 225.0 * DEG_TO_RAD; // Radians
-    uint16_t read_counter = static_cast<uint16_t>(225.0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
+    double theta = 310.0 * DEG_TO_RAD; // Radians
+    uint16_t read_counter = static_cast<uint16_t>(310.0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
 
     [[nodiscard]] double coarse_error() const;
     [[nodiscard]] double fine_error() const;

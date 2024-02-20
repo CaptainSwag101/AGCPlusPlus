@@ -52,13 +52,13 @@ namespace agcplusplus::block2 {
             amplifier_output += COARSE_VOLTAGE * COARSE_S9_RESISTOR;
         }
         if ((read_counter & DC10_MASK) == (DC10_VALUE & DC10_MASK)) {
-            amplifier_output += COARSE_VOLTAGE * COARSE_S10_RESISTOR;
+            amplifier_output += -COARSE_VOLTAGE * COARSE_S10_RESISTOR;
         }
         if ((read_counter & DC11_MASK) == (DC11_VALUE & DC11_MASK)) {
-            amplifier_output += COARSE_VOLTAGE * COARSE_S11_RESISTOR;
+            amplifier_output += -COARSE_VOLTAGE * COARSE_S11_RESISTOR;
         }
         if ((read_counter & DC12_MASK) == (DC12_VALUE & DC12_MASK)) {
-            amplifier_output += COARSE_VOLTAGE * COARSE_S12_RESISTOR;
+            amplifier_output += -COARSE_VOLTAGE * COARSE_S12_RESISTOR;
         }
 
         return amplifier_output / COARSE_VOLTAGE;
@@ -110,8 +110,6 @@ namespace agcplusplus::block2 {
                     prev_coarse_error = coarse_error;
                     std::cout << "Coarse error: " << coarse_error << std::endl;
                 }
-                //std::cout << coarse_error << std::endl;
-                //std::cout << fine_error << std::endl;
 
                 if (C1 || F2) {
                     channel.read_counter += (!count_down) ? 1 : -1;
@@ -158,7 +156,7 @@ namespace agcplusplus::block2 {
 
                 if (!F1 && !(C1 || F2) && std::abs(fine_error) < TWENTY_ARCSECONDS && !converged) {
                     const double psi = TWENTY_ARCSECONDS * channel.read_counter;
-                    std::cout << "Converged. True Angle: " << channel.theta * RAD_TO_DEG << ", Computed Angle: " << psi << std::endl;
+                    std::cout << "Coarse align converged. True Angle: " << channel.theta * RAD_TO_DEG << ", Computed Angle: " << psi << std::endl;
                     converged = true;
                 }
             }
