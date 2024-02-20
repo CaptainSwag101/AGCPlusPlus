@@ -13,8 +13,8 @@ constexpr static double DEG_TO_RAD = M_PI / 180;
 constexpr static double RAD_TO_DEG = 180 / M_PI;
 
 // Voltage-related constants.
-// The coarse and fine system transformers bring 28V RMS down to 5V RMS.
-constexpr double CDU_VOLTAGE = 5.0;
+// The coarse and fine system transformers bring 26V RMS down to 4V RMS.
+constexpr double CDU_VOLTAGE = 4.0; // 8V RMS center-tapped, per ND-1021043 and drawing 1010725.
 constexpr double P2P_TO_RMS = 0.35355;
 // Coarse schmitt trigger is at 0.47 volts RMS, per Skylab PGNCS Mechanization Study Guide pg 3-25.
 // Other documentation is potentially erroneous.
