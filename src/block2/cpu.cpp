@@ -86,12 +86,20 @@ namespace agcplusplus::block2 {
 
             // Service INKL
             if (inkl && fetch_next_instruction) {
-                for (word direction : counters) {
+                for (int c = 0; c < counters.size(); ++c) {
+                    const word direction = counters[c];
+
                     if (direction != COUNT_DIRECTION_NONE) {
                         if ((direction & COUNT_DIRECTION_UP) != 0) {
-                            current_subinstruction = COUNT_SUBINST_PINC;
+                            if (c < COUNTER_CDUX)
+                                current_subinstruction = COUNT_SUBINST_PINC;
+                            else
+                                current_subinstruction = COUNT_SUBINST_PCDU;
                         } else if ((direction & COUNT_DIRECTION_DOWN) != 0) {
-                            current_subinstruction = COUNT_SUBINST_DINC;
+                            if (c < COUNTER_CDUX)
+                                current_subinstruction = COUNT_SUBINST_MINC;
+                            else
+                                current_subinstruction = COUNT_SUBINST_MCDU;
                         }
                         break;
                     }
