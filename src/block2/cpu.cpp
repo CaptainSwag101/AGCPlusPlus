@@ -86,19 +86,15 @@ namespace agcplusplus::block2 {
 
             // Service INKL
             if (inkl) {
-                for (int c = 0; c < 20; ++c) {
-                    if (counters[c] & COUNT_DIRECTION_UP) {
-                        if (c >= COUNTER_TIME2 && c <= COUNTER_TIME5) {
+                for (word direction : counters) {
+                    if (direction != COUNT_DIRECTION_NONE) {
+                        if ((direction & COUNT_DIRECTION_UP) != 0) {
                             current_subinstruction = COUNT_SUBINST_PINC;
-                            break;
-                        }
-                    } else if (counters[c] & COUNT_DIRECTION_DOWN) {
-                        if (c == COUNTER_TIME6) {
+                        } else if ((direction & COUNT_DIRECTION_DOWN) != 0) {
                             current_subinstruction = COUNT_SUBINST_DINC;
-                            break;
                         }
                     }
-
+                    break;
                 }
             }
 
@@ -269,6 +265,18 @@ namespace agcplusplus::block2 {
         output << " Y = " << std::setw(6) << y;
         output << " U = " << std::setw(6) << u;
         output << " WL = " << std::setw(6) << write_bus;
+        output << '\n';
+
+        output << " INKL = " << (word)inkl;
+        output << " IIP = " << (word)iip;
+        word highest_priority_counter = -1;
+        for (int i = 0; i < counters.size(); ++i) {
+            if (counters[i] != COUNT_DIRECTION_NONE) {
+                highest_priority_counter = i;
+                break;
+            }
+        }
+        output << " Counter = " << highest_priority_counter;
         output << std::endl;
 
         std::dec(output);

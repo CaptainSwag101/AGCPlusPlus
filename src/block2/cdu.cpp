@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "agc.hpp"
+
 namespace agcplusplus::block2 {
     double CduChannel::coarse_error() const {
         const double cos_voltage = std::cos(theta) * CDU_VOLTAGE;
@@ -87,15 +89,17 @@ namespace agcplusplus::block2 {
         const bool squarewave_25_6_kpps = (cur_state & 1);
         const bool squarewave_12_8_kpps = (cur_state & 2);
         const bool squarewave_6_4_kpps = (cur_state & 4);
-        const bool pulse_phase1 = (!squarewave_25_6_kpps && !squarewave_12_8_kpps);
-        const bool pulse_phase2 = (squarewave_25_6_kpps && !squarewave_12_8_kpps);
-        const bool pulse_phase3 = (!squarewave_25_6_kpps && squarewave_12_8_kpps);
-        const bool pulse_phase4 = (squarewave_25_6_kpps && squarewave_12_8_kpps);
+        const bool pulse_phase1 = (!squarewave_25_6_kpps && !squarewave_12_8_kpps) && (prev_state != cur_state);
+        const bool pulse_phase2 = (squarewave_25_6_kpps && !squarewave_12_8_kpps) && (prev_state != cur_state);
+        const bool pulse_phase3 = (!squarewave_25_6_kpps && squarewave_12_8_kpps) && (prev_state != cur_state);
+        const bool pulse_phase4 = (squarewave_25_6_kpps && squarewave_12_8_kpps) && (prev_state != cur_state);
         const bool pulse_phase4_slow = (squarewave_25_6_kpps && squarewave_12_8_kpps && squarewave_6_4_kpps) && ((cur_state & 1) ^ (prev_state & 1));
 
         if (pulse_phase1) {
             //std::cout << "phase1" << std::endl;
-            for (auto& channel : channels) {
+            for (size_t i = 0; i < channels.size(); ++i) {
+                auto& channel = channels[i];
+
                 static double prev_coarse_error = 0.0;
 
                 const double coarse_error = channel.coarse_error();
@@ -115,11 +119,20 @@ namespace agcplusplus::block2 {
 
                 if (coarse_error != prev_coarse_error) {
                     prev_coarse_error = coarse_error;
-                    std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                    //std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
                 }
 
                 if (C1 || F2) {
+                    // Keep track of the previous read counter state to see if we need to pulse the AGC.
+                    const uint16_t prev_div2_read_counter = channel.read_counter / 2;
+
                     channel.read_counter += (!count_down) ? 1 : -1;
+
+                    const uint16_t div2_read_counter = channel.read_counter / 2;
+                    if (prev_div2_read_counter != div2_read_counter) {
+                        std::cout << "Pulsed CMC!" << std::endl;
+                        Agc::cpu.counters[COUNTER_CDUX + i] |= (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
+                    }
                 }
             }
         }
@@ -147,7 +160,9 @@ namespace agcplusplus::block2 {
             auto x = started_at + std::chrono::microseconds(1250);  // 800 Hz
             static bool converged = false;
 
-            for (auto& channel : channels) {
+            for (size_t i = 0; i < channels.size(); ++i) {
+                auto& channel = channels[i];
+
                 const double coarse_error = channel.coarse_error();
                 const double fine_error = channel.fine_error();
 
@@ -158,7 +173,16 @@ namespace agcplusplus::block2 {
 
                 if (F1 && !(C1 || F2)) {
                     const bool count_down = std::signbit(fine_error);
+
+                    // Keep track of the previous read counter state to see if we need to pulse the AGC.
+                    const uint16_t prev_div2_read_counter = channel.read_counter / 2;
+
                     channel.read_counter += (!count_down) ? 1 : -1;
+
+                    const uint16_t div2_read_counter = channel.read_counter / 2;
+                    if (prev_div2_read_counter != div2_read_counter) {
+                        Agc::cpu.counters[COUNTER_CDUX + i] |= (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
+                    }
                 }
 
                 if (!F1 && !(C1 || F2) && !converged) {

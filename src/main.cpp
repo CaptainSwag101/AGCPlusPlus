@@ -31,6 +31,9 @@ int main(int argc, char* argv[]) {
         .help("The machine type to emulate, either 'block1' or 'block2'");
     mainArgs.add_argument("rope-file")
         .help("The core rope program to load into fixed memory at startup");
+    mainArgs.add_argument("--vehicle")
+        .help("If emulating block2, the spacecraft vehicle to emulate, either 'CM' or 'LM'. Defaults to 'CM'.")
+        .default_value("CM");
     mainArgs.add_argument("--log-timepulse")
         .help("Whether to print CPU state information every timepulse.")
         .default_value(false)

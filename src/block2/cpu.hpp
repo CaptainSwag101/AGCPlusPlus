@@ -49,8 +49,8 @@ public:
     bool explicit_carry{};
 
     // Interrupt/Counter cells
-    bool interrupts[11]{};    // Interrupt request cells
-    word counters[20]{};  // Can be 0, +1, -1, or both in the case of a freak accident
+    std::array<bool, 11> interrupts{};  // Interrupt request cells
+    std::array<word, 20> counters{};    // Can be 0, +1, -1, or both in the case of a freak accident
 
     // I/O
     word read_io_channel(word address);

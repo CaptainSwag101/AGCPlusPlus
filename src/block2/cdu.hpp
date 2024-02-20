@@ -131,7 +131,7 @@ constexpr uint16_t FINE_S14_MASK = FINE_S11_MASK;
 
 class CduChannel {
 public:
-    double theta = 28.0 * DEG_TO_RAD; // Radians
+    double theta = 8.0 * DEG_TO_RAD; // Radians
     uint16_t read_counter = static_cast<uint16_t>(0.0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
 
     [[nodiscard]] double coarse_error() const;
