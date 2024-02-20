@@ -85,7 +85,7 @@ namespace agcplusplus::block2 {
             }
 
             // Service INKL
-            if (inkl) {
+            if (inkl && fetch_next_instruction) {
                 for (word direction : counters) {
                     if (direction != COUNT_DIRECTION_NONE) {
                         if ((direction & COUNT_DIRECTION_UP) != 0) {

@@ -119,7 +119,7 @@ namespace agcplusplus::block2 {
 
                 if (coarse_error != prev_coarse_error) {
                     prev_coarse_error = coarse_error;
-                    std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                    //std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
                 }
 
                 if (C1 || F2) {
@@ -131,7 +131,7 @@ namespace agcplusplus::block2 {
                     const uint16_t div2_read_counter = channel.read_counter / 2;
                     if (prev_div2_read_counter != div2_read_counter) {
                         //std::cout << "Pulsed CMC!" << std::endl;
-                        Agc::cpu.counters[COUNTER_CDUX + i] |= (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
+                        Agc::cpu.counters[COUNTER_CDUX + i] = (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
                     }
                 }
             }
@@ -158,7 +158,6 @@ namespace agcplusplus::block2 {
         while (true) {
             auto started_at = std::chrono::steady_clock::now();
             auto x = started_at + std::chrono::microseconds(1250);  // 800 Hz
-            static bool converged = false;
 
             for (size_t i = 0; i < channels.size(); ++i) {
                 auto& channel = channels[i];
@@ -181,15 +180,17 @@ namespace agcplusplus::block2 {
 
                     const uint16_t div2_read_counter = channel.read_counter / 2;
                     if (prev_div2_read_counter != div2_read_counter) {
-                        Agc::cpu.counters[COUNTER_CDUX + i] |= (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
+                        Agc::cpu.counters[COUNTER_CDUX + i] = (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
                     }
                 }
 
-                if (!F1 && !(C1 || F2) && !converged) {
-                    const double psi = TWENTY_ARCSECONDS * channel.read_counter;
-                    std::cout << "Coarse align converged. True Angle: " << channel.theta * RAD_TO_DEG << ", Computed Angle: " << psi << std::endl;
-                    converged = true;
-                }
+                //if (!F1 && !(C1 || F2) && !converged) {
+                    //const double psi = TWENTY_ARCSECONDS * channel.read_counter;
+                    //std::cout << "Coarse align converged. True Angle: " << channel.theta * RAD_TO_DEG << ", Computed Angle: " << psi << std::endl;
+                    //converged = true;
+                //}
+
+                channel.theta += 0.01 * DEG_TO_RAD;
             }
 
             //auto ended_at = std::chrono::steady_clock::now();
