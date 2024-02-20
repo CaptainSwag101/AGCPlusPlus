@@ -119,7 +119,7 @@ namespace agcplusplus::block2 {
 
                 if (coarse_error != prev_coarse_error) {
                     prev_coarse_error = coarse_error;
-                    //std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                    std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
                 }
 
                 if (C1 || F2) {
@@ -130,7 +130,7 @@ namespace agcplusplus::block2 {
 
                     const uint16_t div2_read_counter = channel.read_counter / 2;
                     if (prev_div2_read_counter != div2_read_counter) {
-                        std::cout << "Pulsed CMC!" << std::endl;
+                        //std::cout << "Pulsed CMC!" << std::endl;
                         Agc::cpu.counters[COUNTER_CDUX + i] |= (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
                     }
                 }

@@ -93,8 +93,8 @@ namespace agcplusplus::block2 {
                         } else if ((direction & COUNT_DIRECTION_DOWN) != 0) {
                             current_subinstruction = COUNT_SUBINST_DINC;
                         }
+                        break;
                     }
-                    break;
                 }
             }
 
