@@ -5,28 +5,12 @@
 #include <iostream>
 
 namespace agcplusplus::block2 {
-    double CduChannel::sin_theta(const uint8_t resolver_speed) const {
-        const double result = std::sin(theta * resolver_speed);
-        return result;
+    double CduChannel::coarse_error() const {
+        return 0.0;
     }
 
-    double CduChannel::cos_theta(const uint8_t resolver_speed) const {
-        const double result = std::cos(theta * resolver_speed);
-        return result;
-    }
-
-    double CduChannel::compute_angle_error(const uint8_t resolver_speed) const {
-        const double psi = TWENTY_ARCSECONDS * read_counter * DEG_TO_RAD;
-
-        // We can do it in two steps...
-        //const double step1 = sin_theta(resolver_speed) * std::cos(psi);
-        //const double step2 = cos_theta(resolver_speed) * std::sin(psi);
-
-        // +/- sin(theta) cos(psi) -/+ cos(theta) sin(psi)
-        //return step1 + (-1.0 * step2);
-
-        // ...Or one step.
-        return std::sin((theta * resolver_speed) - (psi * resolver_speed));
+    double CduChannel::fine_error() const {
+        return 0.0;
     }
 
     void Cdu::tick_cmc() {
@@ -49,8 +33,8 @@ namespace agcplusplus::block2 {
         if (pulse_phase1) {
             //std::cout << "phase1" << std::endl;
             for (auto& channel : channels) {
-                double coarse_error = channel.compute_angle_error(RESOLVER_1X) * RAD_TO_DEG;
-                double fine_error = channel.compute_angle_error(RESOLVER_16X) * RAD_TO_DEG / 16;
+                const double coarse_error = channel.coarse_error();
+                const double fine_error = channel.fine_error();
 
                 // Coarse and fine mixing logic
                 const bool C1 = std::abs(coarse_error) >= 7.0;
@@ -96,8 +80,8 @@ namespace agcplusplus::block2 {
             static bool converged = false;
 
             for (auto& channel : channels) {
-                double coarse_error = channel.compute_angle_error(RESOLVER_1X) * RAD_TO_DEG;
-                double fine_error = channel.compute_angle_error(RESOLVER_16X) * RAD_TO_DEG / 16;
+                const double coarse_error = channel.coarse_error();
+                const double fine_error = channel.fine_error();
 
                 // Coarse and fine mixing logic
                 const bool C1 = std::abs(coarse_error) >= 7.0;
