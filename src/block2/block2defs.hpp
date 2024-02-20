@@ -63,8 +63,4 @@ constexpr word RUPT_UPRUPT = 7;
 constexpr word RUPT_DOWNRUPT = 8;
 constexpr word RUPT_RADARRUPT = 9;
 constexpr word RUPT_RUPT10L = 10;
-
-constexpr static double TWENTY_ARCSECONDS = 180 / std::pow(2, 15);
-constexpr static double DEG_TO_RAD = M_PI / 180;
-constexpr static double RAD_TO_DEG = 180 / M_PI;
 }
