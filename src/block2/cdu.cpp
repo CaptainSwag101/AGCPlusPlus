@@ -5,8 +5,8 @@
 
 namespace agcplusplus::block2 {
     double CduChannel::coarse_error() const {
-        const double cos_voltage = std::cos(theta) * COARSE_VOLTAGE;
-        const double sin_voltage = std::sin(theta) * COARSE_VOLTAGE;
+        const double cos_voltage = std::cos(theta) * CDU_VOLTAGE;
+        const double sin_voltage = std::sin(theta) * CDU_VOLTAGE;
 
         // Determine the output at the op-amp by summing up the coarse system switches,
         // per the DC1-DC12 logic dependent on the set bits of the read counter.
@@ -14,57 +14,63 @@ namespace agcplusplus::block2 {
 
         // Figure out what appropriate conditions for any of the switches have been met.
         // Sine section.
-        if ((read_counter & DC1_MASK) == (DC1_VALUE1 & DC1_MASK) ||
-            (read_counter & DC1_MASK) == (DC1_VALUE2 & DC1_MASK)) {
+        if ((read_counter & COARSE_S1_MASK) == (COARSE_S1_VALUE1 & COARSE_S1_MASK) ||
+            (read_counter & COARSE_S1_MASK) == (COARSE_S1_VALUE2 & COARSE_S1_MASK)) {
             amplifier_output += -sin_voltage * COARSE_S1_RESISTOR;
         }
-        if ((read_counter & DC2_MASK) == (DC2_VALUE1 & DC2_MASK) ||
-            (read_counter & DC2_MASK) == (DC2_VALUE2 & DC2_MASK)) {
+        if ((read_counter & COARSE_S2_MASK) == (COARSE_S2_VALUE1 & COARSE_S2_MASK) ||
+            (read_counter & COARSE_S2_MASK) == (COARSE_S2_VALUE2 & COARSE_S2_MASK)) {
             amplifier_output += -sin_voltage * COARSE_S2_RESISTOR;
         }
-        if ((read_counter & DC3_MASK) == (DC3_VALUE1 & DC3_MASK) ||
-            (read_counter & DC3_MASK) == (DC3_VALUE2 & DC3_MASK)) {
+        if ((read_counter & COARSE_S3_MASK) == (COARSE_S3_VALUE1 & COARSE_S3_MASK) ||
+            (read_counter & COARSE_S3_MASK) == (COARSE_S3_VALUE2 & COARSE_S3_MASK)) {
             amplifier_output += sin_voltage * COARSE_S3_RESISTOR;
         }
-        if ((read_counter & DC4_MASK) == (DC4_VALUE1 & DC4_MASK) ||
-            (read_counter & DC4_MASK) == (DC4_VALUE2 & DC4_MASK)) {
+        if ((read_counter & COARSE_S4_MASK) == (COARSE_S4_VALUE1 & COARSE_S4_MASK) ||
+            (read_counter & COARSE_S4_MASK) == (COARSE_S4_VALUE2 & COARSE_S4_MASK)) {
             amplifier_output += sin_voltage * COARSE_S4_RESISTOR;
         }
         // Cosine section.
-        if ((read_counter & DC5_MASK) == (DC5_VALUE1 & DC5_MASK) ||
-            (read_counter & DC5_MASK) == (DC5_VALUE2 & DC5_MASK)) {
+        if ((read_counter & COARSE_S5_MASK) == (COARSE_S5_VALUE1 & COARSE_S5_MASK) ||
+            (read_counter & COARSE_S5_MASK) == (COARSE_S5_VALUE2 & COARSE_S5_MASK)) {
             amplifier_output += -cos_voltage * COARSE_S5_RESISTOR;
         }
-        if ((read_counter & DC6_MASK) == (DC6_VALUE1 & DC6_MASK) ||
-            (read_counter & DC6_MASK) == (DC6_VALUE2 & DC6_MASK)) {
+        if ((read_counter & COARSE_S6_MASK) == (COARSE_S6_VALUE1 & COARSE_S6_MASK) ||
+            (read_counter & COARSE_S6_MASK) == (COARSE_S6_VALUE2 & COARSE_S6_MASK)) {
             amplifier_output += -cos_voltage * COARSE_S6_RESISTOR;
         }
-        if ((read_counter & DC7_MASK) == (DC7_VALUE1 & DC7_MASK) ||
-            (read_counter & DC7_MASK) == (DC7_VALUE2 & DC7_MASK)) {
+        if ((read_counter & COARSE_S7_MASK) == (COARSE_S7_VALUE1 & COARSE_S7_MASK) ||
+            (read_counter & COARSE_S7_MASK) == (COARSE_S7_VALUE2 & COARSE_S7_MASK)) {
             amplifier_output += cos_voltage * COARSE_S7_RESISTOR;
         }
-        if ((read_counter & DC8_MASK) == (DC8_VALUE1 & DC8_MASK) ||
-            (read_counter & DC8_MASK) == (DC8_VALUE2 & DC8_MASK)) {
+        if ((read_counter & COARSE_S8_MASK) == (COARSE_S8_VALUE1 & COARSE_S8_MASK) ||
+            (read_counter & COARSE_S8_MASK) == (COARSE_S8_VALUE2 & COARSE_S8_MASK)) {
             amplifier_output += cos_voltage * COARSE_S8_RESISTOR;
         }
-        // Coarse-fine common switches.
-        if ((read_counter & DC9_MASK) == (DC9_VALUE & DC9_MASK)) {
-            amplifier_output += COARSE_VOLTAGE * COARSE_S9_RESISTOR;
+        // Ladder switches.
+        if ((read_counter & COARSE_S9_MASK) == (COARSE_S9_VALUE & COARSE_S9_MASK)) {
+            amplifier_output += CDU_VOLTAGE * COARSE_S9_RESISTOR;
         }
-        if ((read_counter & DC10_MASK) == (DC10_VALUE & DC10_MASK)) {
-            amplifier_output += -COARSE_VOLTAGE * COARSE_S10_RESISTOR;
+        if ((read_counter & COARSE_S10_MASK) == (COARSE_S10_VALUE & COARSE_S10_MASK)) {
+            amplifier_output += -CDU_VOLTAGE * COARSE_S10_RESISTOR;
         }
-        if ((read_counter & DC11_MASK) == (DC11_VALUE & DC11_MASK)) {
-            amplifier_output += -COARSE_VOLTAGE * COARSE_S11_RESISTOR;
+        if ((read_counter & COARSE_S11_MASK) == (COARSE_S11_VALUE & COARSE_S11_MASK)) {
+            amplifier_output += -CDU_VOLTAGE * COARSE_S11_RESISTOR;
         }
-        if ((read_counter & DC12_MASK) == (DC12_VALUE & DC12_MASK)) {
-            amplifier_output += -COARSE_VOLTAGE * COARSE_S12_RESISTOR;
+        if ((read_counter & COARSE_S12_MASK) == (COARSE_S12_VALUE & COARSE_S12_MASK)) {
+            amplifier_output += -CDU_VOLTAGE * COARSE_S12_RESISTOR;
         }
 
-        return amplifier_output / COARSE_VOLTAGE;
+        return amplifier_output;
     }
 
     double CduChannel::fine_error() const {
+        // 16X resolver speed
+        const double cos_voltage = std::cos(16.0 * theta) * CDU_VOLTAGE;
+        const double sin_voltage = std::sin(16.0 * theta) * CDU_VOLTAGE;
+
+
+
         return 0.0;
     }
 
@@ -92,12 +98,13 @@ namespace agcplusplus::block2 {
             for (auto& channel : channels) {
                 static double prev_coarse_error = 0.0;
 
-                const double coarse_error = channel.coarse_error() * RAD_TO_DEG;
-                const double fine_error = channel.fine_error() * RAD_TO_DEG;
+                const double coarse_error = channel.coarse_error();
+                const double fine_error = channel.fine_error();
 
                 // Coarse and fine mixing logic
-                const bool C1 = std::abs(coarse_error) >= 7.0;
-                const bool F2 = std::abs(fine_error) >= 0.1;
+                const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
+                const bool F2 = std::abs(fine_error) >= FINE_F2_TRIGGER;
+                //const bool F1 = std::abs(fine_error) >= FINE_F1_TRIGGER;
 
                 bool count_down = false;
                 if (C1) {
@@ -108,7 +115,7 @@ namespace agcplusplus::block2 {
 
                 if (coarse_error != prev_coarse_error) {
                     prev_coarse_error = coarse_error;
-                    std::cout << "Coarse error: " << coarse_error << std::endl;
+                    std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
                 }
 
                 if (C1 || F2) {
@@ -141,20 +148,20 @@ namespace agcplusplus::block2 {
             static bool converged = false;
 
             for (auto& channel : channels) {
-                const double coarse_error = channel.coarse_error() * RAD_TO_DEG;
-                const double fine_error = channel.fine_error() * RAD_TO_DEG;
+                const double coarse_error = channel.coarse_error();
+                const double fine_error = channel.fine_error();
 
                 // Coarse and fine mixing logic
-                const bool C1 = std::abs(coarse_error) >= 7.0;
-                const bool F2 = std::abs(fine_error) >= 0.1;
-                const bool F1 = std::abs(fine_error) >= TWENTY_ARCSECONDS && std::abs(fine_error) < 0.1;
+                const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
+                const bool F2 = std::abs(fine_error) >= FINE_F2_TRIGGER;
+                const bool F1 = std::abs(fine_error) >= FINE_F1_TRIGGER;
 
                 if (F1 && !(C1 || F2)) {
                     const bool count_down = std::signbit(fine_error);
                     channel.read_counter += (!count_down) ? 1 : -1;
                 }
 
-                if (!F1 && !(C1 || F2) && std::abs(fine_error) < TWENTY_ARCSECONDS && !converged) {
+                if (!F1 && !(C1 || F2) && !converged) {
                     const double psi = TWENTY_ARCSECONDS * channel.read_counter;
                     std::cout << "Coarse align converged. True Angle: " << channel.theta * RAD_TO_DEG << ", Computed Angle: " << psi << std::endl;
                     converged = true;

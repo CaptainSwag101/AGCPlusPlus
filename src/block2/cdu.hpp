@@ -7,10 +7,23 @@
 
 namespace agcplusplus::block2 {
 
+// Angle-related constants.
 constexpr static double TWENTY_ARCSECONDS = 180 / std::pow(2, 15);
 constexpr static double DEG_TO_RAD = M_PI / 180;
 constexpr static double RAD_TO_DEG = 180 / M_PI;
 
+// Voltage-related constants.
+// The coarse and fine system transformers bring 28V RMS down to 5V RMS.
+constexpr double CDU_VOLTAGE = 5.0;
+constexpr double P2P_TO_RMS = 0.35355;
+// Coarse schmitt trigger is at 0.47 volts RMS, per Skylab PGNCS Mechanization Study Guide pg 3-25.
+// Other documentation is potentially erroneous.
+// Backed up by Mike Stewart's testing of flown CDUs.
+constexpr double COARSE_C1_TRIGGER = 0.47;
+constexpr double FINE_F2_TRIGGER = 4.0 * P2P_TO_RMS;    // 4 volts peak-to-peak
+constexpr double FINE_F1_TRIGGER = 0.200 * P2P_TO_RMS;  // 0.2 volts peak-to-peak
+
+// Bit positions for the read counter.
 constexpr uint16_t B0 = 1 << 0;
 constexpr uint16_t B1 = 1 << 1;
 constexpr uint16_t B2 = 1 << 2;
@@ -28,6 +41,7 @@ constexpr uint16_t B13 = 1 << 13;
 constexpr uint16_t B14 = 1 << 14;
 constexpr uint16_t B15 = 1 << 15;
 
+// Coarse system definitions.
 // These resistors have the cos- or sin-modulated 5V RMS voltage from the resolver.
 constexpr double COARSE_S1_RESISTOR = std::cos(22.5 * DEG_TO_RAD);
 constexpr double COARSE_S2_RESISTOR = std::cos(67.5 * DEG_TO_RAD);
@@ -42,48 +56,83 @@ constexpr double COARSE_S9_RESISTOR = std::sin(22.5 * DEG_TO_RAD);
 constexpr double COARSE_S10_RESISTOR = std::sin(11.25 * DEG_TO_RAD);
 constexpr double COARSE_S11_RESISTOR = std::sin(5.6 * DEG_TO_RAD);
 constexpr double COARSE_S12_RESISTOR = std::sin(2.8 * DEG_TO_RAD);
-// The coarse system transformers bring 28V RMS down to 5V RMS.
-constexpr double COARSE_VOLTAGE = 5.0;
 // This is the logic for closing any of the coarse switches S1-S12.
 // There is a value and mask, the mask being applied first and then the value checked.
 // There may be more than one value per switch.
-constexpr uint16_t DC1_VALUE1 = 0 | B14 | B13;
-constexpr uint16_t DC1_VALUE2 = ~DC1_VALUE1;
-constexpr uint16_t DC1_MASK = B15 | B14 | B13;
-constexpr uint16_t DC2_VALUE1 = 0 | B14 | 0;
-constexpr uint16_t DC2_VALUE2 = ~DC2_VALUE1;
-constexpr uint16_t DC2_MASK = DC1_MASK;
-constexpr uint16_t DC3_VALUE1 = B15 | B14 | B13;
-constexpr uint16_t DC3_VALUE2 = ~DC3_VALUE1;
-constexpr uint16_t DC3_MASK = DC1_MASK;
-constexpr uint16_t DC4_VALUE1 = 0 | 0 | B13;
-constexpr uint16_t DC4_VALUE2 = ~DC4_VALUE1;
-constexpr uint16_t DC4_MASK = DC1_MASK;
-constexpr uint16_t DC5_VALUE1 = 0 | B14 | B13;
-constexpr uint16_t DC5_VALUE2 = 0 | 0 | 0;
-constexpr uint16_t DC5_MASK = DC1_MASK;
-constexpr uint16_t DC6_VALUE1 = 0 | 0 | B13;
-constexpr uint16_t DC6_VALUE2 = 0 | B14 | 0;
-constexpr uint16_t DC6_MASK = DC1_MASK;
-constexpr uint16_t DC7_VALUE1 = B15 | B14 | B13;
-constexpr uint16_t DC7_VALUE2 = B15 | 0 | 0;
-constexpr uint16_t DC7_MASK = DC1_MASK;
-constexpr uint16_t DC8_VALUE1 = B15 | 0 | B13;
-constexpr uint16_t DC8_VALUE2 = B15 | B14 | 0;
-constexpr uint16_t DC8_MASK = DC1_MASK;
-constexpr uint16_t DC9_VALUE = 0;
-constexpr uint16_t DC9_MASK = B12;
-constexpr uint16_t DC10_VALUE = B11;
-constexpr uint16_t DC10_MASK = B11;
-constexpr uint16_t DC11_VALUE = B10;
-constexpr uint16_t DC11_MASK = B10;
-constexpr uint16_t DC12_VALUE = B9;
-constexpr uint16_t DC12_MASK = B9;
+constexpr uint16_t COARSE_S1_VALUE1 = 0 | B14 | B13;
+constexpr uint16_t COARSE_S1_VALUE2 = ~COARSE_S1_VALUE1;
+constexpr uint16_t COARSE_S1_MASK = B15 | B14 | B13;
+constexpr uint16_t COARSE_S2_VALUE1 = 0 | B14 | 0;
+constexpr uint16_t COARSE_S2_VALUE2 = ~COARSE_S2_VALUE1;
+constexpr uint16_t COARSE_S2_MASK = COARSE_S1_MASK;
+constexpr uint16_t COARSE_S3_VALUE1 = B15 | B14 | B13;
+constexpr uint16_t COARSE_S3_VALUE2 = ~COARSE_S3_VALUE1;
+constexpr uint16_t COARSE_S3_MASK = COARSE_S1_MASK;
+constexpr uint16_t COARSE_S4_VALUE1 = 0 | 0 | B13;
+constexpr uint16_t COARSE_S4_VALUE2 = ~COARSE_S4_VALUE1;
+constexpr uint16_t COARSE_S4_MASK = COARSE_S1_MASK;
+constexpr uint16_t COARSE_S5_VALUE1 = 0 | B14 | B13;
+constexpr uint16_t COARSE_S5_VALUE2 = 0 | 0 | 0;
+constexpr uint16_t COARSE_S5_MASK = COARSE_S1_MASK;
+constexpr uint16_t COARSE_S6_VALUE1 = 0 | 0 | B13;
+constexpr uint16_t COARSE_S6_VALUE2 = 0 | B14 | 0;
+constexpr uint16_t COARSE_S6_MASK = COARSE_S1_MASK;
+constexpr uint16_t COARSE_S7_VALUE1 = B15 | B14 | B13;
+constexpr uint16_t COARSE_S7_VALUE2 = B15 | 0 | 0;
+constexpr uint16_t COARSE_S7_MASK = COARSE_S1_MASK;
+constexpr uint16_t COARSE_S8_VALUE1 = B15 | 0 | B13;
+constexpr uint16_t COARSE_S8_VALUE2 = B15 | B14 | 0;
+constexpr uint16_t COARSE_S8_MASK = COARSE_S1_MASK;
+constexpr uint16_t COARSE_S9_VALUE = 0;
+constexpr uint16_t COARSE_S9_MASK = B12;
+constexpr uint16_t COARSE_S10_VALUE = B11;
+constexpr uint16_t COARSE_S10_MASK = B11;
+constexpr uint16_t COARSE_S11_VALUE = B10;
+constexpr uint16_t COARSE_S11_MASK = B10;
+constexpr uint16_t COARSE_S12_VALUE = B9;
+constexpr uint16_t COARSE_S12_MASK = B9;
+
+// Fine system definitions.
+// Yes the bit order is reversed now but the official documentation does it that way.
+constexpr uint16_t FINE_S1_VALUE1 = B8 | B9 | B10;
+constexpr uint16_t FINE_S1_VALUE2 = ~FINE_S1_VALUE1;
+constexpr uint16_t FINE_S1_MASK = B8 | B9 | B10;
+constexpr uint16_t FINE_S2_VALUE1 = 0 | B9 | B10;
+constexpr uint16_t FINE_S2_VALUE2 = ~FINE_S2_VALUE1;
+constexpr uint16_t FINE_S2_MASK = FINE_S1_MASK;
+constexpr uint16_t FINE_S3_VALUE1 = B8 | 0 | B10;
+constexpr uint16_t FINE_S3_VALUE2 = ~FINE_S3_VALUE1;
+constexpr uint16_t FINE_S3_MASK = FINE_S1_MASK;
+constexpr uint16_t FINE_S4_VALUE1 = 0 | 0 | B10;
+constexpr uint16_t FINE_S4_VALUE2 = ~FINE_S4_VALUE1;
+constexpr uint16_t FINE_S4_MASK = FINE_S1_MASK;
+constexpr uint16_t FINE_S5_VALUE1 = B10 | 0;
+constexpr uint16_t FINE_S5_VALUE2 = ~FINE_S5_VALUE1;
+constexpr uint16_t FINE_S5_MASK = B10 | B11;
+constexpr uint16_t FINE_S6_VALUE1 = B10 | B11;
+constexpr uint16_t FINE_S6_VALUE2 = ~FINE_S6_VALUE1;
+constexpr uint16_t FINE_S6_MASK = FINE_S5_MASK;
+constexpr uint16_t FINE_S7_VALUE = B11;
+constexpr uint16_t FINE_S7_MASK = B11;
+constexpr uint16_t FINE_S8_VALUE = B11;
+constexpr uint16_t FINE_S8_MASK = B11;
+constexpr uint16_t FINE_S9_VALUE = 0 | B10;
+constexpr uint16_t FINE_S9_MASK = B7 | B10;
+constexpr uint16_t FINE_S10_VALUE = B7 | B10;
+constexpr uint16_t FINE_S10_MASK = FINE_S9_MASK;
+constexpr uint16_t FINE_S11_VALUE = 0;
+constexpr uint16_t FINE_S11_MASK = B10;
+constexpr uint16_t FINE_S12_VALUE = 0 | 0;
+constexpr uint16_t FINE_S12_MASK = FINE_S9_MASK;
+constexpr uint16_t FINE_S13_VALUE = B7 | 0;
+constexpr uint16_t FINE_S13_MASK = FINE_S9_MASK;
+constexpr uint16_t FINE_S14_VALUE = B10;
+constexpr uint16_t FINE_S14_MASK = FINE_S11_MASK;
 
 class CduChannel {
 public:
-    double theta = 310.0 * DEG_TO_RAD; // Radians
-    uint16_t read_counter = static_cast<uint16_t>(310.0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
+    double theta = 28.0 * DEG_TO_RAD; // Radians
+    uint16_t read_counter = static_cast<uint16_t>(0.0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
 
     [[nodiscard]] double coarse_error() const;
     [[nodiscard]] double fine_error() const;
