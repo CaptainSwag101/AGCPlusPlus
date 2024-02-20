@@ -6,7 +6,63 @@
 
 namespace agcplusplus::block2 {
     double CduChannel::coarse_error() const {
-        return 0.0;
+        const double cos_voltage = std::cos(theta) * COARSE_VOLTAGE;
+        const double sin_voltage = std::sin(theta) * COARSE_VOLTAGE;
+
+        // Determine the output at the op-amp by summing up the coarse system switches,
+        // per the DC1-DC12 logic dependent on the set bits of the read counter.
+        double amplifier_output = 0.0;
+
+        // Figure out what appropriate conditions for any of the switches have been met.
+        // Sine section.
+        if ((read_counter & DC1_MASK) == (DC1_VALUE1 & DC1_MASK) ||
+            (read_counter & DC1_MASK) == (DC1_VALUE2 & DC1_MASK)) {
+            amplifier_output += -sin_voltage * COARSE_S1_RESISTOR;
+        }
+        if ((read_counter & DC2_MASK) == (DC2_VALUE1 & DC2_MASK) ||
+            (read_counter & DC2_MASK) == (DC2_VALUE2 & DC2_MASK)) {
+            amplifier_output += -sin_voltage * COARSE_S2_RESISTOR;
+        }
+        if ((read_counter & DC3_MASK) == (DC3_VALUE1 & DC3_MASK) ||
+            (read_counter & DC3_MASK) == (DC3_VALUE2 & DC3_MASK)) {
+            amplifier_output += sin_voltage * COARSE_S3_RESISTOR;
+        }
+        if ((read_counter & DC4_MASK) == (DC4_VALUE1 & DC4_MASK) ||
+            (read_counter & DC4_MASK) == (DC4_VALUE2 & DC4_MASK)) {
+            amplifier_output += sin_voltage * COARSE_S4_RESISTOR;
+        }
+        // Cosine section.
+        if ((read_counter & DC5_MASK) == (DC5_VALUE1 & DC5_MASK) ||
+            (read_counter & DC5_MASK) == (DC5_VALUE2 & DC5_MASK)) {
+            amplifier_output += -cos_voltage * COARSE_S5_RESISTOR;
+        }
+        if ((read_counter & DC6_MASK) == (DC6_VALUE1 & DC6_MASK) ||
+            (read_counter & DC6_MASK) == (DC6_VALUE2 & DC6_MASK)) {
+            amplifier_output += -cos_voltage * COARSE_S6_RESISTOR;
+        }
+        if ((read_counter & DC7_MASK) == (DC7_VALUE1 & DC7_MASK) ||
+            (read_counter & DC7_MASK) == (DC7_VALUE2 & DC7_MASK)) {
+            amplifier_output += cos_voltage * COARSE_S7_RESISTOR;
+        }
+        if ((read_counter & DC8_MASK) == (DC8_VALUE1 & DC8_MASK) ||
+            (read_counter & DC8_MASK) == (DC8_VALUE2 & DC8_MASK)) {
+            amplifier_output += cos_voltage * COARSE_S8_RESISTOR;
+        }
+        // Coarse-fine common switches.
+        if ((read_counter & DC9_MASK) == (DC9_VALUE & DC9_MASK)) {
+            amplifier_output += COARSE_VOLTAGE * COARSE_S9_RESISTOR;
+        }
+        if ((read_counter & DC10_MASK) == (DC10_VALUE & DC10_MASK)) {
+            amplifier_output += COARSE_VOLTAGE * COARSE_S10_RESISTOR;
+        }
+        if ((read_counter & DC11_MASK) == (DC11_VALUE & DC11_MASK)) {
+            amplifier_output += COARSE_VOLTAGE * COARSE_S11_RESISTOR;
+        }
+        if ((read_counter & DC12_MASK) == (DC12_VALUE & DC12_MASK)) {
+            amplifier_output += COARSE_VOLTAGE * COARSE_S12_RESISTOR;
+        }
+
+        return amplifier_output / COARSE_VOLTAGE;
     }
 
     double CduChannel::fine_error() const {
@@ -14,6 +70,8 @@ namespace agcplusplus::block2 {
     }
 
     void Cdu::tick_cmc() {
+        // If our ISS timing thread hasn't been created yet, do so.
+        // This should only happen once.
         if (!iss_timing_thread.joinable()) {
             iss_timing_thread = std::thread(&Cdu::tick_iss, this);
         }
@@ -33,8 +91,10 @@ namespace agcplusplus::block2 {
         if (pulse_phase1) {
             //std::cout << "phase1" << std::endl;
             for (auto& channel : channels) {
-                const double coarse_error = channel.coarse_error();
-                const double fine_error = channel.fine_error();
+                static double prev_coarse_error = 0.0;
+
+                const double coarse_error = channel.coarse_error() * RAD_TO_DEG;
+                const double fine_error = channel.fine_error() * RAD_TO_DEG;
 
                 // Coarse and fine mixing logic
                 const bool C1 = std::abs(coarse_error) >= 7.0;
@@ -47,6 +107,10 @@ namespace agcplusplus::block2 {
                     count_down = std::signbit(fine_error);
                 }
 
+                if (coarse_error != prev_coarse_error) {
+                    prev_coarse_error = coarse_error;
+                    std::cout << "Coarse error: " << coarse_error << std::endl;
+                }
                 //std::cout << coarse_error << std::endl;
                 //std::cout << fine_error << std::endl;
 
@@ -80,8 +144,8 @@ namespace agcplusplus::block2 {
             static bool converged = false;
 
             for (auto& channel : channels) {
-                const double coarse_error = channel.coarse_error();
-                const double fine_error = channel.fine_error();
+                const double coarse_error = channel.coarse_error() * RAD_TO_DEG;
+                const double fine_error = channel.fine_error() * RAD_TO_DEG;
 
                 // Coarse and fine mixing logic
                 const bool C1 = std::abs(coarse_error) >= 7.0;
@@ -101,6 +165,10 @@ namespace agcplusplus::block2 {
             }
 
             //auto ended_at = std::chrono::steady_clock::now();
+
+            // Invert the state of the 800 cps ISS-reference square waves
+            iss_inphase_sign = !iss_inphase_sign;
+            iss_outphase_sign = !iss_outphase_sign;
 
             std::this_thread::sleep_until(x);
         }
