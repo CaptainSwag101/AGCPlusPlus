@@ -131,7 +131,26 @@ namespace agcplusplus::block2 {
         // Only (S9 OR S10) OR (S12 OR S13) may be active at a time.
         if (S9) {
             ladder_amp_voltage += sin_amp_voltage;
-            junction_voltage += sin_amp_voltage;
+            junction_voltage += sin_amp_voltage * FINE_SIN_11_25;
+        } else if (S10) {
+            ladder_amp_voltage += sin_amp_voltage;
+            // I don't understand how to figure out the "bias" resistor voltage drop
+            // so I'm electing to fudge it and hope it works out.
+            // This takes the percent resistance of a sin(11.25) which is 125.5 kilo-ohms,
+            // and then divides that by (240 / 125.5) to give me roughly
+            // what a 240k resistor would do... maybe?
+            junction_voltage += (sin_amp_voltage * FINE_SIN_11_25) / 1.91235059761;
+        } else if (S12) {
+            ladder_amp_voltage += cos_amp_voltage;
+            junction_voltage += cos_amp_voltage * FINE_SIN_11_25;
+        } else if (S13) {
+            ladder_amp_voltage += cos_amp_voltage;
+            // I don't understand how to figure out the "bias" resistor voltage drop
+            // so I'm electing to fudge it and hope it works out.
+            // This takes the percent resistance of a sin(11.25) which is 125.5 kilo-ohms,
+            // and then divides that by (240 / 125.5) to give me roughly
+            // what a 240k resistor would do... maybe?
+            junction_voltage += (cos_amp_voltage * FINE_SIN_11_25) / 1.91235059761;
         }
 
         // Main summing amplifier

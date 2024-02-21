@@ -135,6 +135,7 @@ namespace agcplusplus::block2 {
     constexpr uint16_t FINE_S20_MASK = B1;
     constexpr uint16_t FINE_S21_MASK = B0;
 
+    constexpr double FINE_SIN_5_6 = std::sin(5.6 * DEG_TO_RAD);
     constexpr double FINE_SIN_11_25 = std::sin(11.25 * DEG_TO_RAD);
     constexpr double FINE_SIN_33_75 = std::sin(33.75 * DEG_TO_RAD);
     constexpr double FINE_SIN_56_25 = std::sin(56.25 * DEG_TO_RAD);
