@@ -89,6 +89,14 @@ namespace agcplusplus::block2 {
         const bool S12 = (read_counter & FINE_S12_MASK) == (FINE_S12_VALUE & FINE_S12_MASK);
         const bool S13 = (read_counter & FINE_S13_MASK) == (FINE_S13_VALUE & FINE_S13_MASK);
         const bool S14 = (read_counter & FINE_S14_MASK) == (FINE_S14_VALUE & FINE_S14_MASK);
+        const bool S15 = (read_counter & FINE_S15_MASK) == FINE_S15_MASK;
+        const bool S16 = (read_counter & FINE_S16_MASK) == FINE_S16_MASK;
+        const bool S17 = (read_counter & FINE_S17_MASK) == FINE_S17_MASK;
+        const bool S18 = (read_counter & FINE_S18_MASK) == FINE_S18_MASK;
+        const bool S19 = (read_counter & FINE_S19_MASK) == FINE_S19_MASK;
+        const bool S20 = (read_counter & FINE_S20_MASK) == FINE_S20_MASK;
+        const bool S21 = (read_counter & FINE_S21_MASK) == FINE_S21_MASK;
+        //const bool S22 = unknown_trunnion_thing;
 
         // Invert voltages per switch logic
         if (S6) {
@@ -132,7 +140,8 @@ namespace agcplusplus::block2 {
         if (S9) {
             ladder_amp_voltage += sin_amp_voltage;
             junction_voltage += sin_amp_voltage * FINE_SIN_11_25;
-        } else if (S10) {
+        }
+        if (S10) {
             ladder_amp_voltage += sin_amp_voltage;
             // I don't understand how to figure out the "bias" resistor voltage drop
             // so I'm electing to fudge it and hope it works out.
@@ -140,10 +149,12 @@ namespace agcplusplus::block2 {
             // and then divides that by (240 / 125.5) to give me roughly
             // what a 240k resistor would do... maybe?
             junction_voltage += (sin_amp_voltage * FINE_SIN_11_25) / 1.91235059761;
-        } else if (S12) {
+        }
+        if (S12) {
             ladder_amp_voltage += cos_amp_voltage;
             junction_voltage += cos_amp_voltage * FINE_SIN_11_25;
-        } else if (S13) {
+        }
+        if (S13) {
             ladder_amp_voltage += cos_amp_voltage;
             // I don't understand how to figure out the "bias" resistor voltage drop
             // so I'm electing to fudge it and hope it works out.
@@ -152,6 +163,18 @@ namespace agcplusplus::block2 {
             // what a 240k resistor would do... maybe?
             junction_voltage += (cos_amp_voltage * FINE_SIN_11_25) / 1.91235059761;
         }
+        ladder_amp_voltage = -ladder_amp_voltage;   // Invert to be in-phase
+        // Do K*sin(psi) by adding up the angles for switches S15-S22 and then performing sin() on that.
+        double k_angle = 0.0;
+        if (S15) k_angle += 5.6;
+        if (S16) k_angle += 2.8;
+        if (S17) k_angle += 1.4;
+        if (S18) k_angle += 0.7;
+        if (S19) k_angle += 0.35;
+        if (S20) k_angle += 0.17;
+        if (S21) k_angle += 0.088;
+        // Finally, add that attenuated voltage to the main summing junction
+        junction_voltage += ladder_amp_voltage * std::sin(k_angle * DEG_TO_RAD);
 
         // Main summing amplifier
         if (S1) {
