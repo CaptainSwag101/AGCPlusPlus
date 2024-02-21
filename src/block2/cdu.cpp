@@ -68,12 +68,91 @@ namespace agcplusplus::block2 {
 
     double CduChannel::fine_error() const {
         // 16X resolver speed
-        const double cos_voltage = std::cos(16.0 * theta) * CDU_VOLTAGE;
-        const double sin_voltage = std::sin(16.0 * theta) * CDU_VOLTAGE;
+        double cos_voltage = std::cos(16.0 * theta) * CDU_VOLTAGE;
+        double sin_voltage = std::sin(16.0 * theta) * CDU_VOLTAGE;
 
+        // Switch booleans
+        const bool S1 = (read_counter & FINE_S1_MASK) == (FINE_S1_VALUE1 & FINE_S1_MASK) ||
+            (read_counter & FINE_S1_MASK) == (FINE_S1_VALUE2 & FINE_S1_MASK);
+        const bool S2 = (read_counter & FINE_S2_MASK) == (FINE_S2_VALUE1 & FINE_S2_MASK) ||
+            (read_counter & FINE_S2_MASK) == (FINE_S2_VALUE2 & FINE_S2_MASK);
+        const bool S3 = (read_counter & FINE_S3_MASK) == (FINE_S3_VALUE1 & FINE_S3_MASK) ||
+            (read_counter & FINE_S3_MASK) == (FINE_S3_VALUE2 & FINE_S3_MASK);
+        const bool S4 = (read_counter & FINE_S4_MASK) == (FINE_S4_VALUE1 & FINE_S4_MASK) ||
+            (read_counter & FINE_S4_MASK) == (FINE_S4_VALUE2 & FINE_S4_MASK);
+        const bool S6 = (read_counter & FINE_S6_MASK) == (FINE_S6_VALUE1 & FINE_S6_MASK) ||
+            (read_counter & FINE_S6_MASK) == (FINE_S6_VALUE2 & FINE_S6_MASK);
+        const bool S8 = (read_counter & FINE_S8_MASK) == (FINE_S8_VALUE & FINE_S8_MASK);
+        const bool S9 = (read_counter & FINE_S9_MASK) == (FINE_S9_VALUE & FINE_S9_MASK);
+        const bool S10 = (read_counter & FINE_S10_MASK) == (FINE_S10_VALUE & FINE_S10_MASK);
+        const bool S11 = (read_counter & FINE_S11_MASK) == (FINE_S11_VALUE & FINE_S11_MASK);
+        const bool S12 = (read_counter & FINE_S12_MASK) == (FINE_S12_VALUE & FINE_S12_MASK);
+        const bool S13 = (read_counter & FINE_S13_MASK) == (FINE_S13_VALUE & FINE_S13_MASK);
+        const bool S14 = (read_counter & FINE_S14_MASK) == (FINE_S14_VALUE & FINE_S14_MASK);
 
+        // Invert voltages per switch logic
+        if (S6) {
+            sin_voltage = -sin_voltage;
+        }
+        if (S8) {
+            cos_voltage = -cos_voltage;
+        }
 
-        return 0.0;
+        // Cos and Sin amplifier
+        double cos_amp_voltage = 0.0;
+        double sin_amp_voltage = 0.0;
+        if (S1) {
+            cos_amp_voltage += cos_voltage * FINE_COS_11_25;
+            sin_amp_voltage += sin_voltage * FINE_SIN_11_25;
+        }
+        if (S2) {
+            cos_amp_voltage += cos_voltage * FINE_COS_33_75;
+            sin_amp_voltage += sin_voltage * FINE_SIN_33_75;
+        }
+        if (S3) {
+            cos_amp_voltage += cos_voltage * FINE_COS_56_25;
+            sin_amp_voltage += sin_voltage * FINE_SIN_56_25;
+        }
+        if (S4) {
+            cos_amp_voltage += cos_voltage * FINE_COS_78_75;
+            sin_amp_voltage += sin_voltage * FINE_SIN_78_75;
+        }
+        // Only S11 OR S14 may be active at a time.
+        if (S11) {
+            cos_amp_voltage += sin_amp_voltage;
+        }
+        if (S14) {
+            sin_amp_voltage += cos_amp_voltage;
+        }
+
+        // Ladder amplifier and main summing junction
+        double ladder_amp_voltage = 0.0;
+        double junction_voltage = 0.0;
+        // Only (S9 OR S10) OR (S12 OR S13) may be active at a time.
+        if (S9) {
+            ladder_amp_voltage += sin_amp_voltage;
+            junction_voltage += sin_amp_voltage;
+        }
+
+        // Main summing amplifier
+        if (S1) {
+            junction_voltage += cos_voltage * FINE_SIN_11_25;
+            junction_voltage += sin_voltage * FINE_COS_11_25;
+        }
+        if (S2) {
+            junction_voltage += cos_voltage * FINE_SIN_33_75;
+            junction_voltage += sin_voltage * FINE_COS_33_75;
+        }
+        if (S3) {
+            junction_voltage += cos_voltage * FINE_SIN_56_25;
+            junction_voltage += sin_voltage * FINE_COS_56_25;
+        }
+        if (S4) {
+            junction_voltage += cos_voltage * FINE_SIN_78_75;
+            junction_voltage += sin_voltage * FINE_COS_78_75;
+        }
+
+        return junction_voltage;
     }
 
     void Cdu::tick_cmc() {
@@ -100,10 +179,8 @@ namespace agcplusplus::block2 {
             for (size_t i = 0; i < channels.size(); ++i) {
                 auto& channel = channels[i];
 
-                static double prev_coarse_error = 0.0;
-
                 const double coarse_error = channel.coarse_error();
-                const double fine_error = channel.fine_error();
+                const double fine_error = -channel.fine_error();
 
                 // Coarse and fine mixing logic
                 const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
@@ -117,9 +194,14 @@ namespace agcplusplus::block2 {
                     count_down = std::signbit(fine_error);
                 }
 
-                if (coarse_error != prev_coarse_error) {
-                    prev_coarse_error = coarse_error;
-                    //std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                if (coarse_error != channel.prev_coarse_error) {
+                    channel.prev_coarse_error = coarse_error;
+                    std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                }
+
+                if (fine_error != channel.prev_fine_error) {
+                    channel.prev_fine_error = fine_error;
+                    std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
                 }
 
                 if (C1 || F2) {
@@ -169,6 +251,16 @@ namespace agcplusplus::block2 {
                 const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
                 const bool F2 = std::abs(fine_error) >= FINE_F2_TRIGGER;
                 const bool F1 = std::abs(fine_error) >= FINE_F1_TRIGGER;
+
+                if (coarse_error != channel.prev_coarse_error) {
+                    channel.prev_coarse_error = coarse_error;
+                    std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                }
+
+                if (fine_error != channel.prev_fine_error) {
+                    channel.prev_fine_error = fine_error;
+                    std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                }
 
                 if (F1 && !(C1 || F2)) {
                     const bool count_down = std::signbit(fine_error);
