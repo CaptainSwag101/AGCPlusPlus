@@ -80,8 +80,11 @@ namespace agcplusplus::block2 {
             (read_counter & FINE_S3_MASK) == (FINE_S3_VALUE2 & FINE_S3_MASK);
         const bool S4 = (read_counter & FINE_S4_MASK) == (FINE_S4_VALUE1 & FINE_S4_MASK) ||
             (read_counter & FINE_S4_MASK) == (FINE_S4_VALUE2 & FINE_S4_MASK);
+        const bool S5 = (read_counter & FINE_S5_MASK) == (FINE_S5_VALUE1 & FINE_S5_MASK) ||
+            (read_counter & FINE_S5_MASK) == (FINE_S5_VALUE2 & FINE_S5_MASK);
         const bool S6 = (read_counter & FINE_S6_MASK) == (FINE_S6_VALUE1 & FINE_S6_MASK) ||
             (read_counter & FINE_S6_MASK) == (FINE_S6_VALUE2 & FINE_S6_MASK);
+        const bool S7 = (read_counter & FINE_S7_MASK) == (FINE_S7_VALUE & FINE_S7_MASK);
         const bool S8 = (read_counter & FINE_S8_MASK) == (FINE_S8_VALUE & FINE_S8_MASK);
         const bool S9 = (read_counter & FINE_S9_MASK) == (FINE_S9_VALUE & FINE_S9_MASK);
         const bool S10 = (read_counter & FINE_S10_MASK) == (FINE_S10_VALUE & FINE_S10_MASK);
@@ -99,11 +102,32 @@ namespace agcplusplus::block2 {
         //const bool S22 = unknown_trunnion_thing;
 
         // Invert voltages per switch logic
-        if (S6) {
+         if (S6) {
             sin_voltage = -sin_voltage;
         }
         if (S8) {
             cos_voltage = -cos_voltage;
+        }
+
+        // This is the final voltage sent to the MSA
+        double junction_voltage = 0.0;
+
+        // Main summing amplifier
+        if (S1) {
+            junction_voltage += cos_voltage * FINE_SIN_11_25;
+            junction_voltage += sin_voltage * FINE_COS_11_25;
+        }
+        if (S2) {
+            junction_voltage += cos_voltage * FINE_SIN_33_75;
+            junction_voltage += sin_voltage * FINE_COS_33_75;
+        }
+        if (S3) {
+            junction_voltage += cos_voltage * FINE_SIN_56_25;
+            junction_voltage += sin_voltage * FINE_COS_56_25;
+        }
+        if (S4) {
+            junction_voltage += cos_voltage * FINE_SIN_78_75;
+            junction_voltage += sin_voltage * FINE_COS_78_75;
         }
 
         // Cos and Sin amplifier
@@ -126,42 +150,38 @@ namespace agcplusplus::block2 {
             sin_amp_voltage += sin_voltage * FINE_SIN_78_75;
         }
         // Only S11 OR S14 may be active at a time.
+        // Addition is actually subtraction because the amplifiers invert.
         if (S11) {
-            cos_amp_voltage += sin_amp_voltage;
+            cos_amp_voltage -= sin_amp_voltage;
         }
         if (S14) {
-            sin_amp_voltage += cos_amp_voltage;
+            sin_amp_voltage -= cos_amp_voltage;
         }
 
-        // Ladder amplifier and main summing junction
+        // Inverted amplifiers
+        cos_amp_voltage = -cos_amp_voltage;
+        sin_amp_voltage = -sin_amp_voltage;
+
+        // Ladder amplifier
         double ladder_amp_voltage = 0.0;
-        double junction_voltage = 0.0;
         // Only (S9 OR S10) OR (S12 OR S13) may be active at a time.
         if (S9) {
             ladder_amp_voltage += sin_amp_voltage;
-            junction_voltage += sin_amp_voltage * FINE_SIN_11_25;
+            junction_voltage += sin_amp_voltage * 0.199203187251;
         }
         if (S10) {
             ladder_amp_voltage += sin_amp_voltage;
-            // I don't understand how to figure out the "bias" resistor voltage drop
-            // so I'm electing to fudge it and hope it works out.
-            // This takes the percent resistance of a sin(11.25) which is 125.5 kilo-ohms,
-            // and then divides that by (240 / 125.5) to give me roughly
-            // what a 240k resistor would do... maybe?
-            junction_voltage += (sin_amp_voltage * FINE_SIN_11_25) / 1.91235059761;
+            // Bias voltage divider + 240K resistor
+            junction_voltage += sin_amp_voltage * 0.104166666667 * (62.0 / 10062.0);   // Bias resistance 25K / 240K
         }
         if (S12) {
             ladder_amp_voltage += cos_amp_voltage;
-            junction_voltage += cos_amp_voltage * FINE_SIN_11_25;
+            junction_voltage += cos_amp_voltage * 0.199203187251;
         }
         if (S13) {
             ladder_amp_voltage += cos_amp_voltage;
-            // I don't understand how to figure out the "bias" resistor voltage drop
-            // so I'm electing to fudge it and hope it works out.
-            // This takes the percent resistance of a sin(11.25) which is 125.5 kilo-ohms,
-            // and then divides that by (240 / 125.5) to give me roughly
-            // what a 240k resistor would do... maybe?
-            junction_voltage += (cos_amp_voltage * FINE_SIN_11_25) / 1.91235059761;
+            // Bias voltage divider + 240K resistor
+            junction_voltage += cos_amp_voltage * 0.104166666667 * (62.0 / 10062.0);
         }
         ladder_amp_voltage = -ladder_amp_voltage;   // Invert to be in-phase
         // Do K*sin(psi) by adding up the angles for switches S15-S22 and then performing sin() on that.
@@ -174,27 +194,11 @@ namespace agcplusplus::block2 {
         if (S20) k_angle += 0.17;
         if (S21) k_angle += 0.088;
         // Finally, add that attenuated voltage to the main summing junction
-        junction_voltage += ladder_amp_voltage * std::sin(k_angle * DEG_TO_RAD);
+        double mult = std::sin(k_angle * DEG_TO_RAD);
+        double diff = ladder_amp_voltage * mult;
+        junction_voltage += diff;
 
-        // Main summing amplifier
-        if (S1) {
-            junction_voltage += cos_voltage * FINE_SIN_11_25;
-            junction_voltage += sin_voltage * FINE_COS_11_25;
-        }
-        if (S2) {
-            junction_voltage += cos_voltage * FINE_SIN_33_75;
-            junction_voltage += sin_voltage * FINE_COS_33_75;
-        }
-        if (S3) {
-            junction_voltage += cos_voltage * FINE_SIN_56_25;
-            junction_voltage += sin_voltage * FINE_COS_56_25;
-        }
-        if (S4) {
-            junction_voltage += cos_voltage * FINE_SIN_78_75;
-            junction_voltage += sin_voltage * FINE_COS_78_75;
-        }
-
-        return junction_voltage;
+        return -junction_voltage;
     }
 
     void Cdu::tick_cmc() {
@@ -222,7 +226,7 @@ namespace agcplusplus::block2 {
                 auto& channel = channels[i];
 
                 const double coarse_error = channel.coarse_error();
-                const double fine_error = -channel.fine_error();
+                const double fine_error = channel.fine_error();
 
                 // Coarse and fine mixing logic
                 const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
