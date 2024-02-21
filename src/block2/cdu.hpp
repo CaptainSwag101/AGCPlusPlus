@@ -146,8 +146,8 @@ namespace agcplusplus::block2 {
 
     class CduChannel {
     public:
-        double theta = 19.65 * DEG_TO_RAD; // Radians
-        uint16_t read_counter = 0;  // Multiplied by 20 arc-seconds to get degrees
+        double theta = 0 * DEG_TO_RAD; // Radians
+        uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
         double prev_coarse_error = 0.0;
         double prev_fine_error = 0.0;
 

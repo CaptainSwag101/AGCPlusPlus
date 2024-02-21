@@ -247,7 +247,7 @@ namespace agcplusplus::block2 {
 
                 if (fine_error != channel.prev_fine_error) {
                     channel.prev_fine_error = fine_error;
-                    std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                    std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG / 16 << std::endl;
                 }
 
                 if (C1 || F2) {
@@ -305,7 +305,7 @@ namespace agcplusplus::block2 {
 
                 if (fine_error != channel.prev_fine_error) {
                     channel.prev_fine_error = fine_error;
-                    std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                    std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG / 16 << std::endl;
                 }
 
                 if (F1 && !(C1 || F2)) {
@@ -329,7 +329,7 @@ namespace agcplusplus::block2 {
                 //}
 
                 // Debug hack: constantly rotate the gimbal
-                //channel.theta += 0.01 * DEG_TO_RAD;
+                channel.theta += 0.001 * DEG_TO_RAD;
             }
 
             //auto ended_at = std::chrono::steady_clock::now();
