@@ -240,7 +240,7 @@ static void rsc(Cpu& cpu) {
 }
 
 static void rsct(Cpu& cpu) {
-    for (word c = 0; c < 20; ++c) {
+    for (auto c = 0; c < cpu.counters.size(); ++c) {
         if (cpu.counters[c] != COUNT_DIRECTION_NONE) {
             cpu.write_bus |= c + 024;
             // Reset the counter request
