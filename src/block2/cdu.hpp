@@ -147,13 +147,34 @@ namespace agcplusplus::block2 {
     constexpr double FINE_COS_56_25 = FINE_SIN_33_75;
     constexpr double FINE_COS_78_75 = FINE_SIN_11_25;
 
+    enum COUNT_DIRECTION {
+        NONE,
+        UP,
+        DOWN,
+    };
+
+    enum COUNT_SPEED {
+        LOW,            // 800 cps
+        HIGH            // 12800 cps
+    };
+
+    enum MODE {
+        NORMAL,
+        COARSE_ALIGN
+    };
+
     class CduChannel {
     public:
-        double theta = 60.0 * DEG_TO_RAD; // Radians
+        double theta = 70.0 * DEG_TO_RAD; // Radians
         uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
+        uint16_t prev_read_counter = 0;
         double prev_coarse_error = 0.0;
         double prev_fine_error = 0.0;
         bool zero_discrete = false;
+        bool should_count = false;
+        COUNT_DIRECTION count_direction = NONE;
+        COUNT_SPEED count_speed = HIGH;
+        MODE mode = NORMAL;
 
         [[nodiscard]] double coarse_error() const;
         [[nodiscard]] double fine_error(double msa_gain) const;
@@ -163,8 +184,8 @@ namespace agcplusplus::block2 {
     public:
         uint64_t cur_state = UINT64_MAX;
         uint64_t prev_state = 0;
-        bool iss_inphase_sign = false;
-        bool iss_outphase_sign = !iss_inphase_sign;
+        bool iss_phase1_state = false;
+        bool prev_iss_phase1_state = iss_phase1_state;
 
         void tick_cmc();
         [[noreturn]] void tick_iss();

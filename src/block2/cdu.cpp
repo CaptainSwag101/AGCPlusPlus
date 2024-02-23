@@ -220,7 +220,6 @@ namespace agcplusplus::block2 {
 
         if (pulse_phase1) {
             //std::cout << "phase1" << std::endl;
-            refresh_channels();
         }
 
         if (pulse_phase2) {
@@ -233,6 +232,24 @@ namespace agcplusplus::block2 {
 
         if (pulse_phase4) {
             //std::cout << "phase4" << std::endl;
+            refresh_channels();
+
+            // Perform 12.8 kcps read counter activity if commanded
+            for (size_t i = 0; i < channels.size(); ++i) {
+                auto& channel = channels[i];
+
+                // Keep track of the previous read counter state to see if we need to pulse the AGC.
+                const uint16_t prev_readcounter_div2 = channel.read_counter / 2;
+
+                if (channel.mode != COARSE_ALIGN && channel.should_count) {
+                    channel.read_counter += channel.count_direction == DOWN ? -1 : 1;
+                    channel.should_count = false;
+                }
+
+                if (channel.count_direction != NONE && channel.read_counter / 2 != prev_readcounter_div2) {
+                    Agc::cpu.counters[COUNTER_CDUX + i] = (channel.count_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
+                }
+            }
         }
 
         if (pulse_phase4_slow) {
@@ -245,13 +262,16 @@ namespace agcplusplus::block2 {
             auto started_at = std::chrono::steady_clock::now();
             auto x = started_at + std::chrono::microseconds(1250);  // 800 Hz
 
-            refresh_channels();
-
-            //auto ended_at = std::chrono::steady_clock::now();
+            for (auto& channel : channels) {
+                if (channel.count_direction != NONE && channel.count_speed == LOW) {
+                    channel.should_count = true;
+                }
+            }
 
             // Invert the state of the 800 cps ISS-reference square waves
-            iss_inphase_sign = !iss_inphase_sign;
-            iss_outphase_sign = !iss_outphase_sign;
+            iss_phase1_state = !iss_phase1_state;
+
+            //auto ended_at = std::chrono::steady_clock::now();
 
             std::this_thread::sleep_until(x);
         }
@@ -277,11 +297,24 @@ namespace agcplusplus::block2 {
             const bool F2 = std::abs(fine_error) >= FINE_F2_TRIGGER;
             const bool F1 = std::abs(fine_error) >= FINE_F1_TRIGGER;
 
+            // Set count direction, or none if no error signals exceed thresholds.
             bool count_down = false;
             if (C1) {
                 count_down = std::signbit(coarse_error);
-            } else if (F2) {
+                channel.count_direction = count_down ? DOWN : UP;
+            } else if (F2 || F1) {
                 count_down = std::signbit(fine_error);
+                channel.count_direction = count_down ? DOWN : UP;
+            } else {
+                channel.count_direction = NONE;
+            }
+
+            // Based on error signals, set count speed.
+            if (C1 || F2) {
+                channel.count_speed = HIGH;
+                channel.should_count = true;
+            } else if (F1) {
+                channel.count_speed = LOW;
             }
 
             if (coarse_error != channel.prev_coarse_error) {
@@ -292,29 +325,6 @@ namespace agcplusplus::block2 {
             if (fine_error != channel.prev_fine_error) {
                 channel.prev_fine_error = fine_error;
                 //std::cout << "Fine error: " << fine_error / (CDU_VOLTAGE * fine_gain) * RAD_TO_DEG / 16 << std::endl;
-            }
-
-            if (C1 || F2) {
-                // Keep track of the previous read counter state to see if we need to pulse the AGC.
-                const uint16_t prev_div2_read_counter = channel.read_counter / 2;
-
-                channel.read_counter += (!count_down) ? 1 : -1;
-
-                const uint16_t div2_read_counter = channel.read_counter / 2;
-                if (prev_div2_read_counter != div2_read_counter) {
-                    //std::cout << "Pulsed CMC!" << std::endl;
-                    Agc::cpu.counters[COUNTER_CDUX + i] = (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
-                }
-            } else if (F1) {
-                // Keep track of the previous read counter state to see if we need to pulse the AGC.
-                const uint16_t prev_div2_read_counter = channel.read_counter / 2;
-
-                channel.read_counter += (!count_down) ? 1 : -1;
-
-                const uint16_t div2_read_counter = channel.read_counter / 2;
-                if (prev_div2_read_counter != div2_read_counter) {
-                    Agc::cpu.counters[COUNTER_CDUX + i] = (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
-                }
             }
         }
     }
