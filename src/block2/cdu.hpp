@@ -135,14 +135,17 @@ namespace agcplusplus::block2 {
     constexpr uint16_t FINE_S20_MASK = B1;
     constexpr uint16_t FINE_S21_MASK = B0;
 
-    constexpr double FINE_SIN_11_25 = std::sin(11.25 * DEG_TO_RAD);
-    constexpr double FINE_SIN_33_75 = std::sin(33.75 * DEG_TO_RAD);
-    constexpr double FINE_SIN_56_25 = std::sin(56.25 * DEG_TO_RAD);
-    constexpr double FINE_SIN_78_75 = std::sin(78.75 * DEG_TO_RAD);
-    constexpr double FINE_COS_11_25 = std::cos(11.25 * DEG_TO_RAD);
-    constexpr double FINE_COS_33_75 = std::cos(33.75 * DEG_TO_RAD);
-    constexpr double FINE_COS_56_25 = std::cos(56.25 * DEG_TO_RAD);
-    constexpr double FINE_COS_78_75 = std::cos(78.75 * DEG_TO_RAD);
+    constexpr double FINE_BIAS = (62.0 / 10062.0);
+    constexpr double FINE_11_25_BIT = (25000.0 / 125500.0);
+    constexpr double FINE_240K = (25000.0 / 240000.0);
+    constexpr double FINE_SIN_11_25 = (25000.0 / 128000.0);
+    constexpr double FINE_SIN_33_75 = (25000.0 / 45000.0);
+    constexpr double FINE_SIN_56_25 = (25000.0 / 30000.0);
+    constexpr double FINE_SIN_78_75 = (25000.0 / 25500.0);
+    constexpr double FINE_COS_11_25 = FINE_SIN_78_75;
+    constexpr double FINE_COS_33_75 = FINE_SIN_56_25;
+    constexpr double FINE_COS_56_25 = FINE_SIN_33_75;
+    constexpr double FINE_COS_78_75 = FINE_SIN_11_25;
 
     class CduChannel {
     public:
@@ -153,7 +156,7 @@ namespace agcplusplus::block2 {
         bool zero_discrete = false;
 
         [[nodiscard]] double coarse_error() const;
-        [[nodiscard]] double fine_error() const;
+        [[nodiscard]] double fine_error(double msa_gain) const;
     };
 
     class Cdu {

@@ -66,10 +66,10 @@ namespace agcplusplus::block2 {
         return amplifier_output;
     }
 
-    double CduChannel::fine_error() const {
+    double CduChannel::fine_error(double msa_gain) const {
         // 16X resolver speed
-        double cos_voltage = std::cos(16.0 * theta) * CDU_VOLTAGE;
-        double sin_voltage = std::sin(16.0 * theta) * CDU_VOLTAGE;
+        double cos_voltage = std::cos(16.0 * theta);
+        double sin_voltage = std::sin(16.0 * theta);
 
         // Switch booleans
         const bool S1 = (read_counter & FINE_S1_MASK) == (FINE_S1_VALUE1 & FINE_S1_MASK) ||
@@ -167,40 +167,36 @@ namespace agcplusplus::block2 {
         // Only (S9 OR S10) OR (S12 OR S13) may be active at a time.
         if (S9) {
             ladder_amp_voltage += sin_amp_voltage;
-            junction_voltage += sin_amp_voltage * 0.199203187251;
+            junction_voltage += sin_amp_voltage * FINE_11_25_BIT;
         }
         if (S10) {
             ladder_amp_voltage += sin_amp_voltage;
-            // Bias voltage divider + 240K resistor
-            junction_voltage += sin_amp_voltage * 0.104166666667 * (62.0 / 10062.0);   // Bias resistance 25K / 240K
+            junction_voltage += sin_amp_voltage * FINE_BIAS * FINE_240K;
         }
         if (S12) {
             ladder_amp_voltage += cos_amp_voltage;
-            junction_voltage += cos_amp_voltage * 0.199203187251;
+            junction_voltage += cos_amp_voltage * FINE_11_25_BIT;
         }
         if (S13) {
             ladder_amp_voltage += cos_amp_voltage;
-            // Bias voltage divider + 240K resistor
-            junction_voltage += cos_amp_voltage * 0.104166666667 * (62.0 / 10062.0);
+            junction_voltage += cos_amp_voltage * FINE_BIAS * FINE_240K;
         }
         ladder_amp_voltage = -ladder_amp_voltage;   // Invert to be in-phase
         // Do K*sin(psi) by adding up the angles for switches S15-S22 and then performing sin() on that.
-        double k_angle = 0.0;
-        if (S15) k_angle += 5.6;
-        if (S16) k_angle += 2.8;
-        if (S17) k_angle += 1.4;
-        if (S18) k_angle += 0.7;
-        if (S19) k_angle += 0.35;
-        if (S20) k_angle += 0.17;
-        if (S21) k_angle += 0.088;
+        double mult = 0.0;
+        if (S15) mult += (2600.0 / 6600.0) * 0.25;  // Voltage divider * 25K/100K MSA gain
+        if (S16) mult += (1960.0 / 9960.0) * 0.25;
+        if (S17) mult += (867.0 / 8867.0) * 0.25;
+        if (S18) mult += (409.0 / 8409.0) * 0.25;
+        if (S19) mult += (399.0 / 16399.0) * 0.25;
+        if (S20) mult += (197.0 / 16197.0) * 0.25;
+        if (S21) mult += (97.0 / 32097.0) * 0.25;
         // Finally, add that attenuated voltage to the main summing junction
-        double mult = std::sin(k_angle * DEG_TO_RAD);
-        double diff = ladder_amp_voltage * mult;
+        //const double mult = std::sin(k_angle * DEG_TO_RAD);
+        const double diff = ladder_amp_voltage * mult;
         junction_voltage += diff;
 
-        // Multiply by 10 for... some reason? Otherwise the convergence is off.
-        // Maybe this is because we aren't actually amplifying the voltage during other steps?
-        return -junction_voltage * 10.0;
+        return -junction_voltage * msa_gain * CDU_VOLTAGE;
     }
 
     void Cdu::tick_cmc() {
@@ -271,7 +267,10 @@ namespace agcplusplus::block2 {
             }
 
             const double coarse_error = channel.coarse_error();
-            const double fine_error = channel.fine_error();
+            // Choose proper fain for the system: 7.5 for ISS, 15.0 for OSS.
+            // Per procurement spec 2007238 page 12.
+            const double fine_gain = i < 3 ? 7.5 : 15.0;
+            const double fine_error = channel.fine_error(fine_gain);
 
             // Coarse and fine mixing logic
             const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
@@ -292,7 +291,7 @@ namespace agcplusplus::block2 {
 
             if (fine_error != channel.prev_fine_error) {
                 channel.prev_fine_error = fine_error;
-                //std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG / 16 << std::endl;
+                //std::cout << "Fine error: " << fine_error / (CDU_VOLTAGE * fine_gain) * RAD_TO_DEG / 16 << std::endl;
             }
 
             if (C1 || F2) {
