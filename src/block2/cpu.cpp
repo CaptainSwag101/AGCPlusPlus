@@ -18,7 +18,7 @@ namespace agcplusplus::block2 {
 
         // Assign workaround values for I/O channels 30-33,
         // which have an inverted state
-        io_channels[030] = 0037777; // Set top bits low to remove TEMP light
+        io_channels[030] = ~0040400; // Set TEMP IN LIMITS and IMU OPERATE
         io_channels[031] = 0177777;
         io_channels[032] = 0177777;
         io_channels[033] = 0177777;
@@ -396,6 +396,14 @@ namespace agcplusplus::block2 {
             temp &= ~BITMASK_16;    // Mask out bit 16 since erasable words are only 15 bits wide
             io_channels[address] = temp;
             break;
+        }
+
+        // Special-case logic for important channels
+        if (address == 012) {
+            // Channel 12 bit 1 = OSS CDU ZERO discrete
+            Agc::cdu.set_oss_cdu_zero((io_channels[012] & 1) != 0);
+            // Channel 12 bit 5 = ISS CDU ZERO discrete
+            Agc::cdu.set_iss_cdu_zero((io_channels[012] & BITMASK_5) != 0);
         }
     }
 }

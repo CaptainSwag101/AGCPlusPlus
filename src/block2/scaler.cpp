@@ -34,6 +34,8 @@ void Scaler::tick() {
 
     // Send 51.2 kpps tick rate to CDU
     if (F02B) {
+        // Only send pulses to the CDU if CDU ZERO discrete is not present for that channel group
+        // For ISS channels, AGC channel 12 bit 5. For OSS/LR/RR, channel 12 bit 1.
         Agc::cdu.tick_cmc();
     }
 

@@ -222,47 +222,7 @@ namespace agcplusplus::block2 {
 
         if (pulse_phase1) {
             //std::cout << "phase1" << std::endl;
-            for (size_t i = 0; i < channels.size(); ++i) {
-                auto& channel = channels[i];
-
-                const double coarse_error = channel.coarse_error();
-                const double fine_error = channel.fine_error();
-
-                // Coarse and fine mixing logic
-                const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
-                const bool F2 = std::abs(fine_error) >= FINE_F2_TRIGGER;
-                //const bool F1 = std::abs(fine_error) >= FINE_F1_TRIGGER;
-
-                bool count_down = false;
-                if (C1) {
-                    count_down = std::signbit(coarse_error);
-                } else if (F2) {
-                    count_down = std::signbit(fine_error);
-                }
-
-                if (coarse_error != channel.prev_coarse_error) {
-                    channel.prev_coarse_error = coarse_error;
-                    std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
-                }
-
-                if (fine_error != channel.prev_fine_error) {
-                    channel.prev_fine_error = fine_error;
-                    std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG / 16 << std::endl;
-                }
-
-                if (C1 || F2) {
-                    // Keep track of the previous read counter state to see if we need to pulse the AGC.
-                    const uint16_t prev_div2_read_counter = channel.read_counter / 2;
-
-                    channel.read_counter += (!count_down) ? 1 : -1;
-
-                    const uint16_t div2_read_counter = channel.read_counter / 2;
-                    if (prev_div2_read_counter != div2_read_counter) {
-                        //std::cout << "Pulsed CMC!" << std::endl;
-                        Agc::cpu.counters[COUNTER_CDUX + i] = (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
-                    }
-                }
-            }
+            refresh_channels();
         }
 
         if (pulse_phase2) {
@@ -287,50 +247,7 @@ namespace agcplusplus::block2 {
             auto started_at = std::chrono::steady_clock::now();
             auto x = started_at + std::chrono::microseconds(1250);  // 800 Hz
 
-            for (size_t i = 0; i < channels.size(); ++i) {
-                auto& channel = channels[i];
-
-                const double coarse_error = channel.coarse_error();
-                const double fine_error = channel.fine_error();
-
-                // Coarse and fine mixing logic
-                const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
-                const bool F2 = std::abs(fine_error) >= FINE_F2_TRIGGER;
-                const bool F1 = std::abs(fine_error) >= FINE_F1_TRIGGER;
-
-                if (coarse_error != channel.prev_coarse_error) {
-                    channel.prev_coarse_error = coarse_error;
-                    std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
-                }
-
-                if (fine_error != channel.prev_fine_error) {
-                    channel.prev_fine_error = fine_error;
-                    std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG / 16 << std::endl;
-                }
-
-                if (F1 && !(C1 || F2)) {
-                    const bool count_down = std::signbit(fine_error);
-
-                    // Keep track of the previous read counter state to see if we need to pulse the AGC.
-                    const uint16_t prev_div2_read_counter = channel.read_counter / 2;
-
-                    channel.read_counter += (!count_down) ? 1 : -1;
-
-                    const uint16_t div2_read_counter = channel.read_counter / 2;
-                    if (prev_div2_read_counter != div2_read_counter) {
-                        Agc::cpu.counters[COUNTER_CDUX + i] = (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
-                    }
-                }
-
-                //if (!F1 && !(C1 || F2) && !converged) {
-                    //const double psi = TWENTY_ARCSECONDS * channel.read_counter;
-                    //std::cout << "Coarse align converged. True Angle: " << channel.theta * RAD_TO_DEG << ", Computed Angle: " << psi << std::endl;
-                    //converged = true;
-                //}
-
-                // Debug hack: constantly rotate the gimbal
-                channel.theta += 0.001 * DEG_TO_RAD;
-            }
+            refresh_channels();
 
             //auto ended_at = std::chrono::steady_clock::now();
 
@@ -339,6 +256,79 @@ namespace agcplusplus::block2 {
             iss_outphase_sign = !iss_outphase_sign;
 
             std::this_thread::sleep_until(x);
+        }
+    }
+
+    void Cdu::refresh_channels() {
+        for (size_t i = 0; i < channels.size(); ++i) {
+            auto& channel = channels[i];
+
+            if (channel.zero_discrete) {
+                channel.read_counter = 0;
+                continue;
+            }
+
+            const double coarse_error = channel.coarse_error();
+            const double fine_error = channel.fine_error();
+
+            // Coarse and fine mixing logic
+            const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
+            const bool F2 = std::abs(fine_error) >= FINE_F2_TRIGGER;
+            const bool F1 = std::abs(fine_error) >= FINE_F1_TRIGGER;
+
+            bool count_down = false;
+            if (C1) {
+                count_down = std::signbit(coarse_error);
+            } else if (F2) {
+                count_down = std::signbit(fine_error);
+            }
+
+            if (coarse_error != channel.prev_coarse_error) {
+                channel.prev_coarse_error = coarse_error;
+                std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+            }
+
+            if (fine_error != channel.prev_fine_error) {
+                channel.prev_fine_error = fine_error;
+                std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG / 16 << std::endl;
+            }
+
+            if (C1 || F2) {
+                // Keep track of the previous read counter state to see if we need to pulse the AGC.
+                const uint16_t prev_div2_read_counter = channel.read_counter / 2;
+
+                channel.read_counter += (!count_down) ? 1 : -1;
+
+                const uint16_t div2_read_counter = channel.read_counter / 2;
+                if (prev_div2_read_counter != div2_read_counter) {
+                    //std::cout << "Pulsed CMC!" << std::endl;
+                    Agc::cpu.counters[COUNTER_CDUX + i] = (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
+                }
+            } else if (F1) {
+                // Keep track of the previous read counter state to see if we need to pulse the AGC.
+                const uint16_t prev_div2_read_counter = channel.read_counter / 2;
+
+                channel.read_counter += (!count_down) ? 1 : -1;
+
+                const uint16_t div2_read_counter = channel.read_counter / 2;
+                if (prev_div2_read_counter != div2_read_counter) {
+                    Agc::cpu.counters[COUNTER_CDUX + i] = (count_down ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP);
+                }
+            }
+        }
+    }
+
+    void Cdu::set_iss_cdu_zero(bool state) {
+        for (int c = 0; c < 3; ++c) {
+            auto& channel = channels[c];
+            channel.zero_discrete = state;
+        }
+    }
+
+    void Cdu::set_oss_cdu_zero(bool state) {
+        for (int c = 3; c < channels.size(); ++c) {
+            auto& channel = channels[c];
+            channel.zero_discrete = state;
         }
     }
 }

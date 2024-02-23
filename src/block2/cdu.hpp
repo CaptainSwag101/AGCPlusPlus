@@ -146,10 +146,11 @@ namespace agcplusplus::block2 {
 
     class CduChannel {
     public:
-        double theta = 0 * DEG_TO_RAD; // Radians
+        double theta = 50.0 * DEG_TO_RAD; // Radians
         uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
         double prev_coarse_error = 0.0;
         double prev_fine_error = 0.0;
+        bool zero_discrete = false;
 
         [[nodiscard]] double coarse_error() const;
         [[nodiscard]] double fine_error() const;
@@ -164,6 +165,9 @@ namespace agcplusplus::block2 {
 
         void tick_cmc();
         [[noreturn]] void tick_iss();
+        void refresh_channels();
+        void set_iss_cdu_zero(bool state);
+        void set_oss_cdu_zero(bool state);
 
     private:
         std::array<CduChannel, 3> channels{};
