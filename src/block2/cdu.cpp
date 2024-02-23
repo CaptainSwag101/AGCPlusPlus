@@ -234,7 +234,7 @@ namespace agcplusplus::block2 {
             //std::cout << "phase4" << std::endl;
             refresh_channels();
 
-            // Perform 12.8 kcps read counter activity if commanded
+            // Perform read counter increment/degrement if commanded
             for (size_t i = 0; i < channels.size(); ++i) {
                 auto& channel = channels[i];
 
