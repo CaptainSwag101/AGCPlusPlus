@@ -182,6 +182,7 @@ static void rch(Cpu& cpu) {
     } else {
         cpu.write_bus |= cpu.read_io_channel(cpu.s & 077);
     }
+    cpu.channel_access = true;
 }
 
 static void rg(Cpu& cpu) {
@@ -375,12 +376,13 @@ static void wch(Cpu& cpu) {
         temp |= (cpu.write_bus & BITMASK_16) >> 1;  // Bit 16 into bit 15
         cpu.write_io_channel(s_masked, temp);
     }
+    cpu.channel_access = true;
 }
 
 static void wg(Cpu& cpu) {
     word temp = cpu.write_bus;
 
-    word s_correct = (cpu.s_temp > 0) ? cpu.s_temp : cpu.s;
+    word s_correct = (cpu.s_writeback > 0) ? cpu.s_writeback : cpu.s;
 
     if (s_correct >= 020 && s_correct <= 023) {
         switch (s_correct) {

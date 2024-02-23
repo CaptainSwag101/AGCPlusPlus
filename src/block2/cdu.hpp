@@ -166,7 +166,7 @@ namespace agcplusplus::block2 {
         [[noreturn]] void tick_iss();
 
     private:
-        std::array<CduChannel, 1> channels{};
+        std::array<CduChannel, 3> channels{};
         std::thread iss_timing_thread;
     };
 }

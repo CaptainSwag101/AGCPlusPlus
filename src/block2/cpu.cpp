@@ -124,8 +124,8 @@ namespace agcplusplus::block2 {
         if (timepulse == 5) {
             // Determine whether we are targeting fixed or erasable memory
             if (s <= MEM_ERASABLE_END) {    // Erasable memory
-                if (s >= 010) {
-                    s_temp = s; // Preserve S in case it's changed before the writeback
+                if (s >= 010 && !channel_access) {  // Don't perform an erasable cycle during I/O
+                    s_writeback = s; // Preserve S in case it's changed before the writeback
                     word erasable_addr = get_erasable_absolute_addr();
                     g = Agc::memory.read_erasable_word(erasable_addr);
                 }
@@ -151,13 +151,13 @@ namespace agcplusplus::block2 {
         }
 
         // Memory writebacks are done before T10 if we performed an erasable read
-        if (timepulse == 10 && s_temp > 0) {
+        if (timepulse == 10 && s_writeback != 0) {
             // Preserve S but replace it so we can use get_erasable_absolute_addr()
             word s_temp2 = s;
-            s = s_temp;
+            s = s_writeback;
             Agc::memory.write_erasable_word(get_erasable_absolute_addr(), g);
             s = s_temp2;    // Restore S now that we've properly calculated the erasable address
-            s_temp = 0;
+            s_writeback = 0;
         }
     }
 
@@ -182,6 +182,9 @@ namespace agcplusplus::block2 {
             st_next = 0;
 
             if (fetch_next_instruction) {
+                // I/O channel access is done, if it was performed.
+                channel_access = false;
+
                 // Check for pending counter requests
                 inkl = false;
                 for (const word& counter : counters) {

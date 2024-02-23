@@ -43,7 +43,7 @@ public:
     void print_state_info(std::ostream& output) const;
 
     // Registers
-    word a{}, l{}, g{}, b{}, z{}, q{}, s{}, s_temp{};
+    word a{}, l{}, g{}, b{}, z{}, q{}, s{}, s_writeback{};
     word sq{}, fext{}, eb{}, fb{}, bb{}, u{}, x{}, y{};
     uint8_t st{}, st_next{}, br{};
     bool explicit_carry{};
@@ -62,6 +62,7 @@ public:
     bool fetch_next_instruction{}, inhibit_interrupts{}, no_eac{}, mcro{}, dv{};
     bool inkl{}, iip{}, pseudo{}, shinc{}, pifl{}, extend{}, extend_next{}, restart{};
     bool night_watchman{};
+    bool channel_access{};
 
     // Instruction data
     uint8_t timepulse = 1;
