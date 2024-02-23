@@ -198,7 +198,9 @@ namespace agcplusplus::block2 {
         double diff = ladder_amp_voltage * mult;
         junction_voltage += diff;
 
-        return -junction_voltage;
+        // Multiply by 10 for... some reason? Otherwise the convergence is off.
+        // Maybe this is because we aren't actually amplifying the voltage during other steps?
+        return -junction_voltage * 10.0;
     }
 
     void Cdu::tick_cmc() {
