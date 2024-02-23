@@ -287,12 +287,12 @@ namespace agcplusplus::block2 {
 
             if (coarse_error != channel.prev_coarse_error) {
                 channel.prev_coarse_error = coarse_error;
-                std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                //std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
             }
 
             if (fine_error != channel.prev_fine_error) {
                 channel.prev_fine_error = fine_error;
-                std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG / 16 << std::endl;
+                //std::cout << "Fine error: " << fine_error / CDU_VOLTAGE * RAD_TO_DEG / 16 << std::endl;
             }
 
             if (C1 || F2) {
@@ -325,6 +325,7 @@ namespace agcplusplus::block2 {
             auto& channel = channels[c];
             channel.zero_discrete = state;
         }
+        std::cout << "ISS CDUs zeroed!" << std::endl;
     }
 
     void Cdu::set_oss_cdu_zero(bool state) {
@@ -332,5 +333,6 @@ namespace agcplusplus::block2 {
             auto& channel = channels[c];
             channel.zero_discrete = state;
         }
+        std::cout << "OSS/Radar CDUs zeroed!" << std::endl;
     }
 }
