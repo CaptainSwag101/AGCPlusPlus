@@ -85,7 +85,7 @@ namespace agcplusplus::block2 {
             }
 
             // Service INKL
-            if (inkl && fetch_next_instruction) {
+            if (inkl) {
                 for (int c = 0; c < counters.size(); ++c) {
                     const word direction = counters[c];
 
