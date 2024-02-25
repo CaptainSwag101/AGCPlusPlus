@@ -7,10 +7,14 @@ namespace agcplusplus::block2 {
     Timer Agc::timer;
     Cdu Agc::cdu;
     InitArguments Agc::config;
+    std::ofstream Agc::log_stream;
 
 Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args) {
     memory = Memory(MemoryInitState::BitsClear);
     config = init_args;
+
+    // Set up log output stream.
+    log_stream.open("AGCPlusPlus.log");
 
     for (const word& w : rope) {
         static int fixed_addr = 0;

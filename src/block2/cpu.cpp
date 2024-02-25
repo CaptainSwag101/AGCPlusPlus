@@ -141,7 +141,7 @@ namespace agcplusplus::block2 {
                     v ^= v >> 2;
                     v = (v & 0x1111) * 0x1111;
                     if ((((v >> 12) & 1) == 0) && !Agc::config.ignore_alarms) {    // Invalid parity
-                        std::cout << "HARDWARE ALARM: FIXED MEMORY PARITY FAIL" << std::endl;
+                        Agc::log_stream << "HARDWARE ALARM: FIXED MEMORY PARITY FAIL" << std::endl;
                         write_io_channel(077, 1);
                         queue_gojam();
                     }
@@ -169,7 +169,7 @@ namespace agcplusplus::block2 {
     void Cpu::process_after_timepulse() {
         // Print CPU state information before we clear the write bus
         if ((Agc::config.log_mct && timepulse == 12) || Agc::config.log_timepulse) {
-            print_state_info(std::cout);
+            print_state_info(Agc::log_stream);
         }
 
         // Clear the write bus after every timepulse
@@ -229,8 +229,8 @@ namespace agcplusplus::block2 {
 
 
             if (!found_implemented_subinstruction) {
-                std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
-                print_state_info(std::cout);
+                Agc::log_stream << "Unimplemented subinstruction, replacing with STD2." << std::endl;
+                print_state_info(Agc::log_stream);
 
                 subinstruction std2 = subinstruction_list[0];
                 current_subinstruction = std2;
@@ -388,7 +388,7 @@ namespace agcplusplus::block2 {
             break;
         case 7:
             fext = (data & 0160);
-            //std::cout << "FEXT changed to " << (word)(fext >> 4) << std::endl;
+            //Agc::log_stream << "FEXT changed to " << (word)(fext >> 4) << std::endl;
             // Fall through
         default:
             word temp = data & ~BITMASK_15; // Mask out bit 15

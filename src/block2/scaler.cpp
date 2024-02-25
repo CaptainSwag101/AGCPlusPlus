@@ -70,14 +70,14 @@ void Scaler::tick() {
         bool time6_enabled = ((check & BITMASK_16) != 0);   // Is bit 16 set?
         if (time6_enabled) {
             Agc::cpu.counters[COUNTER_TIME6] |= COUNT_DIRECTION_DOWN;
-            //std::cout << "TIME6 decrement" << std::endl;
+            //Agc::log_stream << "TIME6 decrement" << std::endl;
         }
     }
 
     if (F09B) {
         if ((cur_state & BITMASK_10) == 0) {    // if not FS10
             Agc::cpu.counters[COUNTER_TIME4] |= COUNT_DIRECTION_UP;
-            //std::cout << "TIME4 increment" << std::endl;
+            //Agc::log_stream << "TIME4 increment" << std::endl;
         }
 
         // Generate KEYRUPT1, KEYRUPT2, or MARKRUPT if keys are pending
@@ -103,13 +103,13 @@ void Scaler::tick() {
 
     if (F10A) {
          Agc::cpu.counters[COUNTER_TIME5] |= COUNT_DIRECTION_UP;
-         //std::cout << "TIME5 increment" << std::endl;
+         //Agc::log_stream << "TIME5 increment" << std::endl;
 
         // Start radar cycle if enabled
 
         // Trigger restart if TC TRAP flip flop is set
         if ((!tc_started || !tc_ended) && !Agc::config.ignore_alarms) {
-            std::cout << "HARDWARE ALARM: TC TRAP" << std::endl;
+            Agc::log_stream << "HARDWARE ALARM: TC TRAP" << std::endl;
             Agc::cpu.write_io_channel(077, BITMASK_3);
             Agc::cpu.queue_gojam();
         }
@@ -118,7 +118,7 @@ void Scaler::tick() {
     if (F10B) {
         Agc::cpu.counters[COUNTER_TIME1] |= COUNT_DIRECTION_UP;
         Agc::cpu.counters[COUNTER_TIME3] |= COUNT_DIRECTION_UP;
-        //std::cout << "TIME1+3 increment" << std::endl;
+        //Agc::log_stream << "TIME1+3 increment" << std::endl;
 
         tc_started = false;
         tc_ended = false;
@@ -131,7 +131,7 @@ void Scaler::tick() {
 
     if (F17A) {
         if (!Agc::cpu.night_watchman && !Agc::config.ignore_alarms) {
-            std::cout << "HARDWARE ALARM: NIGHT WATCHMAN" << std::endl;
+            Agc::log_stream << "HARDWARE ALARM: NIGHT WATCHMAN" << std::endl;
             Agc::cpu.write_io_channel(077, BITMASK_5);
             Agc::cpu.queue_gojam();
         }
@@ -150,7 +150,7 @@ void Scaler::tick() {
     if (F14H) {
         // If an old interrupt is still going or a new one hasn't started, alarm
         if (!interrupt_started && !interrupt_ended && !Agc::config.ignore_alarms) {
-            std::cout << "HARDWARE ALARM: RUPT LOCK" << std::endl;
+            Agc::log_stream << "HARDWARE ALARM: RUPT LOCK" << std::endl;
             Agc::cpu.write_io_channel(077, BITMASK_4);
             Agc::cpu.queue_gojam();
         }

@@ -219,19 +219,19 @@ namespace agcplusplus::block2 {
         const bool pulse_phase4_slow = (squarewave_25_6_kpps && squarewave_12_8_kpps && squarewave_6_4_kpps) && ((cur_state & 1) ^ (prev_state & 1));
 
         if (pulse_phase1) {
-            //std::cout << "phase1" << std::endl;
+            //Agc::log_stream << "phase1" << std::endl;
         }
 
         if (pulse_phase2) {
-            //std::cout << "phase2" << std::endl;
+            //Agc::log_stream << "phase2" << std::endl;
         }
 
         if (pulse_phase3) {
-            //std::cout << "phase3" << std::endl;
+            //Agc::log_stream << "phase3" << std::endl;
         }
 
         if (pulse_phase4) {
-            //std::cout << "phase4" << std::endl;
+            //Agc::log_stream << "phase4" << std::endl;
             refresh_channels();
 
             // Perform read counter increment/degrement if commanded
@@ -253,7 +253,7 @@ namespace agcplusplus::block2 {
         }
 
         if (pulse_phase4_slow) {
-            //std::cout << "phase4_slow" << std::endl;
+            //Agc::log_stream << "phase4_slow" << std::endl;
         }
     }
 
@@ -319,12 +319,12 @@ namespace agcplusplus::block2 {
 
             if (coarse_error != channel.prev_coarse_error) {
                 channel.prev_coarse_error = coarse_error;
-                //std::cout << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+                //Agc::log_stream << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
             }
 
             if (fine_error != channel.prev_fine_error) {
                 channel.prev_fine_error = fine_error;
-                //std::cout << "Fine error: " << fine_error / (CDU_VOLTAGE * fine_gain) * RAD_TO_DEG / 16 << std::endl;
+                //Agc::log_stream << "Fine error: " << fine_error / (CDU_VOLTAGE * fine_gain) * RAD_TO_DEG / 16 << std::endl;
             }
         }
     }
@@ -334,7 +334,7 @@ namespace agcplusplus::block2 {
             auto& channel = channels[c];
             channel.zero_discrete = state;
         }
-        std::cout << "ISS CDUs zeroed!" << std::endl;
+        Agc::log_stream << "ISS CDUs zeroed!" << std::endl;
     }
 
     void Cdu::set_oss_cdu_zero(bool state) {
@@ -342,6 +342,6 @@ namespace agcplusplus::block2 {
             auto& channel = channels[c];
             channel.zero_discrete = state;
         }
-        std::cout << "OSS/Radar CDUs zeroed!" << std::endl;
+        Agc::log_stream << "OSS/Radar CDUs zeroed!" << std::endl;
     }
 }

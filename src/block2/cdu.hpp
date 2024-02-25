@@ -65,7 +65,7 @@ namespace agcplusplus::block2 {
     constexpr uint16_t COARSE_S2_VALUE2 = ~COARSE_S2_VALUE1;
     constexpr uint16_t COARSE_S2_MASK = COARSE_S1_MASK;
     constexpr uint16_t COARSE_S3_VALUE1 = B15 | B14 | B13;
-    constexpr uint16_t COARSE_S3_VALUE2 = ~COARSE_S3_VALUE1;
+    constexpr uint16_t COARSE_S3_VALUE2 = static_cast<uint16_t>(~COARSE_S3_VALUE1); // Suppress compiler warning
     constexpr uint16_t COARSE_S3_MASK = COARSE_S1_MASK;
     constexpr uint16_t COARSE_S4_VALUE1 = 0 | 0 | B13;
     constexpr uint16_t COARSE_S4_VALUE2 = ~COARSE_S4_VALUE1;

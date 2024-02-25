@@ -32,17 +32,17 @@ namespace agcplusplus::block1 {
 
         if (F10A) {
             if (!rptal_disarm) {
-                std::cout << "RUPT LOCK: RUPT LASTED LONGER THAN 10ms" << std::endl;
+                Agc::log_stream << "RUPT LOCK: RUPT LASTED LONGER THAN 10ms" << std::endl;
                 Agc::cpu.queue_gojam();
             }
 
             if (!tcal_disarm) {
-                std::cout << "TC TRAP: ONLY TC FOR 10ms" << std::endl;
+                Agc::log_stream << "TC TRAP: ONLY TC FOR 10ms" << std::endl;
                 Agc::cpu.queue_gojam();
             }
 
             if (!ntcal_disarm) {
-                std::cout << "TC TRAP: NO TC FOR 10ms" << std::endl;
+                Agc::log_stream << "TC TRAP: NO TC FOR 10ms" << std::endl;
                 Agc::cpu.queue_gojam();
             }
 
@@ -68,7 +68,7 @@ namespace agcplusplus::block1 {
 
         if (F14B) {
             if (!nrptal_disarm) {
-                std::cout << "RUPT LOCK: NO RUPTS IN 80ms" << std::endl;
+                Agc::log_stream << "RUPT LOCK: NO RUPTS IN 80ms" << std::endl;
                 Agc::cpu.queue_gojam();
             }
         }

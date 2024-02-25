@@ -19,11 +19,8 @@
 using namespace agcplusplus;
 
 int main(int argc, char* argv[]) {
-    // Set up output stream, default to std::cout, but could be a log file, etc.
-    std::ostream& output = std::cout;
-
     // Print banner message
-    output << "AGCPlusPlus version v" << AGCPlusPlus_VERSION_MAJOR << "." << AGCPlusPlus_VERSION_MINOR << '\n';
+    std::cout << "AGCPlusPlus version v" << AGCPlusPlus_VERSION_MAJOR << "." << AGCPlusPlus_VERSION_MINOR << '\n';
 
     // Define our program's arguments
     argparse::ArgumentParser mainArgs("AGCPlusPlus");
@@ -85,7 +82,7 @@ int main(int argc, char* argv[]) {
 
     // Verify we can open the rope file
     if (!in_rope.is_open()) {
-        std::cout << "Unable to open core rope file \"" << rope_path << "\"." << std::endl;
+        std::cerr << "Unable to open core rope file \"" << rope_path << "\"." << std::endl;
         std::exit(1);
     }
 
@@ -128,13 +125,12 @@ int main(int argc, char* argv[]) {
         in_padload.close();
     }
 
-
     // Load data and prepare computer based on the machine type selected
     auto machine_type = mainArgs.get<std::string>("machine-type");
     if (machine_type == "block1") {
         // Check rope length
         if ((rope_buffer.size() - 1) > block1::MEM_FIXED_TOTAL_SIZE) {
-            std::cout << "Warning: The core rope exceeds the size of the machine's fixed memory." << std::endl;
+            std::cerr << "Warning: The core rope exceeds the size of the machine's fixed memory." << std::endl;
         }
 
         // Initialize the Block I computer
@@ -143,7 +139,7 @@ int main(int argc, char* argv[]) {
     } else if (machine_type == "block2") {
         // Check rope length
         if ((rope_buffer.size() - 1) > block2::SIZE_FIXED_MEM) {
-            std::cout << "Warning: The core rope exceeds the size of the machine's fixed memory." << std::endl;
+            std::cerr << "Warning: The core rope exceeds the size of the machine's fixed memory." << std::endl;
         }
 
         // Initialize the Block II computer

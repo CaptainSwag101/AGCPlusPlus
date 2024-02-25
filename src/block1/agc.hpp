@@ -1,3 +1,5 @@
+#pragma once
+
 #include "block1defs.hpp"
 #include "cpu.hpp"
 #include "memory.hpp"
@@ -5,10 +7,9 @@
 #include "timer.hpp"
 #include "sockpp/tcp_socket.h"
 
+#include <fstream>
 #include <memory>
 #include <thread>
-
-#pragma once
 
 namespace agcplusplus::block1 {
     class Agc {
@@ -18,6 +19,7 @@ namespace agcplusplus::block1 {
         static Memory memory;
         static Cpu cpu;
         static InitArguments configuration;
+        static std::ofstream log_stream;
 
         Agc(std::vector<word> rope_buffer, InitArguments init_args);
         [[noreturn]] void run();
