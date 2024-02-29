@@ -171,6 +171,8 @@ namespace agcplusplus::block2 {
         double prev_coarse_error = 0.0;
         double prev_fine_error = 0.0;
         bool zero_discrete = false;
+        bool coarse_align = false;
+        bool error_counter_enable = false;
         bool should_count = false;
         COUNT_DIRECTION count_direction = NONE;
         COUNT_SPEED count_speed = HIGH;
@@ -190,6 +192,11 @@ namespace agcplusplus::block2 {
         void tick_cmc();
         [[noreturn]] void tick_iss();
         void refresh_channels();
+        void pulse_channel(size_t channel_index);
+        void set_iss_coarse_align(bool state);
+        void set_iss_error_counter_enable(bool state);
+        void set_oss_coarse_align(bool state);
+        void set_oss_error_counter_enable(bool state);
         void set_iss_cdu_zero(bool state);
         void set_oss_cdu_zero(bool state);
 

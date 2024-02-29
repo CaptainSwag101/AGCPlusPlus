@@ -224,6 +224,9 @@ namespace agcplusplus::block2 {
 
         if (pulse_phase2) {
             //Agc::log_stream << "phase2" << std::endl;
+
+            // Determine error and up/down count direction for each channel
+            refresh_channels();
         }
 
         if (pulse_phase3) {
@@ -232,28 +235,24 @@ namespace agcplusplus::block2 {
 
         if (pulse_phase4) {
             //Agc::log_stream << "phase4" << std::endl;
-            refresh_channels();
 
-            // Perform read counter increment/degrement if commanded
-            for (size_t i = 0; i < channels.size(); ++i) {
-                auto& channel = channels[i];
-
-                // Keep track of the previous read counter state to see if we need to pulse the AGC.
-                const uint16_t prev_readcounter_div2 = channel.read_counter / 2;
-
-                if (channel.mode != COARSE_ALIGN && channel.should_count) {
-                    channel.read_counter += channel.count_direction == DOWN ? -1 : 1;
-                    channel.should_count = false;
-                }
-
-                if (channel.count_direction != NONE && channel.read_counter / 2 != prev_readcounter_div2) {
-                    Agc::cpu.counters[COUNTER_CDUX + i] = (channel.count_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
+            // Pulse at 12.8 kpps if not in coarse align
+            for (size_t c = 0; c < channels.size(); ++c) {
+                if (!channels[c].coarse_align) {
+                    pulse_channel(c);
                 }
             }
         }
 
         if (pulse_phase4_slow) {
             //Agc::log_stream << "phase4_slow" << std::endl;
+
+            // Pulse at 6.4 kpps if in coarse align
+            for (size_t c = 0; c < channels.size(); ++c) {
+                if (channels[c].coarse_align) {
+                    pulse_channel(c);
+                }
+            }
         }
     }
 
@@ -329,7 +328,56 @@ namespace agcplusplus::block2 {
         }
     }
 
-    void Cdu::set_iss_cdu_zero(bool state) {
+    void Cdu::pulse_channel(const size_t channel_index) {
+        // Perform read counter increment/degrement if commanded
+        auto& channel = channels[channel_index];
+
+        // Keep track of the previous read counter state to see if we need to pulse the AGC.
+        const uint16_t prev_readcounter_div2 = channel.read_counter / 2;
+
+        if (channel.mode != COARSE_ALIGN && channel.should_count) {
+            channel.read_counter += channel.count_direction == DOWN ? -1 : 1;
+            channel.should_count = false;
+        }
+
+        if (channel.count_direction != NONE && channel.read_counter / 2 != prev_readcounter_div2) {
+            Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.count_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
+        }
+    }
+
+    void Cdu::set_iss_coarse_align(const bool state) {
+        for (int c = 0; c < 3; ++c) {
+            auto& channel = channels[c];
+            channel.coarse_align = state;
+        }
+        Agc::log_stream << "ISS coarse align = " << state << std::endl;
+    }
+
+    void Cdu::set_iss_error_counter_enable(const bool state) {
+        for (int c = 0; c < 3; ++c) {
+            auto& channel = channels[c];
+            channel.error_counter_enable = state;
+        }
+        Agc::log_stream << "ISS error counter enable = " << state << std::endl;
+    }
+
+    void Cdu::set_oss_coarse_align(const bool state) {
+        for (int c = 3; c < channels.size(); ++c) {
+            auto& channel = channels[c];
+            channel.coarse_align = state;
+        }
+        Agc::log_stream << "OSS/Radar coarse align = " << state << std::endl;
+    }
+
+    void Cdu::set_oss_error_counter_enable(const bool state) {
+        for (int c = 3; c < channels.size(); ++c) {
+            auto& channel = channels[c];
+            channel.error_counter_enable = state;
+        }
+        Agc::log_stream << "OSS/Radar error counter enable = " << state << std::endl;
+    }
+
+    void Cdu::set_iss_cdu_zero(const bool state) {
         for (int c = 0; c < 3; ++c) {
             auto& channel = channels[c];
             channel.zero_discrete = state;
@@ -338,7 +386,7 @@ namespace agcplusplus::block2 {
             Agc::log_stream << "ISS CDUs zeroed!" << std::endl;
     }
 
-    void Cdu::set_oss_cdu_zero(bool state) {
+    void Cdu::set_oss_cdu_zero(const bool state) {
         for (int c = 3; c < channels.size(); ++c) {
             auto& channel = channels[c];
             channel.zero_discrete = state;
