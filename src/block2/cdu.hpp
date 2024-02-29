@@ -147,7 +147,7 @@ namespace agcplusplus::block2 {
     constexpr double FINE_COS_56_25 = FINE_SIN_33_75;
     constexpr double FINE_COS_78_75 = FINE_SIN_11_25;
 
-    enum COUNT_DIRECTION {
+    enum CDU_COUNT_DIRECTION {
         NONE,
         UP,
         DOWN,
@@ -167,16 +167,17 @@ namespace agcplusplus::block2 {
     public:
         double theta = 150.0 * DEG_TO_RAD; // Radians
         uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
-        uint16_t prev_read_counter = 0;
+        uint16_t error_counter = 0;
         double prev_coarse_error = 0.0;
         double prev_fine_error = 0.0;
         bool zero_discrete = false;
         bool coarse_align = false;
         bool error_counter_enable = false;
         bool should_count = false;
-        COUNT_DIRECTION count_direction = NONE;
+        CDU_COUNT_DIRECTION read_counter_direction = NONE;
         COUNT_SPEED count_speed = HIGH;
         MODE mode = NORMAL;
+        CDU_COUNT_DIRECTION error_counter_direction = NONE;
 
         [[nodiscard]] double coarse_error() const;
         [[nodiscard]] double fine_error(double msa_gain) const;

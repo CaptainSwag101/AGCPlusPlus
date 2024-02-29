@@ -262,7 +262,7 @@ namespace agcplusplus::block2 {
             auto x = started_at + std::chrono::microseconds(1250);  // 800 Hz
 
             for (auto& channel : channels) {
-                if (channel.count_direction != NONE && channel.count_speed == LOW) {
+                if (channel.read_counter_direction != NONE && channel.count_speed == LOW) {
                     channel.should_count = true;
                 }
             }
@@ -300,12 +300,12 @@ namespace agcplusplus::block2 {
             bool count_down = false;
             if (C1) {
                 count_down = std::signbit(coarse_error);
-                channel.count_direction = count_down ? DOWN : UP;
+                channel.read_counter_direction = count_down ? DOWN : UP;
             } else if (F2 || F1) {
                 count_down = std::signbit(fine_error);
-                channel.count_direction = count_down ? DOWN : UP;
+                channel.read_counter_direction = count_down ? DOWN : UP;
             } else {
-                channel.count_direction = NONE;
+                channel.read_counter_direction = NONE;
             }
 
             // Based on error signals, set count speed.
@@ -334,15 +334,23 @@ namespace agcplusplus::block2 {
 
         // Keep track of the previous read counter state to see if we need to pulse the AGC.
         const uint16_t prev_readcounter_div2 = channel.read_counter / 2;
+        const uint16_t prev_readcounter_div4 = channel.read_counter / 4;
 
         if (channel.mode != COARSE_ALIGN && channel.should_count) {
-            channel.read_counter += channel.count_direction == DOWN ? -1 : 1;
+            channel.read_counter += channel.read_counter_direction == DOWN ? -1 : 1;
             channel.should_count = false;
         }
 
-        if (channel.count_direction != NONE && channel.read_counter / 2 != prev_readcounter_div2) {
-            Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.count_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
+        // Send pulse train to AGC and to error counter (if enabled)
+        const uint16_t cur_readcounter_div2 = channel.read_counter / 2;
+        const uint16_t cur_readcounter_div4 = channel.read_counter / 4;
+        if (channel.read_counter_direction != NONE) {
+            if (cur_readcounter_div2 != prev_readcounter_div2)
+                Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
+            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.error_counter_enable && channel.coarse_align)
+                channel.error_counter--;
         }
+
     }
 
     void Cdu::set_iss_coarse_align(const bool state) {
