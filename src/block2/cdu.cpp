@@ -334,7 +334,8 @@ namespace agcplusplus::block2 {
             auto& channel = channels[c];
             channel.zero_discrete = state;
         }
-        Agc::log_stream << "ISS CDUs zeroed!" << std::endl;
+        if (state)
+            Agc::log_stream << "ISS CDUs zeroed!" << std::endl;
     }
 
     void Cdu::set_oss_cdu_zero(bool state) {
@@ -342,6 +343,7 @@ namespace agcplusplus::block2 {
             auto& channel = channels[c];
             channel.zero_discrete = state;
         }
-        Agc::log_stream << "OSS/Radar CDUs zeroed!" << std::endl;
+        if (state)
+            Agc::log_stream << "OSS/Radar CDUs zeroed!" << std::endl;
     }
 }
