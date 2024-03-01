@@ -349,9 +349,10 @@ namespace agcplusplus::block2 {
             if (cur_readcounter_div2 != prev_readcounter_div2)
                 Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
             if (cur_readcounter_div4 != prev_readcounter_div4 && channel.error_counter_enable && channel.coarse_align) {
-                channel.error_counter--;
-                if (channel.error_counter < 0)
-                    channel.error_counter = 0;
+                //channel.error_counter--;
+
+                //if (channel.error_counter < 0)
+                //    channel.error_counter = 0;
             }
         }
     }
@@ -407,6 +408,6 @@ namespace agcplusplus::block2 {
     }
 
     void Cdu::count_channel_error_counter(const size_t channel_index, const CDU_COUNT_DIRECTION direction) {
-        channels[channel_index].error_counter_direction = direction;
+        channels[channel_index].error_counter += (int16_t)(direction == DOWN ? -1 : 1);
     }
 }

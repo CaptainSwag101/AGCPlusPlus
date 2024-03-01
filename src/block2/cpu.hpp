@@ -50,7 +50,7 @@ public:
 
     // Interrupt/Counter cells
     std::array<bool, 11> interrupts{};  // Interrupt request cells
-    std::array<word, 20> counters{};    // Can be 0, +1, -1, or both in the case of a freak accident
+    std::array<word, 28> counters{};    // Can be 0, +1, -1, or both in the case of a freak accident
 
     // I/O
     word read_io_channel(word address);

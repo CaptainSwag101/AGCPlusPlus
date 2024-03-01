@@ -187,8 +187,8 @@ namespace agcplusplus::block2 {
 
                 // Check for pending counter requests
                 inkl = false;
-                for (const word& counter : counters) {
-                    if (counter != COUNT_DIRECTION_NONE && !pseudo && !Agc::config.ignore_counters) {
+                for (size_t c = 0; c < counters.size(); ++c) {
+                    if (counters[c] != COUNT_DIRECTION_NONE && !pseudo && !Agc::config.ignore_counters) {
                         inkl = true;
                         break;
                     }
@@ -402,8 +402,14 @@ namespace agcplusplus::block2 {
         if (address == 012) {
             // Channel 12 bit 1 = OSS CDU ZERO discrete
             Agc::cdu.set_oss_cdu_zero((io_channels[012] & 1) != 0);
+            // Channel 12 bit 2 = OSS error counter enable
+            Agc::cdu.set_oss_error_counter_enable((io_channels[012] & BITMASK_2) != 0);
+            // Channel 12 bit 4 = ISS coarse align
+            Agc::cdu.set_iss_coarse_align((io_channels[012] & BITMASK_4) != 0);
             // Channel 12 bit 5 = ISS CDU ZERO discrete
             Agc::cdu.set_iss_cdu_zero((io_channels[012] & BITMASK_5) != 0);
+            // Channel 12 bit 6 = ISS CDU ZERO discrete
+            Agc::cdu.set_iss_error_counter_enable((io_channels[012] & BITMASK_6) != 0);
         }
     }
 }
