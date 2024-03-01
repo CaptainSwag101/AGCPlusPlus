@@ -336,7 +336,8 @@ namespace agcplusplus::block2 {
         const uint16_t prev_readcounter_div2 = channel.read_counter / 2;
         const uint16_t prev_readcounter_div4 = channel.read_counter / 4;
 
-        if (channel.mode != COARSE_ALIGN && channel.should_count) {
+        // Don't pulse the read counter if we just got an error counter pulse from the AGC.
+        if (channel.should_count && channel.error_counter_direction == NONE) {
             channel.read_counter += channel.read_counter_direction == DOWN ? -1 : 1;
             channel.should_count = false;
         }
@@ -347,10 +348,12 @@ namespace agcplusplus::block2 {
         if (channel.read_counter_direction != NONE) {
             if (cur_readcounter_div2 != prev_readcounter_div2)
                 Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
-            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.error_counter_enable && channel.coarse_align)
+            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.error_counter_enable && channel.coarse_align) {
                 channel.error_counter--;
+                if (channel.error_counter < 0)
+                    channel.error_counter = 0;
+            }
         }
-
     }
 
     void Cdu::set_iss_coarse_align(const bool state) {
@@ -401,5 +404,9 @@ namespace agcplusplus::block2 {
         }
         if (state)
             Agc::log_stream << "OSS/Radar CDUs zeroed!" << std::endl;
+    }
+
+    void Cdu::count_channel_error_counter(const size_t channel_index, const CDU_COUNT_DIRECTION direction) {
+        channels[channel_index].error_counter_direction = direction;
     }
 }

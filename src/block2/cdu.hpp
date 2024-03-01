@@ -158,16 +158,11 @@ namespace agcplusplus::block2 {
         HIGH            // 12800 cps
     };
 
-    enum MODE {
-        NORMAL,
-        COARSE_ALIGN
-    };
-
     class CduChannel {
     public:
         double theta = 150.0 * DEG_TO_RAD; // Radians
         uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
-        uint16_t error_counter = 0;
+        int16_t error_counter = 0;
         double prev_coarse_error = 0.0;
         double prev_fine_error = 0.0;
         bool zero_discrete = false;
@@ -176,7 +171,6 @@ namespace agcplusplus::block2 {
         bool should_count = false;
         CDU_COUNT_DIRECTION read_counter_direction = NONE;
         COUNT_SPEED count_speed = HIGH;
-        MODE mode = NORMAL;
         CDU_COUNT_DIRECTION error_counter_direction = NONE;
 
         [[nodiscard]] double coarse_error() const;
@@ -200,6 +194,7 @@ namespace agcplusplus::block2 {
         void set_oss_error_counter_enable(bool state);
         void set_iss_cdu_zero(bool state);
         void set_oss_cdu_zero(bool state);
+        void count_channel_error_counter(size_t channel_index, CDU_COUNT_DIRECTION direction);
 
     private:
         std::array<CduChannel, 3> channels{};
