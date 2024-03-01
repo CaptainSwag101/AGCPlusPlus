@@ -1,5 +1,7 @@
 #include "control_pulses.hpp"
 
+#include "agc.hpp"
+
 namespace agcplusplus::block2 {
 static void _1xp10(Cpu& cpu) {
     cpu.g = 0;
@@ -72,7 +74,20 @@ static void monex(Cpu& cpu) {
 }
 
 static void mout(Cpu& cpu) {
-    // TODO: Implement this
+    switch (cpu.s - 024) {
+        case COUNTER_CDUXD: {
+            Agc::cdu.count_channel_error_counter(0, DOWN);
+            break;
+        }
+        case COUNTER_CDUYD: {
+            Agc::cdu.count_channel_error_counter(1, DOWN);
+            break;
+        }
+        case COUNTER_CDUZD: {
+            Agc::cdu.count_channel_error_counter(2, DOWN);
+            break;
+        }
+    }
 }
 
 static void neacof(Cpu& cpu) {
@@ -104,7 +119,20 @@ static void ponex(Cpu& cpu) {
 }
 
 static void pout(Cpu& cpu) {
-    // TODO: Implement this
+    switch (cpu.s - 024) {
+        case COUNTER_CDUXD: {
+            Agc::cdu.count_channel_error_counter(0, UP);
+            break;
+        }
+        case COUNTER_CDUYD: {
+            Agc::cdu.count_channel_error_counter(1, UP);
+            break;
+        }
+        case COUNTER_CDUZD: {
+            Agc::cdu.count_channel_error_counter(2, UP);
+            break;
+        }
+    }
 }
 
 static void ptwox(Cpu& cpu) {
@@ -581,13 +609,26 @@ static void zip(Cpu& cpu) {
 
 static void zout(Cpu& cpu) {
     switch (cpu.s - 024) {
-        case COUNTER_TIME6:
+        case COUNTER_TIME6: {
             // Clear bit 16 of I/O channel 13
             word temp = cpu.read_io_channel(013);
             temp &= ~BITMASK_16;
             cpu.write_io_channel(013, temp);
             cpu.interrupts[RUPT_T6RUPT] = true;
             break;
+        }
+        case COUNTER_CDUXD: {
+            cpu.io_channels[014] &= ~BITMASK_15;
+            break;
+        }
+        case COUNTER_CDUYD: {
+            cpu.io_channels[014] &= ~BITMASK_14;
+            break;
+        }
+        case COUNTER_CDUZD: {
+            cpu.io_channels[014] &= ~BITMASK_13;
+            break;
+        }
     }
 }
 }
