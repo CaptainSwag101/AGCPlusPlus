@@ -19,9 +19,9 @@ namespace agcplusplus::block2 {
         // Assign workaround values for I/O channels 30-33,
         // which have an inverted state
         io_channels[030] = ~0040400; // Set TEMP IN LIMITS and IMU OPERATE
-        io_channels[031] = 0177777;
-        io_channels[032] = 0177777;
-        io_channels[033] = 0177777;
+        io_channels[031] = ~0000000;
+        io_channels[032] = ~0000000;
+        io_channels[033] = ~0000000;
 
         // GOJAM to initialize state
         gojam();
@@ -75,7 +75,7 @@ namespace agcplusplus::block2 {
         mcro = false;
 
         // HACK: Reset I/O channel 33 to inverted state
-        io_channels[033] = 0177777;
+        io_channels[033] = ~0000000;
 
         // Before pulse 1, check for GOJAM and do INKBT1
         if (timepulse == 1) {
