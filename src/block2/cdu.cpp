@@ -7,8 +7,8 @@
 
 namespace agcplusplus::block2 {
     double CduChannel::get_coarse_error() const {
-        const double cos_voltage = std::cos(theta) * CDU_VOLTAGE;
-        const double sin_voltage = std::sin(theta) * CDU_VOLTAGE;
+        const double cos_voltage = std::cos(theta) * COARSE_VOLTAGE;
+        const double sin_voltage = std::sin(theta) * COARSE_VOLTAGE;
 
         // Determine the output at the op-amp by summing up the coarse system switches,
         // per the DC1-DC12 logic dependent on the set bits of the read counter.
@@ -51,16 +51,16 @@ namespace agcplusplus::block2 {
         }
         // Ladder switches.
         if ((read_counter & COARSE_S9_MASK) == (COARSE_S9_VALUE & COARSE_S9_MASK)) {
-            amplifier_output += CDU_VOLTAGE * COARSE_S9_RESISTOR;
+            amplifier_output += COARSE_VOLTAGE * COARSE_S9_RESISTOR;
         }
         if ((read_counter & COARSE_S10_MASK) == (COARSE_S10_VALUE & COARSE_S10_MASK)) {
-            amplifier_output += -CDU_VOLTAGE * COARSE_S10_RESISTOR;
+            amplifier_output += -COARSE_VOLTAGE * COARSE_S10_RESISTOR;
         }
         if ((read_counter & COARSE_S11_MASK) == (COARSE_S11_VALUE & COARSE_S11_MASK)) {
-            amplifier_output += -CDU_VOLTAGE * COARSE_S11_RESISTOR;
+            amplifier_output += -COARSE_VOLTAGE * COARSE_S11_RESISTOR;
         }
         if ((read_counter & COARSE_S12_MASK) == (COARSE_S12_VALUE & COARSE_S12_MASK)) {
-            amplifier_output += -CDU_VOLTAGE * COARSE_S12_RESISTOR;
+            amplifier_output += -COARSE_VOLTAGE * COARSE_S12_RESISTOR;
         }
 
         return amplifier_output;
@@ -196,7 +196,7 @@ namespace agcplusplus::block2 {
         const double diff = ladder_amp_voltage * mult;
         junction_voltage += diff;
 
-        return -junction_voltage * msa_gain * CDU_VOLTAGE;
+        return -junction_voltage * msa_gain * FINE_VOLTAGE;
     }
 
     void Cdu::tick_cmc() {
