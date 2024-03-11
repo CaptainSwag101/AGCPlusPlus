@@ -126,14 +126,28 @@ namespace agcplusplus::block2 {
             if (s <= MEM_ERASABLE_END) {    // Erasable memory
                 if (s >= 010 && !channel_access) {  // Don't perform an erasable cycle during I/O
                     s_writeback = s; // Preserve S in case it's changed before the writeback
-                    word erasable_addr = get_erasable_absolute_addr();
+                    const word erasable_addr = get_erasable_absolute_addr(s, eb);
                     g = Agc::memory.read_erasable_word(erasable_addr);
+
+                    // If address being read/written is 67, signal the night watchman
+                    if (erasable_addr == 067) {
+                        night_watchman = true;
+                    }
+
+                    if (Agc::config.log_memory) {
+                        Agc::log_stream << std::oct;
+                        Agc::log_stream << "Read from erasable memory ";
+                        Agc::log_stream << std::setw(2) << eb << ",";
+                        Agc::log_stream << std::setw(4) << erasable_addr << ": ";
+                        Agc::log_stream << std::setw(6) << g << std::endl;
+                        Agc::log_stream << std::dec;
+                    }
                 }
             } else {    // Fixed memory
                 // Don't read from fixed memory during division steps 3, 7, 6, or 4.
                 // Based on SBF being inhibited by hardware logic during those phases.
                 if (!dv || st < 3) {
-                    word fixed_addr = get_fixed_absolute_addr();
+                    const word fixed_addr = get_fixed_absolute_addr(s, fb, fext);
                     // Check parity by reading raw value
                     // Adapted from http://graphics.stanford.edu/~seander/bithacks.html#ParityMultiply
                     word v = Agc::memory.read_fixed_word(fixed_addr, true);
@@ -146,18 +160,38 @@ namespace agcplusplus::block2 {
                         queue_gojam();
                     }
                     g = Agc::memory.read_fixed_word(fixed_addr);
+
+                    if (Agc::config.log_memory) {
+                        Agc::log_stream << std::oct;
+                        Agc::log_stream << "Read from fixed memory ";
+                        Agc::log_stream << std::setw(2) << fb << ",";
+                        Agc::log_stream << std::setw(4) << fixed_addr << ": ";
+                        Agc::log_stream << std::setw(6) << g << std::endl;
+                        Agc::log_stream << std::dec;
+                    }
                 }
             }
         }
 
         // Memory writebacks are done before T10 if we performed an erasable read
         if (timepulse == 10 && s_writeback != 0) {
-            // Preserve S but replace it so we can use get_erasable_absolute_addr()
-            word s_temp2 = s;
-            s = s_writeback;
-            Agc::memory.write_erasable_word(get_erasable_absolute_addr(), g);
-            s = s_temp2;    // Restore S now that we've properly calculated the erasable address
+            const word erasable_addr = get_erasable_absolute_addr(s_writeback, eb);
+            Agc::memory.write_erasable_word(erasable_addr, g);
             s_writeback = 0;
+
+            // If address being read/written is 67, signal the night watchman
+            if (erasable_addr == 067) {
+                night_watchman = true;
+            }
+
+            if (Agc::config.log_memory) {
+                Agc::log_stream << std::oct;
+                Agc::log_stream << "Write to erasable memory ";
+                Agc::log_stream << std::setw(2) << eb << ",";
+                Agc::log_stream << std::setw(4) << erasable_addr << ": ";
+                Agc::log_stream << std::setw(6) << g << std::endl;
+                Agc::log_stream << std::dec;
+            }
         }
     }
 
@@ -321,38 +355,33 @@ namespace agcplusplus::block2 {
         fb = bb & BITMASK_11_15;
     }
 
-    word Cpu::get_erasable_absolute_addr() {
+    word Cpu::get_erasable_absolute_addr(const word address, const word bank) {
         word abs_addr;
 
-        if (s >= MEM_ERASABLE_BANKED_START && s <= MEM_ERASABLE_BANKED_END) {
-            abs_addr = s & 0377;
-            abs_addr |= eb;
+        if (address >= MEM_ERASABLE_BANKED_START && address <= MEM_ERASABLE_BANKED_END) {
+            abs_addr = address & 0377;
+            abs_addr |= bank;
         } else {
-            abs_addr = s;
-        }
-
-        // If address being read/written is 67, signal the night watchman
-        if (abs_addr == 067) {
-            night_watchman = true;
+            abs_addr = address;
         }
 
         return abs_addr;
     }
 
-    word Cpu::get_fixed_absolute_addr() const {
+    word Cpu::get_fixed_absolute_addr(const word address, const word bank, const word superbank) {
         word abs_addr;
 
-        if (s >= MEM_FIXED_BANKED_START && s <= MEM_FIXED_BANKED_END) {
-            abs_addr = s & 01777;
+        if (address >= MEM_FIXED_BANKED_START && address <= MEM_FIXED_BANKED_END) {
+            abs_addr = address & 01777;
             // Check if we're superbanking
-            if (((fext >> 4) >= 4) && (fb >= 060000)) { // Yes, superbank
-                abs_addr |= (fb & 0016000); // Mask out the top two bits of FB
-                abs_addr |= (fext << 9);    // Put FEXT's three bits over the top two bits and extend
+            if (((superbank >> 4) >= 4) && (bank >= 060000)) { // Yes, superbank
+                abs_addr |= (bank & 0016000); // Mask out the top two bits of FB
+                abs_addr |= (superbank << 9);    // Put FEXT's three bits over the top two bits and extend
             } else {    // No, not superbank
-                abs_addr |= fb;
+                abs_addr |= bank;
             }
         } else {
-            abs_addr = s;
+            abs_addr = address;
         }
 
         return abs_addr;

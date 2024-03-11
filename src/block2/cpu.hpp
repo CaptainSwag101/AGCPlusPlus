@@ -36,8 +36,8 @@ public:
     void update_eb_fb();
 
     // Memory functions
-    [[nodiscard]] word get_erasable_absolute_addr();
-    [[nodiscard]] word get_fixed_absolute_addr() const;
+    [[nodiscard]] static word get_erasable_absolute_addr(word address, word bank);
+    [[nodiscard]] static word get_fixed_absolute_addr(word address, word bank, word superbank);
 
     // Debug functions
     void print_state_info(std::ostream& output) const;
