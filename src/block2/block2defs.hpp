@@ -1,8 +1,6 @@
-#include <cmath>
+#pragma once
 
 #include "../common/global_definitions.hpp"
-
-#pragma once
 
 namespace agcplusplus::block2 {
 constexpr uint64_t SIZE_ERASABLE_MEM = 2048;

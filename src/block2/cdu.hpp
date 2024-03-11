@@ -160,21 +160,22 @@ namespace agcplusplus::block2 {
 
     class CduChannel {
     public:
-        double theta = 150.0 * DEG_TO_RAD; // Radians
+        double theta = 0.0 * DEG_TO_RAD; // Radians
         uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
-        int16_t error_counter = 0;
+        uint16_t error_counter = 0;
         double prev_coarse_error = 0.0;
         double prev_fine_error = 0.0;
         bool zero_discrete = false;
         bool coarse_align = false;
         bool error_counter_enable = false;
+        bool error_counter_polarity_invert = false;
         bool should_count = false;
         CDU_COUNT_DIRECTION read_counter_direction = NONE;
         COUNT_SPEED count_speed = HIGH;
         CDU_COUNT_DIRECTION error_counter_direction = NONE;
 
-        [[nodiscard]] double coarse_error() const;
-        [[nodiscard]] double fine_error(double msa_gain) const;
+        [[nodiscard]] double get_coarse_error() const;
+        [[nodiscard]] double get_fine_error(double msa_gain) const;
     };
 
     class Cdu {
