@@ -85,7 +85,7 @@ namespace agcplusplus::block2 {
             }
 
             // Service INKL
-            if (inkl && st == 0) {
+            if (inkl) {
                 for (int c = 0; c < counters.size(); ++c) {
                     const word direction = counters[c];
 
@@ -108,6 +108,7 @@ namespace agcplusplus::block2 {
                     }
                 }
             }
+            inkl = false;
 
             if (st != 2) {
                 fetch_next_instruction = false;
@@ -186,18 +187,19 @@ namespace agcplusplus::block2 {
                 channel_access = false;
 
                 // Check for pending counter requests
-                inkl = false;
-                for (size_t c = 0; c < counters.size(); ++c) {
-                    if (counters[c] != COUNT_DIRECTION_NONE && !pseudo && !Agc::config.ignore_counters) {
-                        inkl = true;
-                        break;
+                if (!pseudo && !Agc::config.ignore_counters) {
+                    for (const word counter : counters) {
+                        if (counter != COUNT_DIRECTION_NONE) {
+                            inkl = true;
+                            break;
+                        }
                     }
                 }
 
                 // Check for pending interrupts
                 bool rupt_pending = false;
                 for (const bool& interrupt : interrupts) {
-                    if (interrupt) {
+                    if (interrupt && !inkl) {
                         rupt_pending = true;
                         break;
                     }
