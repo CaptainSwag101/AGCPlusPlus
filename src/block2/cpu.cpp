@@ -108,7 +108,6 @@ namespace agcplusplus::block2 {
                     }
                 }
             }
-            inkl = false;
 
             if (st != 2) {
                 fetch_next_instruction = false;
@@ -181,6 +180,7 @@ namespace agcplusplus::block2 {
             // Push stage to its next pending value
             st = st_next;
             st_next = 0;
+            inkl = false;
 
             if (fetch_next_instruction) {
                 // I/O channel access is done, if it was performed.
