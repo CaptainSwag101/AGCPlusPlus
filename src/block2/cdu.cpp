@@ -364,11 +364,20 @@ namespace agcplusplus::block2 {
                 corrected_direction = corrected_direction == DOWN ? UP : DOWN;
             }
 
-            channel.theta += (TWENTY_ARCSECONDS * 8) * DEG_TO_RAD * (channel.error_counter_direction == DOWN ? -1.0 : 1.0);
-            if (channel.theta < 0.0)
-                channel.theta = (360.0 * DEG_TO_RAD) + channel.theta;
-            if (channel.theta > (360.0 * DEG_TO_RAD))
-                channel.theta = channel.theta - (360.0 * DEG_TO_RAD);
+            // DAC and coarse align mixing amplifier
+            const double error_counter_degrees = channel.error_counter * TWENTY_ARCSECONDS * 8; // 160 arc-seconds per value
+            const double v_dac = error_counter_degrees * 0.3;  // 0.3 Vrms per degree
+            const double v_dac_clamped = std::clamp(v_dac, 0.0, 0.5);
+            const double fine_error = channel.get_fine_error(1.0);
+            const double v_ca = (v_dac_clamped / 3.0) + fine_error;
+
+            if (v_ca > 0.0) {
+                channel.theta += (TWENTY_ARCSECONDS * 8) * DEG_TO_RAD * (channel.error_counter_direction == DOWN ? -1.0 : 1.0);
+                if (channel.theta < 0.0)
+                    channel.theta = (360.0 * DEG_TO_RAD) + channel.theta;
+                if (channel.theta > (360.0 * DEG_TO_RAD))
+                    channel.theta = channel.theta - (360.0 * DEG_TO_RAD);
+            }
 
             // Pulse the error counter
             channel.error_counter += corrected_direction == DOWN ? -1 : 1;
