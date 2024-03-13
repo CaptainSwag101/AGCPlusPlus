@@ -349,7 +349,6 @@ namespace agcplusplus::block2 {
         // Don't pulse the read counter if we just got an error counter pulse from the AGC.
         if (channel.should_count && channel.error_counter_direction == NONE) {
             channel.read_counter += channel.read_counter_direction == DOWN ? -1 : 1;
-            channel.should_count = false;
         }
 
         // AGC -> error counter logic
@@ -380,16 +379,18 @@ namespace agcplusplus::block2 {
         // Send pulse train to AGC, and count down error counter.
         const uint16_t cur_readcounter_div2 = channel.read_counter / 2;
         const uint16_t cur_readcounter_div4 = channel.read_counter / 4;
-        if (channel.read_counter_direction != NONE) {
+        if (channel.should_count && channel.read_counter_direction != NONE) {
             if (cur_readcounter_div2 != prev_readcounter_div2)
                 Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
 
-            // TODO: Error Counter countdown stuff
+            // Error Counter countdown is either 3200 cps or 800 cps depending on error signals F2/C1 vs. F1.
             if (cur_readcounter_div4 != prev_readcounter_div4 && channel.coarse_align && channel.error_counter_enable) {
                 channel.error_counter -= 1;
                 if (channel.error_counter < 0) channel.error_counter = 0;
             }
         }
+
+        channel.should_count = false;
     }
 
     void Cdu::set_iss_coarse_align(const bool state) {
