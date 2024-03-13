@@ -404,6 +404,10 @@ namespace agcplusplus::block2 {
         for (int c = 0; c < 3; ++c) {
             auto& channel = channels[c];
             channel.error_counter_enable = state;
+
+            if (state == false) {
+                channel.error_counter = 0;
+            }
         }
         //Agc::log_stream << "ISS error counter enable = " << state << std::endl;
     }
@@ -420,6 +424,10 @@ namespace agcplusplus::block2 {
         for (int c = 3; c < channels.size(); ++c) {
             auto& channel = channels[c];
             channel.error_counter_enable = state;
+
+            if (state == false) {
+                channel.error_counter = 0;
+            }
         }
         //Agc::log_stream << "OSS/Radar error counter enable = " << state << std::endl;
     }
