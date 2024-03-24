@@ -375,7 +375,10 @@ namespace agcplusplus::block2 {
 
             // Pulse the error counter
             channel.error_counter += corrected_direction == DOWN ? -1 : 1;
-            if (channel.error_counter > 384) channel.error_counter = 384;
+            if (channel.error_counter > 384) {
+                std::cerr << "Error counter saturated! This could be a problem." << std::endl;
+                channel.error_counter = 384;
+            }
             channel.error_counter_direction = NONE;
         }
 
