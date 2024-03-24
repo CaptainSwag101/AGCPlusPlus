@@ -410,9 +410,9 @@ namespace agcplusplus::block2 {
                 channel.error_counter -= 1;
                 if (channel.error_counter < 0) channel.error_counter = 0;
             }
-        }
 
-        channel.should_count = false;
+            channel.should_count = false;
+        }
     }
 
     void Cdu::set_iss_coarse_align(const bool state) {
