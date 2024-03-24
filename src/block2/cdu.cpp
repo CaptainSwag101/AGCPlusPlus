@@ -210,6 +210,15 @@ namespace agcplusplus::block2 {
         prev_state = cur_state;
         ++cur_state;
 
+        //HACK: Lightning strike at 60 seconds, set read counter bit 14
+        /*if (cur_state == 25600 * 60) {
+            std::cout << "LIGHTNING STRIKE!" << std::endl;
+
+            for (size_t c = 0; c < 3; ++c) {
+                channels[c].read_counter |= B14;
+            }
+        }*/
+
         const bool squarewave_25_6_kpps = (cur_state & 1);
         const bool squarewave_12_8_kpps = (cur_state & 2);
         const bool squarewave_6_4_kpps = (cur_state & 4);
@@ -364,25 +373,28 @@ namespace agcplusplus::block2 {
                 corrected_direction = corrected_direction == DOWN ? UP : DOWN;
             }
 
+            // Pulse the error counter
+            channel.error_counter += corrected_direction == DOWN ? -1 : 1;
+            if (channel.error_counter > 384) channel.error_counter = 384;
+            channel.error_counter_direction = NONE;
+        }
+
+        // Coarse Align and DAC
+        if (channel.coarse_align) {
             // DAC and coarse align mixing amplifier
             const double error_counter_degrees = channel.error_counter * TWENTY_ARCSECONDS * 8; // 160 arc-seconds per value
             const double v_dac = error_counter_degrees * 0.3;  // 0.3 Vrms per degree
-            const double v_dac_clamped = std::clamp(v_dac, 0.0, 0.5);
+            const double v_dac_clamped = std::clamp(v_dac, 0.0, 1.0); // Diode limited to 1 volt?
             const double fine_error = channel.get_fine_error(1.0);
-            const double v_ca = (v_dac_clamped / 3.0) + fine_error;
+            const double v_ca = (v_dac_clamped * 0.315) + (fine_error * 0.43);
 
             if (v_ca > 0.0) {
-                channel.theta += (TWENTY_ARCSECONDS * 8) * DEG_TO_RAD * (channel.error_counter_direction == DOWN ? -1.0 : 1.0);
+                channel.theta += (TWENTY_ARCSECONDS * 8) * DEG_TO_RAD * (std::signbit(v_ca) ? -1.0 : 1.0);
                 if (channel.theta < 0.0)
                     channel.theta = (360.0 * DEG_TO_RAD) + channel.theta;
                 if (channel.theta > (360.0 * DEG_TO_RAD))
                     channel.theta = channel.theta - (360.0 * DEG_TO_RAD);
             }
-
-            // Pulse the error counter
-            channel.error_counter += corrected_direction == DOWN ? -1 : 1;
-            if (channel.error_counter > 384) channel.error_counter = 384;
-            channel.error_counter_direction = NONE;
         }
 
         // Send pulse train to AGC, and count down error counter.
