@@ -385,14 +385,15 @@ namespace agcplusplus::block2 {
         // Coarse Align and DAC
         if (channel.coarse_align) {
             // DAC and coarse align mixing amplifier
-            const double error_counter_degrees = channel.error_counter * TWENTY_ARCSECONDS * 8; // 160 arc-seconds per value
-            const double v_dac = error_counter_degrees * 0.3;  // 0.3 Vrms per degree
-            const double v_dac_clamped = std::clamp(v_dac, 0.0, 1.0); // Diode limited to 1 volt?
-            const double fine_error = channel.get_fine_error(1.0) * 0.43;
-            const double v_ca = (v_dac_clamped * 0.315) + fine_error;
-            const double v_ca_clamped = std::clamp(v_ca, -0.105, 0.105);   // 0.105 volts is enough to drive the gimbal torque amplifier at its max
+            const double error_counter_degrees = (channel.error_counter * TWENTY_ARCSECONDS * 8) / 22.5;    // 160 arc-seconds per value
+            const double v_dac = error_counter_degrees * 0.3 * (channel.error_counter_polarity_invert ? -1.0 : 1.0);    // 0.3 Vrms per degree
+            const double v_dac_clamped = std::clamp(v_dac, -0.5, 0.5);  // Diode limited to 0.5 volts?
+            const double fine_error = channel.get_fine_error(1.0);
+            const double v_ca = (v_dac_clamped * 0.265) + (fine_error * 0.828);     // Mixing ratio is 3:1 in favor of fine error
+            const double v_ca_clamped = std::clamp(v_ca, -0.105, 0.105);    // 0.105 volts is enough to drive the gimbal torque amplifier at its max
 
             if (std::abs(v_ca_clamped) > 5E-4) {
+                const double theta_degrees = channel.theta * RAD_TO_DEG;
                 channel.theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_ca_clamped) ? -1.0 : 1.0);
                 if (channel.theta < 0.0)
                     channel.theta = (360.0 * DEG_TO_RAD) + channel.theta;
