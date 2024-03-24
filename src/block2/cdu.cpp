@@ -385,11 +385,12 @@ namespace agcplusplus::block2 {
             const double error_counter_degrees = channel.error_counter * TWENTY_ARCSECONDS * 8; // 160 arc-seconds per value
             const double v_dac = error_counter_degrees * 0.3;  // 0.3 Vrms per degree
             const double v_dac_clamped = std::clamp(v_dac, 0.0, 1.0); // Diode limited to 1 volt?
-            const double fine_error = channel.get_fine_error(1.0);
-            const double v_ca = (v_dac_clamped * 0.315) + (fine_error * 0.43);
+            const double fine_error = channel.get_fine_error(1.0) * 0.43;
+            const double v_ca = (v_dac_clamped * 0.315) + fine_error;
+            const double v_ca_clamped = std::clamp(v_ca, -0.105, 0.105);   // 0.105 volts is enough to drive the gimbal torque amplifier at its max
 
-            if (v_ca > 0.0) {
-                channel.theta += (TWENTY_ARCSECONDS * 8) * DEG_TO_RAD * (std::signbit(v_ca) ? -1.0 : 1.0);
+            if (std::abs(v_ca_clamped) > 5E-4) {
+                channel.theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_ca_clamped) ? -1.0 : 1.0);
                 if (channel.theta < 0.0)
                     channel.theta = (360.0 * DEG_TO_RAD) + channel.theta;
                 if (channel.theta > (360.0 * DEG_TO_RAD))
