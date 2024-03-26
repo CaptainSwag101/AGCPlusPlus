@@ -339,8 +339,6 @@ namespace agcplusplus::block2 {
             } else if (F2 || F1) {
                 count_down = std::signbit(fine_error);
                 channel.read_counter_direction = count_down ? DOWN : UP;
-            } else {
-                channel.read_counter_direction = NONE;
             }
 
             // Based on error signals, set count speed.
@@ -372,9 +370,24 @@ namespace agcplusplus::block2 {
         const uint16_t prev_readcounter_div2 = channel.read_counter / 2;
         const uint16_t prev_readcounter_div4 = channel.read_counter / 4;
 
+        // Send pulse train to AGC, and count down error counter.
+        const uint16_t cur_readcounter_div2 = channel.read_counter / 2; // Check for bit 0 overflow (in bit 1)
+        const uint16_t cur_readcounter_div4 = channel.read_counter / 4; // Check for bit 2 overflow (in bit 2)
+
         // Don't pulse the read counter if we just got an error counter pulse from the AGC.
         if (channel.should_count && channel.error_counter_direction == NONE) {
             channel.read_counter += channel.read_counter_direction == DOWN ? -1 : 1;
+
+            if (cur_readcounter_div2 != prev_readcounter_div2)
+                Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
+
+            // Error Counter countdown is either 3200 cps or 800 cps depending on error signals F2/C1 vs. F1.
+            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.coarse_align && channel.error_counter_enable) {
+                channel.error_counter -= 1;
+                if (channel.error_counter < 0) channel.error_counter = 0;
+            }
+
+            channel.should_count = false;
         }
 
         // AGC -> error counter logic
@@ -396,8 +409,8 @@ namespace agcplusplus::block2 {
                 std::cerr << "Error counter saturated! This could be a problem." << std::endl;
                 channel.error_counter = 384;
             }
-            channel.error_counter_direction = NONE;
         }
+        channel.error_counter_direction = NONE;
 
         // Coarse Align and DAC
         if (channel.coarse_align) {
@@ -417,22 +430,6 @@ namespace agcplusplus::block2 {
                 if (channel.theta > (360.0 * DEG_TO_RAD))
                     channel.theta = channel.theta - (360.0 * DEG_TO_RAD);
             }
-        }
-
-        // Send pulse train to AGC, and count down error counter.
-        const uint16_t cur_readcounter_div2 = channel.read_counter / 2; // Check for bit 0 overflow (in bit 1)
-        const uint16_t cur_readcounter_div4 = channel.read_counter / 4; // Check for bit 2 overflow (in bit 2)
-        if (channel.should_count && channel.read_counter_direction != NONE) {
-            if (cur_readcounter_div2 != prev_readcounter_div2)
-                Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
-
-            // Error Counter countdown is either 3200 cps or 800 cps depending on error signals F2/C1 vs. F1.
-            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.coarse_align && channel.error_counter_enable) {
-                channel.error_counter -= 1;
-                if (channel.error_counter < 0) channel.error_counter = 0;
-            }
-
-            channel.should_count = false;
         }
     }
 
