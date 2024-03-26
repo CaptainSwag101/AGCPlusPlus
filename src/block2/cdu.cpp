@@ -429,7 +429,7 @@ namespace agcplusplus::block2 {
 
             if (std::abs(v_ca_clamped) > 5E-4) {
                 const double theta_degrees = channel.theta * RAD_TO_DEG;
-                channel.theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_ca_clamped) ? -1.0 : 1.0);
+                channel.theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (v_ca_clamped / 0.105);
                 if (channel.theta < 0.0)
                     channel.theta = (360.0 * DEG_TO_RAD) + channel.theta;
                 if (channel.theta > (360.0 * DEG_TO_RAD))
