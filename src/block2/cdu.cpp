@@ -217,11 +217,11 @@ namespace agcplusplus::block2 {
         ++cur_state;
 
         //HACK: Lightning strike at 60 seconds, set read counter bit 14
-        /*if (cur_state == 25600 * 60) {
-            std::cout << "LIGHTNING STRIKE!" << std::endl;
+        /*if (cur_state == 51200 * 60) {
+            std::cerr << "LIGHTNING STRIKE!" << std::endl;
 
             for (size_t c = 0; c < 3; ++c) {
-                channels[c].read_counter |= B14;
+                channels[c].read_counter |= B15;
             }
         }*/
 
@@ -385,31 +385,23 @@ namespace agcplusplus::block2 {
                 Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
 
             // Error Counter countdown is either 3200 cps or 800 cps depending on error signals F2/C1 vs. F1.
-            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.error_counter_enable) {
-                channel.error_counter -= 1;
-                if (channel.error_counter < 0) channel.error_counter = 0;
+            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.error_counter_enable && channel.error_counter != 0) {
+                // Diminish the error counter, so that its absolute value decreases by 1 but preserves its sign.
+                const bool negative = std::signbit(channel.error_counter);
+                channel.error_counter -= negative ? -1 : 1; // Subtract or add one
             }
 
             channel.should_count = false;
         }
 
         // AGC -> error counter logic
+        // Error counter in the real hardware contains and absolute value and other signals determine count direction.
+        // I'm ditching all of that for a simpler logical flow and taking the absolute value only when it's needed.
         if (channel.error_counter_enable && channel.error_counter_direction != NONE) {
-            // Polarity correction logic; the computer may not count down through zero
-            if (channel.error_counter == 0 && channel.error_counter_direction == DOWN) {
-                channel.error_counter_polarity_invert = !channel.error_counter_polarity_invert;
-            }
-
-            CDU_COUNT_DIRECTION corrected_direction = channel.error_counter_direction;
-            if (channel.error_counter_polarity_invert) {
-                // Invert the direction
-                corrected_direction = corrected_direction == DOWN ? UP : DOWN;
-            }
-
             // Pulse the error counter
-            channel.error_counter += corrected_direction == DOWN ? -1 : 1;
-            if (channel.error_counter > 384) {
-                std::cerr << "Error counter saturated! This could be a problem." << std::endl;
+            channel.error_counter += channel.error_counter_direction == DOWN ? -1 : 1;
+            if (std::abs(channel.error_counter) > 384) {
+                std::cerr << "Error counter saturated! This is a problem." << std::endl;
                 channel.error_counter = 384;
             }
         }
@@ -418,13 +410,13 @@ namespace agcplusplus::block2 {
         // Coarse Align and DAC
         if (channel.coarse_align) {
             // DAC and coarse align mixing amplifier
-            const double v_dac = channel.error_counter * 0.0132 * (channel.error_counter_polarity_invert ? -1.0 : 1.0);    // 13.2 mV rms per bit
-            const double v_dac_clamped = std::clamp(v_dac, -1.0, 1.0);  // Diode limited to 1.0 volts?
+            const double v_dac = channel.error_counter * 0.0132;    // 13.2 mV rms per bit
+            const double v_dac_clamped = std::clamp(v_dac, -1.5, 1.5);  // Diode limited to 1.0 volts?
             const double v_fine_error = channel.get_fine_error(1.0);
-            const double v_tma = (v_dac_clamped * 0.256) - (v_fine_error * 0.828);    // Mixing ratio is 3:1 in favor of fine error
+            const double v_tma = (v_dac_clamped * 0.828) - (v_fine_error * 0.265);
             const double v_tma_clamped = std::clamp(v_tma, -0.105, 0.105);    // 0.105 volts is enough to drive the gimbal torque amplifier at its max
 
-            if (std::abs(v_tma_clamped) > 2e-2) {
+            if (std::abs(v_tma_clamped) > 1e-3) {
                 const double theta_degrees = channel.theta * RAD_TO_DEG;
                 channel.theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_tma_clamped) ? -1.0 : 1.0);
                 if (channel.theta < 0.0)
