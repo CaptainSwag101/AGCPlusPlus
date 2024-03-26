@@ -16,7 +16,7 @@ void Scaler::tick() {
     prev_state = cur_state;
     ++cur_state;
 
-    bool F02B = (((cur_state & 2) ^ (prev_state & 2)) && (cur_state & 2) != 0);
+    bool F01A = (((cur_state & 1) ^ (prev_state & 1)) && (cur_state & 1) == 0);
     bool F05A = (((cur_state & BITMASK_5) ^ (prev_state & BITMASK_5)) && (cur_state & BITMASK_5) == 0);
     bool F06B = (((cur_state & BITMASK_6) ^ (prev_state & BITMASK_6)) && (cur_state & BITMASK_6) != 0);
     bool F09B = (((cur_state & BITMASK_9) ^ (prev_state & BITMASK_9)) && (cur_state & BITMASK_9) != 0);
@@ -33,7 +33,7 @@ void Scaler::tick() {
     bool F14H = (F12B && FS13 && !FS14);    // Used for RUPT lock check
 
     // Send 51.2 kpps tick rate to CDU
-    if (F02B) {
+    if (F01A) {
         // Only send pulses to the CDU if CDU ZERO discrete is not present for that channel group
         // For ISS channels, AGC channel 12 bit 5. For OSS/LR/RR, channel 12 bit 1.
         Agc::cdu.tick_cmc();
