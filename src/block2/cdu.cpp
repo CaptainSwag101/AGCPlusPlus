@@ -421,7 +421,7 @@ namespace agcplusplus::block2 {
         // Coarse Align and DAC
         if (channel.coarse_align && channel.error_counter_enable) {
             // DAC and coarse align mixing amplifier
-            const double v_dac = channel.error_counter * 0.00132 * (channel.error_counter_polarity_invert ? -1.0 : 1.0);    // 13.2 mV rms per bit
+            const double v_dac = channel.error_counter * 0.0132 * (channel.error_counter_polarity_invert ? -1.0 : 1.0);    // 13.2 mV rms per bit
             const double v_dac_clamped = std::clamp(v_dac, -0.5, 0.5);  // Diode limited to 0.5 volts?
             const double fine_error = channel.get_fine_error(1.0);
             const double v_ca = (v_dac_clamped * 0.265) + (fine_error * 0.828);     // Mixing ratio is 3:1 in favor of fine error
