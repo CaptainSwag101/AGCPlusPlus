@@ -416,17 +416,17 @@ namespace agcplusplus::block2 {
         channel.error_counter_direction = NONE;
 
         // Coarse Align and DAC
-        if (channel.coarse_align && channel.error_counter_enable) {
+        if (channel.coarse_align) {
             // DAC and coarse align mixing amplifier
             const double v_dac = channel.error_counter * 0.0132 * (channel.error_counter_polarity_invert ? -1.0 : 1.0);    // 13.2 mV rms per bit
-            const double v_dac_clamped = std::clamp(v_dac, -0.5, 0.5);  // Diode limited to 0.5 volts?
-            const double fine_error = channel.get_fine_error(1.0);
-            const double v_ca = (v_dac_clamped * 0.265) + (fine_error * 0.828);     // Mixing ratio is 3:1 in favor of fine error
-            const double v_ca_clamped = std::clamp(v_ca, -0.105, 0.105);    // 0.105 volts is enough to drive the gimbal torque amplifier at its max
+            const double v_dac_clamped = std::clamp(v_dac, -1.0, 1.0);  // Diode limited to 1.0 volts?
+            const double v_fine_error = channel.get_fine_error(1.0);
+            const double v_tma = (v_dac_clamped * 0.256) - (v_fine_error * 0.828);    // Mixing ratio is 3:1 in favor of fine error
+            const double v_tma_clamped = std::clamp(v_tma, -0.105, 0.105);    // 0.105 volts is enough to drive the gimbal torque amplifier at its max
 
-            if (std::abs(v_ca_clamped) > 5E-4) {
+            if (std::abs(v_tma_clamped) > 2e-2) {
                 const double theta_degrees = channel.theta * RAD_TO_DEG;
-                channel.theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (v_ca_clamped / 0.105);
+                channel.theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_tma_clamped) ? -1.0 : 1.0);
                 if (channel.theta < 0.0)
                     channel.theta = (360.0 * DEG_TO_RAD) + channel.theta;
                 if (channel.theta > (360.0 * DEG_TO_RAD))
@@ -440,7 +440,7 @@ namespace agcplusplus::block2 {
             auto& channel = channels[c];
             channel.coarse_align = state;
         }
-        //Agc::log_stream << "ISS coarse align = " << state << std::endl;
+        std::cout << "ISS coarse align = " << state << std::endl;
     }
 
     void Cdu::set_iss_error_counter_enable(const bool state) {
@@ -452,7 +452,7 @@ namespace agcplusplus::block2 {
                 channel.error_counter = 0;
             }
         }
-        //Agc::log_stream << "ISS error counter enable = " << state << std::endl;
+        std::cout << "ISS error counter enable = " << state << std::endl;
     }
 
     void Cdu::set_oss_coarse_align(const bool state) {
