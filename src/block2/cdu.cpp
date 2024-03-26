@@ -6,6 +6,12 @@
 #include "agc.hpp"
 
 namespace agcplusplus::block2 {
+    CduChannel::CduChannel(const std::string& name) {
+        channel_name = name;
+        log_csv = std::ofstream("log_" + name + ".csv");
+        log_csv << "Clock,Theta,Psi,CoarseError,FineError,ErrorCounter\n";
+    }
+
     double CduChannel::get_coarse_error() const {
         const double cos_voltage = std::cos(theta) * COARSE_VOLTAGE;
         const double sin_voltage = std::sin(theta) * COARSE_VOLTAGE;
@@ -248,6 +254,17 @@ namespace agcplusplus::block2 {
 
             // Pulse at 12.8 kpps if not in coarse align.
             for (size_t c = 0; c < channels.size(); ++c) {
+                auto& channel = channels[c];
+
+                const double theta_degrees = channel.theta * RAD_TO_DEG;
+                const double psi_degrees = channel.read_counter * TWENTY_ARCSECONDS;
+                channel.log_csv << cur_state << ',';
+                channel.log_csv << theta_degrees << ',';
+                channel.log_csv << psi_degrees << ',';
+                channel.log_csv << channel.get_coarse_error() << ',';
+                channel.log_csv << channel.get_fine_error(1.0) << ',';
+                channel.log_csv << channel.error_counter << '\n';
+
                 if (!channels[c].coarse_align) {
                     pulse_channel(c);
                 }

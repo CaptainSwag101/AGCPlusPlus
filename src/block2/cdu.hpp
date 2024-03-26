@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <fstream>
 #include <thread>
 
 namespace agcplusplus::block2 {
@@ -170,10 +171,13 @@ namespace agcplusplus::block2 {
         bool error_counter_enable = false;
         bool error_counter_polarity_invert = false;
         bool should_count = false;
+        std::string channel_name;
+        std::ofstream log_csv;
         CDU_COUNT_DIRECTION read_counter_direction = NONE;
         COUNT_SPEED count_speed = HIGH;
         CDU_COUNT_DIRECTION error_counter_direction = NONE;
 
+        explicit CduChannel(const std::string& name);
         [[nodiscard]] double get_coarse_error() const;
         [[nodiscard]] double get_fine_error(double msa_gain) const;
     };
@@ -198,7 +202,7 @@ namespace agcplusplus::block2 {
         void count_channel_error_counter(size_t channel_index, CDU_COUNT_DIRECTION direction);
 
     private:
-        std::array<CduChannel, 3> channels{};
+        std::array<CduChannel, 3> channels{CduChannel("IMU_X"), CduChannel("IMU_Y"), CduChannel("IMU_Z")};
         std::thread iss_timing_thread;
     };
 }
