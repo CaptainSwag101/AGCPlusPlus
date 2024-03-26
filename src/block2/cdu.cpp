@@ -9,7 +9,7 @@ namespace agcplusplus::block2 {
     CduChannel::CduChannel(const std::string& name) {
         channel_name = name;
         log_csv = std::ofstream("log_" + name + ".csv");
-        log_csv << "Clock,Theta,Psi,CoarseError,FineError,ErrorCounter\n";
+        log_csv << "Clock,Theta,Psi,CoarseError,FineError,ErrorCounter,RC_Count,EC_Count\n";
     }
 
     double CduChannel::get_coarse_error() const {
@@ -263,11 +263,15 @@ namespace agcplusplus::block2 {
                 channel.log_csv << psi_degrees << ',';
                 channel.log_csv << channel.get_coarse_error() << ',';
                 channel.log_csv << channel.get_fine_error(1.0) << ',';
-                channel.log_csv << channel.error_counter << '\n';
+                channel.log_csv << channel.error_counter << ',';
+                channel.log_csv << (int)channel.should_count << ',';
+                channel.log_csv << (int)(channel.error_counter_direction != NONE) << ',';
 
                 if (!channels[c].coarse_align) {
                     pulse_channel(c);
                 }
+
+                channel.log_csv << '\n';
             }
         }
 
