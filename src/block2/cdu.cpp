@@ -374,7 +374,7 @@ namespace agcplusplus::block2 {
 
         // Keep track of the previous read counter state to see if we need to pulse the AGC or error counter.
         const uint16_t prev_readcounter_div2 = channel.read_counter / 2;
-        const uint16_t prev_readcounter_div4 = channel.read_counter / 4;
+        const uint16_t prev_readcounter_div4 = channel.read_counter / 8;
 
         // Send pulse train to AGC, and count down error counter.
         // Don't pulse the read counter if we just got an error counter pulse from the AGC.
@@ -382,7 +382,7 @@ namespace agcplusplus::block2 {
             channel.read_counter += channel.read_counter_direction == DOWN ? -1 : 1;
 
             const uint16_t cur_readcounter_div2 = channel.read_counter / 2; // Check for bit 0 overflow (in bit 1)
-            const uint16_t cur_readcounter_div4 = channel.read_counter / 4; // Check for bit 2 overflow (in bit 2)
+            const uint16_t cur_readcounter_div4 = channel.read_counter / 8; // Check for bit 2 overflow (in bit 2)
 
             if (cur_readcounter_div2 != prev_readcounter_div2)
                 Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
