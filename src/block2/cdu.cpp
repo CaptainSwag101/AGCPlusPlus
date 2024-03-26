@@ -339,6 +339,8 @@ namespace agcplusplus::block2 {
             } else if (F2 || F1) {
                 count_down = std::signbit(fine_error);
                 channel.read_counter_direction = count_down ? DOWN : UP;
+            } else {
+                channel.read_counter_direction = NONE;
             }
 
             // Based on error signals, set count speed.
@@ -371,18 +373,18 @@ namespace agcplusplus::block2 {
         const uint16_t prev_readcounter_div4 = channel.read_counter / 4;
 
         // Send pulse train to AGC, and count down error counter.
-        const uint16_t cur_readcounter_div2 = channel.read_counter / 2; // Check for bit 0 overflow (in bit 1)
-        const uint16_t cur_readcounter_div4 = channel.read_counter / 4; // Check for bit 2 overflow (in bit 2)
-
         // Don't pulse the read counter if we just got an error counter pulse from the AGC.
-        if (channel.should_count && channel.error_counter_direction == NONE) {
+        if (channel.should_count && (!channel.error_counter_enable || channel.error_counter_direction == NONE)) {
             channel.read_counter += channel.read_counter_direction == DOWN ? -1 : 1;
+
+            const uint16_t cur_readcounter_div2 = channel.read_counter / 2; // Check for bit 0 overflow (in bit 1)
+            const uint16_t cur_readcounter_div4 = channel.read_counter / 4; // Check for bit 2 overflow (in bit 2)
 
             if (cur_readcounter_div2 != prev_readcounter_div2)
                 Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
 
             // Error Counter countdown is either 3200 cps or 800 cps depending on error signals F2/C1 vs. F1.
-            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.coarse_align && channel.error_counter_enable) {
+            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.error_counter_enable) {
                 channel.error_counter -= 1;
                 if (channel.error_counter < 0) channel.error_counter = 0;
             }
@@ -413,7 +415,7 @@ namespace agcplusplus::block2 {
         channel.error_counter_direction = NONE;
 
         // Coarse Align and DAC
-        if (channel.coarse_align) {
+        if (channel.coarse_align && channel.error_counter_enable) {
             // DAC and coarse align mixing amplifier
             const double error_counter_degrees = (channel.error_counter * TWENTY_ARCSECONDS * 8) / 22.5;    // 160 arc-seconds per value
             const double v_dac = error_counter_degrees * 0.3 * (channel.error_counter_polarity_invert ? -1.0 : 1.0);    // 0.3 Vrms per degree
@@ -422,7 +424,7 @@ namespace agcplusplus::block2 {
             const double v_ca = (v_dac_clamped * 0.265) + (fine_error * 0.828);     // Mixing ratio is 3:1 in favor of fine error
             const double v_ca_clamped = std::clamp(v_ca, -0.105, 0.105);    // 0.105 volts is enough to drive the gimbal torque amplifier at its max
 
-            if (std::abs(v_ca_clamped) > 5E-4) {
+            if (std::abs(v_ca_clamped) > 1E-3) {
                 const double theta_degrees = channel.theta * RAD_TO_DEG;
                 channel.theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_ca_clamped) ? -1.0 : 1.0);
                 if (channel.theta < 0.0)
