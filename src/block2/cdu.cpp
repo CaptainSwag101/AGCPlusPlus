@@ -6,8 +6,9 @@
 #include "agc.hpp"
 
 namespace agcplusplus::block2 {
-    CduChannel::CduChannel(const std::string& name) {
+    CduChannel::CduChannel(const std::string& name, const double initial_theta) {
         channel_name = name;
+        theta = initial_theta;
         log_csv = std::ofstream("log_" + name + ".csv");
         log_csv << "Theta,Psi,CoarseError,FineError,ErrorCounter,RC_Count,EC_Count\n";
     }
@@ -216,14 +217,14 @@ namespace agcplusplus::block2 {
         prev_state = cur_state;
         ++cur_state;
 
-        //HACK: Lightning strike at 60 seconds, set read counter bit 14
-        /*if (cur_state == 51200 * 60) {
+        //HACK: Lightning strike at 45 seconds, set read counter bit 15
+        if (cur_state == 51200 * 45) {
             std::cerr << "LIGHTNING STRIKE!" << std::endl;
 
             for (size_t c = 0; c < 3; ++c) {
                 channels[c].read_counter |= B15;
             }
-        }*/
+        }
 
         const bool squarewave_25_6_kpps = (cur_state & 1);
         const bool squarewave_12_8_kpps = (cur_state & 2);
@@ -262,7 +263,7 @@ namespace agcplusplus::block2 {
                 channel.log_csv << psi_degrees << ',';
                 channel.log_csv << channel.get_coarse_error() << ',';
                 channel.log_csv << channel.get_fine_error(1.0) << ',';
-                channel.log_csv << channel.error_counter << ',';
+                channel.log_csv << std::abs(channel.error_counter) << ',';
                 channel.log_csv << (int)channel.should_count << ',';
                 channel.log_csv << (int)(channel.error_counter_direction != NONE) << '\n';
 
@@ -411,7 +412,7 @@ namespace agcplusplus::block2 {
         if (channel.coarse_align) {
             // DAC and coarse align mixing amplifier
             const double v_dac = channel.error_counter * 0.0132;    // 13.2 mV rms per bit
-            const double v_dac_clamped = std::clamp(v_dac, -1.5, 1.5);  // Diode limited to 1.0 volts?
+            const double v_dac_clamped = std::clamp(v_dac, -1.0, 1.0);  // Diode limited to 1.0 volts?
             const double v_fine_error = channel.get_fine_error(1.0);
             const double v_tma = (v_dac_clamped * 0.828) - (v_fine_error * 0.265);
             const double v_tma_clamped = std::clamp(v_tma, -0.105, 0.105);    // 0.105 volts is enough to drive the gimbal torque amplifier at its max

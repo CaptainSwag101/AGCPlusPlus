@@ -161,8 +161,8 @@ namespace agcplusplus::block2 {
 
     class CduChannel {
     public:
-        double theta = 10.0 * DEG_TO_RAD; // Radians
-        uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);  // Multiplied by 20 arc-seconds to get degrees
+        double theta = 0.0 * DEG_TO_RAD;    // Stored as radians
+        uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);   // Multiplied by 20 arc-seconds to get degrees
         int16_t error_counter = 0;
         double prev_coarse_error = 0.0;
         double prev_fine_error = 0.0;
@@ -177,7 +177,7 @@ namespace agcplusplus::block2 {
         COUNT_SPEED count_speed = HIGH;
         CDU_COUNT_DIRECTION error_counter_direction = NONE;
 
-        explicit CduChannel(const std::string& name);
+        explicit CduChannel(const std::string& name, double initial_theta);
         [[nodiscard]] double get_coarse_error() const;
         [[nodiscard]] double get_fine_error(double msa_gain) const;
     };
@@ -202,7 +202,7 @@ namespace agcplusplus::block2 {
         void count_channel_error_counter(size_t channel_index, CDU_COUNT_DIRECTION direction);
 
     private:
-        std::array<CduChannel, 3> channels{CduChannel("IMU_X"), CduChannel("IMU_Y"), CduChannel("IMU_Z")};
+        std::array<CduChannel, 3> channels{CduChannel("IMU_X", 180 * DEG_TO_RAD), CduChannel("IMU_Y", 90.0 * DEG_TO_RAD), CduChannel("IMU_Z", 0.0)};
         std::thread iss_timing_thread;
     };
 }
