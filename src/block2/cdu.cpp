@@ -374,9 +374,13 @@ namespace agcplusplus::block2 {
         const uint16_t prev_readcounter_div2 = channel.read_counter / 2;
         const uint16_t prev_readcounter_div4 = channel.read_counter / 8;
 
-        // Send pulse train to AGC, and count down error counter.
         // Don't pulse the read counter if we just got an error counter pulse from the AGC.
-        if (channel.should_count && (!channel.error_counter_enable || channel.error_counter_direction == NONE)) {
+        // Also don't pulse if Coarse Align Enable is active but not Error Counter Enable.
+        const bool block_read_counter = (channel.coarse_align && !channel.error_counter_enable) ||
+            (channel.error_counter_enable && channel.error_counter_direction != NONE);
+
+        // Send pulse train to AGC, and count down error counter.
+        if (channel.should_count && !block_read_counter) {
             channel.read_counter += channel.read_counter_direction == DOWN ? -1 : 1;
 
             const uint16_t cur_readcounter_div2 = channel.read_counter / 2; // Check for bit 0 overflow (in bit 1)
