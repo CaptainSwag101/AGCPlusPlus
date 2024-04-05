@@ -90,19 +90,40 @@ namespace agcplusplus::block2 {
                     const word direction = counters[c];
 
                     if (direction != COUNT_DIRECTION_NONE) {
-                        if ((direction & COUNT_DIRECTION_UP) != 0) {
-                            if (c < COUNTER_CDUX || c > COUNTER_SHFT)
+                        switch (COUNTER_INSTRUCTION_TYPES.at(c)) {
+                            case PINC: {
                                 current_subinstruction = COUNT_SUBINST_PINC;
-                            else
-                                current_subinstruction = COUNT_SUBINST_PCDU;
-                        } else if ((direction & COUNT_DIRECTION_DOWN) != 0) {
-                            if (c < COUNTER_CDUX || c > COUNTER_SHFT)
-                                if (c == COUNTER_TIME6 || (c >= COUNTER_CDUXD && c <= COUNTER_SHAFTD))
-                                    current_subinstruction = COUNT_SUBINST_DINC;
+                                break;
+                            }
+                            case PINC_MINC: {
+                                if (direction == COUNT_DIRECTION_UP)
+                                    current_subinstruction = COUNT_SUBINST_PINC;
                                 else
                                     current_subinstruction = COUNT_SUBINST_MINC;
-                            else
-                                current_subinstruction = COUNT_SUBINST_MCDU;
+                                break;
+                            }
+                            case DINC: {
+                                current_subinstruction = COUNT_SUBINST_DINC;
+                                break;
+                            }
+                            case PCDU_MCDU: {
+                                if (direction == COUNT_DIRECTION_UP)
+                                    current_subinstruction = COUNT_SUBINST_PCDU;
+                                else
+                                    current_subinstruction = COUNT_SUBINST_MCDU;
+                                break;
+                            }
+                            case SHINC: {
+                                //current_subinstruction = COUNT_SUBINST_SHINC;
+                                break;
+                            }
+                            case SHINC_SHANC: {
+                                /*if (direction == COUNT_DIRECTION_UP)
+                                    current_subinstruction = COUNT_SUBINST_SHINC;
+                                else
+                                    current_subinstruction = COUNT_SUBINST_SHANC;*/
+                                break;
+                            }
                         }
                         break;
                     }
@@ -441,6 +462,13 @@ namespace agcplusplus::block2 {
             Agc::cdu.set_iss_cdu_zero((io_channels[012] & BITMASK_5) != 0);
             // Channel 12 bit 6 = ISS CDU ZERO discrete
             Agc::cdu.set_iss_error_counter_enable((io_channels[012] & BITMASK_6) != 0);
+        } else if (address == 014) {
+            // Channel 14 bit 6, gyro torque enable
+            Agc::cdu.set_iss_gyro_torque_enable((io_channels[014] & BITMASK_6) != 0);
+            Agc::cdu.set_iss_gyro_select_x((io_channels[014] & BITMASK_7) != 0);
+            Agc::cdu.set_iss_gyro_select_y((io_channels[014] & BITMASK_8) != 0);
+            Agc::cdu.set_iss_gyro_select_z((io_channels[014] & BITMASK_9) != 0);
+            Agc::cdu.set_iss_gyro_activity((io_channels[014] & BITMASK_10) != 0);
         }
     }
 }

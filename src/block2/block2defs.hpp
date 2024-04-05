@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common/global_definitions.hpp"
+#include <map>
 
 namespace agcplusplus::block2 {
 constexpr uint64_t SIZE_ERASABLE_MEM = 2048;
@@ -44,6 +45,46 @@ constexpr word COUNTER_THRSTD = 25;
 constexpr word COUNTER_EMSD = 26;
 constexpr word COUNTER_OTLNK = 27;
 constexpr word COUNTER_ALT = 28;
+
+enum COUNTER_TYPE {
+    PINC,
+    PINC_MINC,
+    DINC,
+    PCDU_MCDU,
+    SHINC,
+    SHINC_SHANC
+};
+const std::map<word, COUNTER_TYPE> COUNTER_INSTRUCTION_TYPES = {
+    {COUNTER_TIME2, PINC},
+    {COUNTER_TIME1, PINC},
+    {COUNTER_TIME3, PINC},
+    {COUNTER_TIME4, PINC},
+    {COUNTER_TIME5, PINC},
+    {COUNTER_TIME6, DINC},
+    {COUNTER_CDUX, PCDU_MCDU},
+    {COUNTER_CDUY, PCDU_MCDU},
+    {COUNTER_CDUZ, PCDU_MCDU},
+    {COUNTER_TRN, PCDU_MCDU},
+    {COUNTER_SHFT, PCDU_MCDU},
+    {COUNTER_PIPAX, PINC_MINC},
+    {COUNTER_PIPAY, PINC_MINC},
+    {COUNTER_PIPAZ, PINC_MINC},
+    {COUNTER_BMAGX, PINC_MINC},
+    {COUNTER_BMAGY, PINC_MINC},
+    {COUNTER_BMAGZ, PINC_MINC},
+    {COUNTER_INLINK, SHINC_SHANC},
+    {COUNTER_RNRAD, SHINC_SHANC},
+    {COUNTER_GYROD, DINC},
+    {COUNTER_CDUXD, DINC},
+    {COUNTER_CDUYD, DINC},
+    {COUNTER_CDUZD, DINC},
+    {COUNTER_TRUND, DINC},
+    {COUNTER_SHAFTD, DINC},
+    {COUNTER_THRSTD, DINC},
+    {COUNTER_EMSD, DINC},
+    {COUNTER_OTLNK, SHINC},
+    {COUNTER_ALT, SHINC},
+};
 
 constexpr word COUNT_DIRECTION_NONE = 0;
 constexpr word COUNT_DIRECTION_UP = 1;
