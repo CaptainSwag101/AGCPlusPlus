@@ -42,6 +42,10 @@ void Scaler::tick() {
     // Process CDU commands from AGC, if their corresponding channel bit enables them.
     if (F05A) {
         const word chan14 = Agc::cpu.read_io_channel(014);
+        if ((chan14 & BITMASK_10) != 0) {
+            Agc::cpu.counters[COUNTER_GYROD] = COUNT_DIRECTION_DOWN;
+        }
+
         if ((chan14 & BITMASK_15) != 0) {
             Agc::cpu.counters[COUNTER_CDUXD] = COUNT_DIRECTION_DOWN;
         }
