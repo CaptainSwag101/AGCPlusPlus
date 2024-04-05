@@ -11,6 +11,9 @@ namespace agcplusplus::block2 {
         theta = initial_theta;
         log_csv = std::ofstream("log_" + name + ".csv");
         log_csv << "Theta,Psi,CoarseError,FineError,ErrorCounter,RC_Count,EC_Count\n";
+
+        static int index = 0;
+        _channel_index = index++;
     }
 
     double CduChannel::get_coarse_error() const {
@@ -206,6 +209,134 @@ namespace agcplusplus::block2 {
         return -junction_voltage * msa_gain * FINE_VOLTAGE;
     }
 
+    void CduChannel::refresh_state() {
+        /*
+         * The majority of the functionality below simulates the behavior of
+         * the Error Counter & Logic Module related to the read counter.
+         */
+
+        // The CDU ZERO discrete resets the read counter and prevents counts.
+        if (zero_discrete) {
+            read_counter = 0;
+            return;
+        }
+
+        const double coarse_error = get_coarse_error();
+        // Choose proper gain for the system: 7.5 for ISS, 15.0 for OSS.
+        // Per procurement spec 2007238 page 12.
+        const double fine_gain = _channel_index < 3 ? 7.5 : 15.0;
+        const double fine_error = get_fine_error(fine_gain);
+
+        // Coarse and fine mixing logic
+        const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
+        const bool F2 = std::abs(fine_error) >= FINE_F2_TRIGGER;
+        const bool F1 = std::abs(fine_error) >= FINE_F1_TRIGGER;
+
+        // Set count direction, or none if no error signals exceed thresholds.
+        bool count_down = false;
+        if (C1) {
+            count_down = std::signbit(coarse_error);
+            read_counter_direction = count_down ? DOWN : UP;
+        } else if (F2 || F1) {
+            count_down = std::signbit(fine_error);
+            read_counter_direction = count_down ? DOWN : UP;
+        } else {
+            read_counter_direction = NONE;
+        }
+
+        // Based on error signals, set count speed.
+        if (C1 || F2) {
+            count_speed = HIGH;
+            should_count = true;
+        } else if (F1) {
+            count_speed = LOW;
+        }
+
+        // These are emulator-related values which I use for printing out the errors as they change.
+        if (coarse_error != prev_coarse_error) {
+            prev_coarse_error = coarse_error;
+            //Agc::log_stream << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
+        }
+
+        if (fine_error != prev_fine_error) {
+            prev_fine_error = fine_error;
+            //Agc::log_stream << "Fine error: " << fine_error / (CDU_VOLTAGE * fine_gain) * RAD_TO_DEG / 16 << std::endl;
+        }
+    }
+
+    // Perform read counter increment/degrement if commanded
+    void CduChannel::update_read_counter() {
+        // Keep track of the previous read counter state to see if we need to pulse the AGC or error counter.
+        const uint16_t prev_readcounter_div2 = read_counter / 2;
+        const uint16_t prev_readcounter_div4 = read_counter / 8;
+
+        // Don't pulse the read counter if we just got an error counter pulse from the AGC.
+        // Also don't pulse if Coarse Align Enable is active but not Error Counter Enable.
+        const bool block_read_counter = (coarse_align && !error_counter_enable) ||
+            (error_counter_enable && error_counter_direction != NONE);
+
+        // Send pulse train to AGC, and count down error counter.
+        if (should_count && !block_read_counter) {
+            read_counter += read_counter_direction == DOWN ? -1 : 1;
+
+            const uint16_t cur_readcounter_div2 = read_counter / 2; // Check for bit 0 overflow (in bit 1)
+            const uint16_t cur_readcounter_div4 = read_counter / 8; // Check for bit 2 overflow (in bit 2)
+
+            if (cur_readcounter_div2 != prev_readcounter_div2)
+                Agc::cpu.counters[COUNTER_CDUX + _channel_index] = (read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
+
+            // Error Counter countdown is either 3200 cps or 800 cps depending on error signals F2/C1 vs. F1.
+            if (cur_readcounter_div4 != prev_readcounter_div4 && error_counter_enable && error_counter != 0) {
+                // Diminish the error counter, so that its absolute value decreases by 1 but preserves its sign.
+                const bool negative = std::signbit(error_counter);
+                error_counter -= negative ? -1 : 1; // Subtract or add one
+            }
+
+            should_count = false;
+        }
+    }
+
+    // AGC -> error counter logic
+    void CduChannel::update_error_counter() {
+        // Error counter in the real hardware contains and absolute value and other signals determine count direction.
+        // I'm ditching all of that for a simpler logical flow and taking the absolute value only when it's needed.
+        if (error_counter_enable && error_counter_direction != NONE) {
+            // Pulse the error counter
+            error_counter += error_counter_direction == DOWN ? -1 : 1;
+            if (std::abs(error_counter) > 384) {
+                std::cerr << "Error counter saturated! This is a problem." << std::endl;
+                error_counter = 384;
+            }
+        }
+        error_counter_direction = NONE;
+    }
+
+    // Coarse Align and DAC
+    void CduChannel::update_coarse_align() {
+        // DAC and coarse align mixing amplifier
+        const double v_dac = error_counter * 0.0132;    // 13.2 mV rms per bit
+        const double v_dac_clamped = std::clamp(v_dac, -1.0, 1.0);  // Diode limited to 1.0 volts?
+        const double v_fine_error = get_fine_error(1.0);
+        const double v_tma = (v_dac_clamped * 0.828) - (v_fine_error * 0.265);
+        const double v_tma_clamped = std::clamp(v_tma, -0.105, 0.105);    // 0.105 volts is enough to drive the gimbal torque amplifier at its max
+
+        if (std::abs(v_tma_clamped) > 1e-3) {
+            const double theta_degrees = theta * RAD_TO_DEG;
+            theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_tma_clamped) ? -1.0 : 1.0);
+            if (theta < 0.0)
+                theta = (360.0 * DEG_TO_RAD) + theta;
+            if (theta > (360.0 * DEG_TO_RAD))
+                theta = theta - (360.0 * DEG_TO_RAD);
+        }
+    }
+
+    // Fine Align/pulse torque
+    void CduChannel::update_fine_align() {
+
+    }
+
+
+
     void Cdu::tick_cmc() {
         // If our ISS timing thread hasn't been created yet, do so.
         // This should only happen once.
@@ -218,13 +349,13 @@ namespace agcplusplus::block2 {
         ++cur_state;
 
         //HACK: Lightning strike at 45 seconds, set read counter bit 15
-        if (cur_state == 51200 * 45) {
+        /*if (cur_state == 51200 * 45) {
             std::cerr << "LIGHTNING STRIKE!" << std::endl;
 
             for (size_t c = 0; c < 3; ++c) {
                 channels[c].read_counter |= B15;
             }
-        }
+        }*/
 
         const bool squarewave_25_6_kpps = (cur_state & 1);
         const bool squarewave_12_8_kpps = (cur_state & 2);
@@ -243,7 +374,9 @@ namespace agcplusplus::block2 {
             //Agc::log_stream << "phase2" << std::endl;
 
             // Determine error and up/down count direction for each channel.
-            refresh_channels();
+            for (auto& channel : channels) {
+                channel.refresh_state();
+            }
         }
 
         if (pulse_phase3) {
@@ -254,9 +387,7 @@ namespace agcplusplus::block2 {
             //Agc::log_stream << "phase4" << std::endl;
 
             // Pulse at 12.8 kpps if not in coarse align.
-            for (size_t c = 0; c < channels.size(); ++c) {
-                auto& channel = channels[c];
-
+            for (auto& channel : channels) {
                 const double theta_degrees = channel.theta * RAD_TO_DEG;
                 const double psi_degrees = channel.read_counter * TWENTY_ARCSECONDS;
                 channel.log_csv << theta_degrees << ',';
@@ -267,8 +398,10 @@ namespace agcplusplus::block2 {
                 channel.log_csv << (int)channel.should_count << ',';
                 channel.log_csv << (int)(channel.error_counter_direction != NONE) << '\n';
 
-                if (!channels[c].coarse_align) {
-                    pulse_channel(c);
+                if (!channel.coarse_align) {
+                    channel.update_read_counter();
+                    channel.update_error_counter();
+                    channel.update_fine_align();
                 }
             }
         }
@@ -277,9 +410,11 @@ namespace agcplusplus::block2 {
             //Agc::log_stream << "phase4_slow" << std::endl;
 
             // Pulse at 6.4 kpps if in coarse align
-            for (size_t c = 0; c < channels.size(); ++c) {
-                if (channels[c].coarse_align) {
-                    pulse_channel(c);
+            for (auto& channel : channels) {
+                if (channel.coarse_align) {
+                    channel.update_read_counter();
+                    channel.update_error_counter();
+                    channel.update_coarse_align();
                 }
             }
         }
@@ -307,137 +442,12 @@ namespace agcplusplus::block2 {
         }
     }
 
-    void Cdu::refresh_channels() {
-        for (size_t channel_num = 0; channel_num < channels.size(); ++channel_num) {
-            auto& channel = channels[channel_num];
-
-            /*
-             * The majority of the functionality below simulates the behavior of
-             * the Error Counter & Logic Module related to the read counter.
-             */
-
-            // The CDU ZERO discrete resets the read counter and prevents counts.
-            if (channel.zero_discrete) {
-                channel.read_counter = 0;
-                continue;
-            }
-
-            const double coarse_error = channel.get_coarse_error();
-            // Choose proper gain for the system: 7.5 for ISS, 15.0 for OSS.
-            // Per procurement spec 2007238 page 12.
-            const double fine_gain = channel_num < 3 ? 7.5 : 15.0;
-            const double fine_error = channel.get_fine_error(fine_gain);
-
-            // Coarse and fine mixing logic
-            const bool C1 = std::abs(coarse_error) >= COARSE_C1_TRIGGER;
-            const bool F2 = std::abs(fine_error) >= FINE_F2_TRIGGER;
-            const bool F1 = std::abs(fine_error) >= FINE_F1_TRIGGER;
-
-            // Set count direction, or none if no error signals exceed thresholds.
-            bool count_down = false;
-            if (C1) {
-                count_down = std::signbit(coarse_error);
-                channel.read_counter_direction = count_down ? DOWN : UP;
-            } else if (F2 || F1) {
-                count_down = std::signbit(fine_error);
-                channel.read_counter_direction = count_down ? DOWN : UP;
-            } else {
-                channel.read_counter_direction = NONE;
-            }
-
-            // Based on error signals, set count speed.
-            if (C1 || F2) {
-                channel.count_speed = HIGH;
-                channel.should_count = true;
-            } else if (F1) {
-                channel.count_speed = LOW;
-            }
-
-            // These are emulator-related values which I use for printing out the errors as they change.
-            if (coarse_error != channel.prev_coarse_error) {
-                channel.prev_coarse_error = coarse_error;
-                //Agc::log_stream << "Coarse error: " << coarse_error / CDU_VOLTAGE * RAD_TO_DEG << std::endl;
-            }
-
-            if (fine_error != channel.prev_fine_error) {
-                channel.prev_fine_error = fine_error;
-                //Agc::log_stream << "Fine error: " << fine_error / (CDU_VOLTAGE * fine_gain) * RAD_TO_DEG / 16 << std::endl;
-            }
-        }
-    }
-
-    void Cdu::pulse_channel(const size_t channel_index) {
-        // Perform read counter increment/degrement if commanded
-        auto& channel = channels[channel_index];
-
-        // Keep track of the previous read counter state to see if we need to pulse the AGC or error counter.
-        const uint16_t prev_readcounter_div2 = channel.read_counter / 2;
-        const uint16_t prev_readcounter_div4 = channel.read_counter / 8;
-
-        // Don't pulse the read counter if we just got an error counter pulse from the AGC.
-        // Also don't pulse if Coarse Align Enable is active but not Error Counter Enable.
-        const bool block_read_counter = (channel.coarse_align && !channel.error_counter_enable) ||
-            (channel.error_counter_enable && channel.error_counter_direction != NONE);
-
-        // Send pulse train to AGC, and count down error counter.
-        if (channel.should_count && !block_read_counter) {
-            channel.read_counter += channel.read_counter_direction == DOWN ? -1 : 1;
-
-            const uint16_t cur_readcounter_div2 = channel.read_counter / 2; // Check for bit 0 overflow (in bit 1)
-            const uint16_t cur_readcounter_div4 = channel.read_counter / 8; // Check for bit 2 overflow (in bit 2)
-
-            if (cur_readcounter_div2 != prev_readcounter_div2)
-                Agc::cpu.counters[COUNTER_CDUX + channel_index] = (channel.read_counter_direction == DOWN) ? COUNT_DIRECTION_DOWN : COUNT_DIRECTION_UP;
-
-            // Error Counter countdown is either 3200 cps or 800 cps depending on error signals F2/C1 vs. F1.
-            if (cur_readcounter_div4 != prev_readcounter_div4 && channel.error_counter_enable && channel.error_counter != 0) {
-                // Diminish the error counter, so that its absolute value decreases by 1 but preserves its sign.
-                const bool negative = std::signbit(channel.error_counter);
-                channel.error_counter -= negative ? -1 : 1; // Subtract or add one
-            }
-
-            channel.should_count = false;
-        }
-
-        // AGC -> error counter logic
-        // Error counter in the real hardware contains and absolute value and other signals determine count direction.
-        // I'm ditching all of that for a simpler logical flow and taking the absolute value only when it's needed.
-        if (channel.error_counter_enable && channel.error_counter_direction != NONE) {
-            // Pulse the error counter
-            channel.error_counter += channel.error_counter_direction == DOWN ? -1 : 1;
-            if (std::abs(channel.error_counter) > 384) {
-                std::cerr << "Error counter saturated! This is a problem." << std::endl;
-                channel.error_counter = 384;
-            }
-        }
-        channel.error_counter_direction = NONE;
-
-        // Coarse Align and DAC
-        if (channel.coarse_align) {
-            // DAC and coarse align mixing amplifier
-            const double v_dac = channel.error_counter * 0.0132;    // 13.2 mV rms per bit
-            const double v_dac_clamped = std::clamp(v_dac, -1.0, 1.0);  // Diode limited to 1.0 volts?
-            const double v_fine_error = channel.get_fine_error(1.0);
-            const double v_tma = (v_dac_clamped * 0.828) - (v_fine_error * 0.265);
-            const double v_tma_clamped = std::clamp(v_tma, -0.105, 0.105);    // 0.105 volts is enough to drive the gimbal torque amplifier at its max
-
-            if (std::abs(v_tma_clamped) > 1e-3) {
-                const double theta_degrees = channel.theta * RAD_TO_DEG;
-                channel.theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_tma_clamped) ? -1.0 : 1.0);
-                if (channel.theta < 0.0)
-                    channel.theta = (360.0 * DEG_TO_RAD) + channel.theta;
-                if (channel.theta > (360.0 * DEG_TO_RAD))
-                    channel.theta = channel.theta - (360.0 * DEG_TO_RAD);
-            }
-        }
-    }
-
     void Cdu::set_iss_coarse_align(const bool state) {
         for (int c = 0; c < 3; ++c) {
             auto& channel = channels[c];
             channel.coarse_align = state;
         }
-        std::cout << "ISS coarse align = " << state << std::endl;
+        Agc::log_stream << "ISS coarse align = " << state << std::endl;
     }
 
     void Cdu::set_iss_error_counter_enable(const bool state) {
@@ -449,7 +459,7 @@ namespace agcplusplus::block2 {
                 channel.error_counter = 0;
             }
         }
-        std::cout << "ISS error counter enable = " << state << std::endl;
+        Agc::log_stream << "ISS error counter enable = " << state << std::endl;
     }
 
     void Cdu::set_oss_coarse_align(const bool state) {
@@ -479,6 +489,31 @@ namespace agcplusplus::block2 {
         }
         /* if (state)
             Agc::log_stream << "ISS CDUs zeroed!" << std::endl; */
+    }
+
+    void Cdu::set_iss_gyro_torque_enable(bool state) {
+        gyro_torque_enable = state;
+        Agc::log_stream << "Gyro torque enable = " << state << std::endl;
+    }
+
+    void Cdu::set_iss_gyro_select_x(bool state) {
+        channels[0].gyro_torque_set = state;
+        Agc::log_stream << "Gyro select X = " << state << std::endl;
+    }
+
+    void Cdu::set_iss_gyro_select_y(bool state) {
+        channels[1].gyro_torque_set = state;
+        Agc::log_stream << "Gyro select Y = " << state << std::endl;
+    }
+
+    void Cdu::set_iss_gyro_select_z(bool state) {
+        channels[2].gyro_torque_set = state;
+        Agc::log_stream << "Gyro select Z = " << state << std::endl;
+    }
+
+    void Cdu::set_iss_gyro_activity(bool state) {
+        gyro_torque_activity = state;
+        Agc::log_stream << "Gyro activity = " << state << std::endl;
     }
 
     void Cdu::set_oss_cdu_zero(const bool state) {

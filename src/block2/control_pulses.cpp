@@ -87,6 +87,10 @@ static void mout(Cpu& cpu) {
             Agc::cdu.count_channel_error_counter(2, DOWN);
             break;
         }
+        case COUNTER_GYROD: {
+            Agc::log_stream << "GYROD MOUT" << std::endl;
+            break;
+        }
     }
 }
 
@@ -130,6 +134,10 @@ static void pout(Cpu& cpu) {
         }
         case COUNTER_CDUZD: {
             Agc::cdu.count_channel_error_counter(2, UP);
+            break;
+        }
+        case COUNTER_GYROD: {
+            Agc::log_stream << "GYROD POUT" << std::endl;
             break;
         }
     }
@@ -627,6 +635,10 @@ static void zout(Cpu& cpu) {
         }
         case COUNTER_CDUZD: {
             cpu.io_channels[014] &= ~BITMASK_13;
+            break;
+        }
+        case COUNTER_GYROD: {
+            Agc::log_stream << "GYROD ZOUT" << std::endl;
             break;
         }
     }

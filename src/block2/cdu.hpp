@@ -176,10 +176,20 @@ namespace agcplusplus::block2 {
         CDU_COUNT_DIRECTION read_counter_direction = NONE;
         COUNT_SPEED count_speed = HIGH;
         CDU_COUNT_DIRECTION error_counter_direction = NONE;
+        bool gyro_torque_set = false;
+        CDU_COUNT_DIRECTION gyro_torque_direction = NONE;
 
         explicit CduChannel(const std::string& name, double initial_theta);
         [[nodiscard]] double get_coarse_error() const;
         [[nodiscard]] double get_fine_error(double msa_gain) const;
+        void refresh_state();
+        void update_read_counter();
+        void update_error_counter();
+        void update_coarse_align();
+        void update_fine_align();
+
+    private:
+        int _channel_index = 0;
     };
 
     class Cdu {
@@ -191,18 +201,23 @@ namespace agcplusplus::block2 {
 
         void tick_cmc();
         [[noreturn]] void tick_iss();
-        void refresh_channels();
-        void pulse_channel(size_t channel_index);
         void set_iss_coarse_align(bool state);
         void set_iss_error_counter_enable(bool state);
+        void set_iss_cdu_zero(bool state);
+        void set_iss_gyro_torque_enable(bool state);
+        void set_iss_gyro_select_x(bool state);
+        void set_iss_gyro_select_y(bool state);
+        void set_iss_gyro_select_z(bool state);
+        void set_iss_gyro_activity(bool state);
         void set_oss_coarse_align(bool state);
         void set_oss_error_counter_enable(bool state);
-        void set_iss_cdu_zero(bool state);
         void set_oss_cdu_zero(bool state);
         void count_channel_error_counter(size_t channel_index, CDU_COUNT_DIRECTION direction);
 
     private:
         std::array<CduChannel, 3> channels{CduChannel("IMU_X", 180 * DEG_TO_RAD), CduChannel("IMU_Y", 90.0 * DEG_TO_RAD), CduChannel("IMU_Z", 0.0)};
         std::thread iss_timing_thread;
+        bool gyro_torque_enable = false;
+        bool gyro_torque_activity = false;
     };
 }
