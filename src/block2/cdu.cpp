@@ -487,8 +487,8 @@ namespace agcplusplus::block2 {
             auto& channel = channels[c];
             channel.zero_discrete = state;
         }
-        /* if (state)
-            Agc::log_stream << "ISS CDUs zeroed!" << std::endl; */
+        if (state)
+            Agc::log_stream << "ISS CDUs zeroed!" << std::endl;
     }
 
     void Cdu::set_iss_gyro_torque_enable(bool state) {

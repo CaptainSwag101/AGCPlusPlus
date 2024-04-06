@@ -18,10 +18,10 @@ namespace agcplusplus::block2 {
 
         // Assign workaround values for I/O channels 30-33,
         // which have an inverted state
-        io_channels[030] = ~0040400; // Set TEMP IN LIMITS and IMU OPERATE
-        io_channels[031] = ~0000000;
-        io_channels[032] = ~0000000;
-        io_channels[033] = ~0000000;
+        io_channels[030].write(~0040400); // Set TEMP IN LIMITS and IMU OPERATE
+        io_channels[031].write(~0000000);
+        io_channels[032].write(~0000000);
+        io_channels[033].write(~0000000);
 
         // GOJAM to initialize state
         gojam();
@@ -47,16 +47,16 @@ namespace agcplusplus::block2 {
         should_gojam = false;
 
         // Clear channels 5, 6, 10-14, 34, 35, and 33 bit 11
-        io_channels[005] = 0;
-        io_channels[006] = 0;
-        io_channels[010] = 0;
-        io_channels[011] = 0;
-        io_channels[012] = 0;
-        io_channels[013] = 0;
-        io_channels[014] = 0;
-        io_channels[034] = 0;
-        io_channels[035] = 0;
-        io_channels[033] = io_channels[033] & ~BITMASK_11;
+        io_channels[005].write(0);
+        io_channels[006].write(0);
+        io_channels[010].write(0);
+        io_channels[011].write(0);
+        io_channels[012].write(0);
+        io_channels[013].write(0);
+        io_channels[014].write(0);
+        io_channels[034].write(0);
+        io_channels[035].write(0);
+        io_channels[033].write(io_channels[033].read() & ~BITMASK_11);
 
         // Clear all pending RUPTs
         for (bool &i : interrupts) {
@@ -75,7 +75,7 @@ namespace agcplusplus::block2 {
         mcro = false;
 
         // HACK: Reset I/O channel 33 to inverted state
-        io_channels[033] = ~0000000;
+        io_channels[033].write(~0000000);
 
         // Before pulse 1, check for GOJAM and do INKBT1
         if (timepulse == 1) {
@@ -422,7 +422,7 @@ namespace agcplusplus::block2 {
             result = fext;
             break;
         default:
-            result = io_channels[address] & ~BITMASK_16;    // Mask out bit 16, since erasable words are only 15 bits wide
+            result = (io_channels[address].read() & ~BITMASK_16);   // Mask out bit 16, since erasable words are only 15 bits wide
             result |= ((result & BITMASK_15) << 1);   // Copy bit 15 into bit 16
             break;
         }
@@ -446,29 +446,65 @@ namespace agcplusplus::block2 {
             word temp = data & ~BITMASK_15; // Mask out bit 15
             temp |= ((temp & BITMASK_16) >> 1); // Copy bit 16 into bit 15
             temp &= ~BITMASK_16;    // Mask out bit 16 since erasable words are only 15 bits wide
-            io_channels[address] = temp;
+            io_channels[address].write(temp);
             break;
         }
 
         // Special-case logic for important channels
         if (address == 012) {
+            auto const& chan12 = io_channels[012];
             // Channel 12 bit 1 = OSS CDU ZERO discrete
-            Agc::cdu.set_oss_cdu_zero((io_channels[012] & 1) != 0);
+            if (chan12.was_bit_set(1))
+                Agc::cdu.set_oss_cdu_zero(true);
+            else if (chan12.was_bit_reset(1))
+                Agc::cdu.set_oss_cdu_zero(false);
             // Channel 12 bit 2 = OSS error counter enable
-            Agc::cdu.set_oss_error_counter_enable((io_channels[012] & BITMASK_2) != 0);
+            if (chan12.was_bit_set(2))
+                Agc::cdu.set_oss_error_counter_enable(true);
+            else if (chan12.was_bit_reset(2))
+                Agc::cdu.set_oss_error_counter_enable(false);
             // Channel 12 bit 4 = ISS coarse align
-            Agc::cdu.set_iss_coarse_align((io_channels[012] & BITMASK_4) != 0);
+            if (chan12.was_bit_set(4))
+                Agc::cdu.set_iss_coarse_align(true);
+            else if (chan12.was_bit_reset(4))
+                Agc::cdu.set_iss_coarse_align(false);
             // Channel 12 bit 5 = ISS CDU ZERO discrete
-            Agc::cdu.set_iss_cdu_zero((io_channels[012] & BITMASK_5) != 0);
-            // Channel 12 bit 6 = ISS CDU ZERO discrete
-            Agc::cdu.set_iss_error_counter_enable((io_channels[012] & BITMASK_6) != 0);
+            if (chan12.was_bit_set(5))
+                Agc::cdu.set_iss_cdu_zero(true);
+            else if (chan12.was_bit_reset(5))
+                Agc::cdu.set_iss_cdu_zero(false);
+            // Channel 12 bit 6 = ISS error counter enable
+            if (chan12.was_bit_set(6))
+                Agc::cdu.set_iss_error_counter_enable(true);
+            else if (chan12.was_bit_reset(6))
+                Agc::cdu.set_iss_error_counter_enable(false);
         } else if (address == 014) {
+            auto const& chan14 = io_channels[014];
             // Channel 14 bit 6, gyro torque enable
-            Agc::cdu.set_iss_gyro_torque_enable((io_channels[014] & BITMASK_6) != 0);
-            Agc::cdu.set_iss_gyro_select_x((io_channels[014] & BITMASK_7) != 0);
-            Agc::cdu.set_iss_gyro_select_y((io_channels[014] & BITMASK_8) != 0);
-            Agc::cdu.set_iss_gyro_select_z((io_channels[014] & BITMASK_9) != 0);
-            Agc::cdu.set_iss_gyro_activity((io_channels[014] & BITMASK_10) != 0);
+            if (chan14.was_bit_set(6))
+                Agc::cdu.set_iss_gyro_torque_enable(true);
+            else if (chan14.was_bit_reset(6))
+                Agc::cdu.set_iss_gyro_torque_enable(false);
+            // Channel 14 bit 7, gyro select X?
+            if (chan14.was_bit_set(7))
+                Agc::cdu.set_iss_gyro_select_x(true);
+            else if (chan14.was_bit_reset(7))
+                Agc::cdu.set_iss_gyro_select_x(false);
+            // Channel 14 bit 8, gyro select Y?
+            if (chan14.was_bit_set(8))
+                Agc::cdu.set_iss_gyro_select_y(true);
+            else if (chan14.was_bit_reset(8))
+                Agc::cdu.set_iss_gyro_select_y(false);
+            // Channel 14 bit 9, gyro select Z?
+            if (chan14.was_bit_set(9))
+                Agc::cdu.set_iss_gyro_select_z(true);
+            else if (chan14.was_bit_reset(9))
+                Agc::cdu.set_iss_gyro_select_z(false);
+            // Channel 14 bit 10, gyro activity
+            if (chan14.was_bit_set(10))
+                Agc::cdu.set_iss_gyro_activity(true);
+            else if (chan14.was_bit_reset(10))
+                Agc::cdu.set_iss_gyro_activity(false);
         }
     }
 }

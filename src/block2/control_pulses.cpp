@@ -626,15 +626,15 @@ static void zout(Cpu& cpu) {
             break;
         }
         case COUNTER_CDUXD: {
-            cpu.io_channels[014] &= ~BITMASK_15;
+            cpu.io_channels[014].write(cpu.io_channels[014].read() & ~BITMASK_15);
             break;
         }
         case COUNTER_CDUYD: {
-            cpu.io_channels[014] &= ~BITMASK_14;
+            cpu.io_channels[014].write(cpu.io_channels[014].read() & ~BITMASK_14);
             break;
         }
         case COUNTER_CDUZD: {
-            cpu.io_channels[014] &= ~BITMASK_13;
+            cpu.io_channels[014].write(cpu.io_channels[014].read() & ~BITMASK_13);
             break;
         }
         case COUNTER_GYROD: {

@@ -20,6 +20,35 @@ struct subinstruction {
     std::function<void(Cpu&)> function;
 };
 
+class io_channel {
+public:
+    void write(word data) {
+        _prev_state = _current_state;
+        _current_state = data;
+        _diff = _current_state ^ _prev_state;
+    }
+    [[nodiscard]] word read() const {
+        return _current_state;
+    }
+    [[nodiscard]] word diff() const {
+        return _diff;
+    }
+    // Bit number is 1-based
+    [[nodiscard]] bool was_bit_set(uint8_t bit_num) const {
+        const word mask = 1 << (bit_num - 1);
+        return (_current_state & mask) > 0 && (_diff & mask) > 0;
+    }
+    // Bit number is 1-based
+    [[nodiscard]] bool was_bit_reset(uint8_t bit_num) const {
+        const word mask = 1 << (bit_num - 1);
+        return (_current_state & mask) == 0 && (_diff & mask) > 0;
+    }
+private:
+    word _current_state = ~0;
+    word _prev_state = 0;
+    word _diff = ~0;
+};
+
 class Cpu {
 public:
     // Init functions
@@ -55,7 +84,7 @@ public:
     // I/O
     word read_io_channel(word address);
     void write_io_channel(word address, word data);
-    std::map<int, word> io_channels{};
+    std::map<int, io_channel> io_channels{};
 
     // Internal CPU data
     word write_bus{}, dv_stage{};
