@@ -215,7 +215,7 @@ namespace agcplusplus::block2 {
         void count_channel_error_counter(size_t channel_index, CDU_COUNT_DIRECTION direction);
 
     private:
-        std::array<CduChannel, 3> channels{CduChannel("IMU_X", 180 * DEG_TO_RAD), CduChannel("IMU_Y", 90.0 * DEG_TO_RAD), CduChannel("IMU_Z", 0.0)};
+        std::array<CduChannel, 3> channels{CduChannel("IMU_X", 0 * DEG_TO_RAD), CduChannel("IMU_Y", 0.0 * DEG_TO_RAD), CduChannel("IMU_Z", 0.0)};
         std::thread iss_timing_thread;
         bool gyro_torque_enable = false;
         bool gyro_torque_activity = false;

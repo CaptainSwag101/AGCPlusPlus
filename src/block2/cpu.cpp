@@ -454,57 +454,37 @@ namespace agcplusplus::block2 {
         if (address == 012) {
             auto const& chan12 = io_channels[012];
             // Channel 12 bit 1 = OSS CDU ZERO discrete
-            if (chan12.was_bit_set(1))
-                Agc::cdu.set_oss_cdu_zero(true);
-            else if (chan12.was_bit_reset(1))
-                Agc::cdu.set_oss_cdu_zero(false);
+            if (chan12.were_bits_changed(BITMASK_1))
+                Agc::cdu.set_oss_cdu_zero(chan12.are_bits_set(BITMASK_1));
             // Channel 12 bit 2 = OSS error counter enable
-            if (chan12.was_bit_set(2))
-                Agc::cdu.set_oss_error_counter_enable(true);
-            else if (chan12.was_bit_reset(2))
-                Agc::cdu.set_oss_error_counter_enable(false);
+            if (chan12.were_bits_changed(BITMASK_2))
+                Agc::cdu.set_oss_error_counter_enable(chan12.are_bits_set(BITMASK_2));
             // Channel 12 bit 4 = ISS coarse align
-            if (chan12.was_bit_set(4))
-                Agc::cdu.set_iss_coarse_align(true);
-            else if (chan12.was_bit_reset(4))
-                Agc::cdu.set_iss_coarse_align(false);
+            if (chan12.were_bits_changed(BITMASK_4))
+                Agc::cdu.set_iss_coarse_align(chan12.are_bits_set(BITMASK_4));
             // Channel 12 bit 5 = ISS CDU ZERO discrete
-            if (chan12.was_bit_set(5))
-                Agc::cdu.set_iss_cdu_zero(true);
-            else if (chan12.was_bit_reset(5))
-                Agc::cdu.set_iss_cdu_zero(false);
+            if (chan12.were_bits_changed(BITMASK_5))
+                Agc::cdu.set_iss_cdu_zero(chan12.are_bits_set(BITMASK_5));
             // Channel 12 bit 6 = ISS error counter enable
-            if (chan12.was_bit_set(6))
-                Agc::cdu.set_iss_error_counter_enable(true);
-            else if (chan12.was_bit_reset(6))
-                Agc::cdu.set_iss_error_counter_enable(false);
+            if (chan12.were_bits_changed(BITMASK_6))
+                Agc::cdu.set_iss_error_counter_enable(chan12.are_bits_set(BITMASK_6));
         } else if (address == 014) {
             auto const& chan14 = io_channels[014];
             // Channel 14 bit 6, gyro torque enable
-            if (chan14.was_bit_set(6))
-                Agc::cdu.set_iss_gyro_torque_enable(true);
-            else if (chan14.was_bit_reset(6))
-                Agc::cdu.set_iss_gyro_torque_enable(false);
-            // Channel 14 bit 7, gyro select X?
-            if (chan14.was_bit_set(7))
-                Agc::cdu.set_iss_gyro_select_x(true);
-            else if (chan14.was_bit_reset(7))
-                Agc::cdu.set_iss_gyro_select_x(false);
-            // Channel 14 bit 8, gyro select Y?
-            if (chan14.was_bit_set(8))
-                Agc::cdu.set_iss_gyro_select_y(true);
-            else if (chan14.was_bit_reset(8))
-                Agc::cdu.set_iss_gyro_select_y(false);
-            // Channel 14 bit 9, gyro select Z?
-            if (chan14.was_bit_set(9))
-                Agc::cdu.set_iss_gyro_select_z(true);
-            else if (chan14.was_bit_reset(9))
-                Agc::cdu.set_iss_gyro_select_z(false);
+            if (chan14.were_bits_changed(BITMASK_6))
+                Agc::cdu.set_iss_gyro_torque_enable(chan14.are_bits_set(BITMASK_6));
+            // Channel 14 bit 7 only, gyro select X
+            if (chan14.were_bits_changed(BITMASK_7_8))
+                Agc::cdu.set_iss_gyro_select_x(chan14.are_bits_set(BITMASK_7));
+            // Channel 14 bit 8 only, gyro select Y
+            if (chan14.were_bits_changed(BITMASK_7_8))
+                Agc::cdu.set_iss_gyro_select_y(chan14.are_bits_set(BITMASK_8));
+            // Channel 14 bit 7+8, gyro select Z
+            if (chan14.were_bits_changed(BITMASK_7_8))
+                Agc::cdu.set_iss_gyro_select_z(chan14.are_bits_set(BITMASK_7_8));
             // Channel 14 bit 10, gyro activity
-            if (chan14.was_bit_set(10))
-                Agc::cdu.set_iss_gyro_activity(true);
-            else if (chan14.was_bit_reset(10))
-                Agc::cdu.set_iss_gyro_activity(false);
+            if (chan14.were_bits_changed(BITMASK_10))
+                Agc::cdu.set_iss_gyro_activity(chan14.are_bits_set(BITMASK_10));
         }
     }
 }

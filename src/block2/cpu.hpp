@@ -33,15 +33,12 @@ public:
     [[nodiscard]] word diff() const {
         return _diff;
     }
-    // Bit number is 1-based
-    [[nodiscard]] bool was_bit_set(uint8_t bit_num) const {
-        const word mask = 1 << (bit_num - 1);
-        return (_current_state & mask) > 0 && (_diff & mask) > 0;
+    [[nodiscard]] bool were_bits_changed(const word mask) const {
+        return (_diff & mask) == mask;
     }
     // Bit number is 1-based
-    [[nodiscard]] bool was_bit_reset(uint8_t bit_num) const {
-        const word mask = 1 << (bit_num - 1);
-        return (_current_state & mask) == 0 && (_diff & mask) > 0;
+    [[nodiscard]] bool are_bits_set(const word mask) const {
+        return (_current_state & mask) == mask;
     }
 private:
     word _current_state = ~0;
