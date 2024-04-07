@@ -475,13 +475,11 @@ namespace agcplusplus::block2 {
             if (chan14.were_bits_changed(BITMASK_6))
                 Agc::cdu.set_iss_gyro_torque_enable(chan14.are_bits_set(BITMASK_6));
             // Gyro selection logic
-            if (chan14.were_bits_changed(BITMASK_7) || chan14.were_bits_changed(BITMASK_8)) {
-                // Channel 14 bit 7 only, gyro select X
-                Agc::cdu.set_iss_gyro_select_x(chan14.are_bits_set(BITMASK_7) && !chan14.are_bits_set(BITMASK_8));
-                // Channel 14 bit 8 only, gyro select Y
-                Agc::cdu.set_iss_gyro_select_y(chan14.are_bits_set(BITMASK_8) && !chan14.are_bits_set(BITMASK_7));
-                // Channel 14 bit 7+8, gyro select Z
-                Agc::cdu.set_iss_gyro_select_z(chan14.are_bits_set(BITMASK_7_8));
+            if (chan14.were_bits_changed(BITMASK_7) || chan14.were_bits_changed(BITMASK_8) || chan14.were_bits_changed(BITMASK_9)) {
+                const int gyro = (chan14.read() >> 6) & 7;
+                Agc::cdu.set_iss_gyro_select(gyro & 3);
+                const bool is_negative = (gyro & 4) > 0;
+                Agc::cdu.gyro_set_direction(is_negative ? DOWN : UP);
             }
             // Channel 14 bit 10, gyro activity
             if (chan14.were_bits_changed(BITMASK_10))

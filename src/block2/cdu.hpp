@@ -8,9 +8,10 @@
 
 namespace agcplusplus::block2 {
     // Angle-related constants.
-    constexpr static double TWENTY_ARCSECONDS = 180 / std::pow(2, 15);
-    constexpr static double DEG_TO_RAD = M_PI / 180;
-    constexpr static double RAD_TO_DEG = 180 / M_PI;
+    constexpr static double TWENTY_ARCSECONDS = 360.0 / std::pow(2, 16);
+    constexpr static double GYRO_PULSE_AMOUNT = 360.0 / std::pow(2, 21);    // 0.617981 arc-seconds per pulse
+    constexpr static double DEG_TO_RAD = M_PI / 180.0;
+    constexpr static double RAD_TO_DEG = 180.0 / M_PI;
 
     // Voltage-related constants.
     constexpr double COARSE_VOLTAGE = 4.0; // 8V RMS center-tapped, per ND-1021043 and drawing 1010725.
@@ -161,7 +162,7 @@ namespace agcplusplus::block2 {
 
     class CduChannel {
     public:
-        double theta = 0.0 * DEG_TO_RAD;    // Stored as radians
+        std::unique_ptr<double> theta;  // Stored as radians
         uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);   // Multiplied by 20 arc-seconds to get degrees
         int16_t error_counter = 0;
         double prev_coarse_error = 0.0;
@@ -176,8 +177,6 @@ namespace agcplusplus::block2 {
         CDU_COUNT_DIRECTION read_counter_direction = NONE;
         COUNT_SPEED count_speed = HIGH;
         CDU_COUNT_DIRECTION error_counter_direction = NONE;
-        bool gyro_torque_set = false;
-        CDU_COUNT_DIRECTION gyro_torque_direction = NONE;
 
         explicit CduChannel(const std::string& name, double initial_theta);
         [[nodiscard]] double get_coarse_error() const;
@@ -186,7 +185,7 @@ namespace agcplusplus::block2 {
         void update_read_counter();
         void update_error_counter();
         void update_coarse_align();
-        void update_fine_align();
+        void update_fine_align(CDU_COUNT_DIRECTION direction);
 
     private:
         int _channel_index = 0;
@@ -205,19 +204,19 @@ namespace agcplusplus::block2 {
         void set_iss_error_counter_enable(bool state);
         void set_iss_cdu_zero(bool state);
         void set_iss_gyro_torque_enable(bool state);
-        void set_iss_gyro_select_x(bool state);
-        void set_iss_gyro_select_y(bool state);
-        void set_iss_gyro_select_z(bool state);
-        void set_iss_gyro_activity(bool state);
+        void set_iss_gyro_select(int gyro_index);
+        void set_iss_gyro_activity(bool state) const;
         void set_oss_coarse_align(bool state);
         void set_oss_error_counter_enable(bool state);
         void set_oss_cdu_zero(bool state);
         void count_channel_error_counter(size_t channel_index, CDU_COUNT_DIRECTION direction);
+        void gyro_set_direction(CDU_COUNT_DIRECTION direction);
 
     private:
         std::array<CduChannel, 3> channels{CduChannel("IMU_X", 0 * DEG_TO_RAD), CduChannel("IMU_Y", 0.0 * DEG_TO_RAD), CduChannel("IMU_Z", 0.0)};
         std::thread iss_timing_thread;
         bool gyro_torque_enable = false;
-        bool gyro_torque_activity = false;
+        CDU_COUNT_DIRECTION gyro_pulse_direction = NONE;
+        int gyro_select = -1;
     };
 }

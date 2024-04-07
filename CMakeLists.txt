@@ -35,6 +35,7 @@ set(SOURCES src/main.cpp
         src/block2/timer.hpp src/block2/timer.cpp
         src/block2/scaler.hpp src/block2/scaler.cpp
         src/block2/cdu.hpp src/block2/cdu.cpp
+        src/block2/imu.hpp src/block2/imu.cpp
 )
 
 # fetch latest argparse

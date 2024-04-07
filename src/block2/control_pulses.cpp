@@ -89,6 +89,7 @@ static void mout(Cpu& cpu) {
         }
         case COUNTER_GYROD: {
             Agc::log_stream << "GYROD MOUT" << std::endl;
+            //Agc::cdu.gyro_pulse(DOWN);
             break;
         }
     }
@@ -138,6 +139,7 @@ static void pout(Cpu& cpu) {
         }
         case COUNTER_GYROD: {
             Agc::log_stream << "GYROD POUT" << std::endl;
+            Agc::cdu.gyro_set_direction(UP);
             break;
         }
     }
@@ -639,6 +641,7 @@ static void zout(Cpu& cpu) {
         }
         case COUNTER_GYROD: {
             Agc::log_stream << "GYROD ZOUT" << std::endl;
+            //Agc::cdu.gyro_set_direction(NONE);
             break;
         }
     }

@@ -8,7 +8,7 @@
 namespace agcplusplus::block2 {
     CduChannel::CduChannel(const std::string& name, const double initial_theta) {
         channel_name = name;
-        theta = initial_theta;
+        theta = std::make_unique<double>(initial_theta);
         log_csv = std::ofstream("log_" + name + ".csv");
         log_csv << "Theta,Psi,CoarseError,FineError,ErrorCounter,RC_Count,EC_Count\n";
 
@@ -17,8 +17,8 @@ namespace agcplusplus::block2 {
     }
 
     double CduChannel::get_coarse_error() const {
-        const double cos_voltage = std::cos(theta) * COARSE_VOLTAGE;
-        const double sin_voltage = std::sin(theta) * COARSE_VOLTAGE;
+        const double cos_voltage = std::cos(*theta) * COARSE_VOLTAGE;
+        const double sin_voltage = std::sin(*theta) * COARSE_VOLTAGE;
 
         // Determine the output at the op-amp by summing up the coarse system switches,
         // per the DC1-DC12 logic dependent on the set bits of the read counter.
@@ -78,8 +78,8 @@ namespace agcplusplus::block2 {
 
     double CduChannel::get_fine_error(double msa_gain) const {
         // 16X resolver speed
-        double cos_voltage = std::cos(16.0 * theta);
-        double sin_voltage = std::sin(16.0 * theta);
+        double cos_voltage = std::cos(16.0 * *theta);
+        double sin_voltage = std::sin(16.0 * *theta);
 
         // Switch booleans
         const bool S1 = (read_counter & FINE_S1_MASK) == (FINE_S1_VALUE1 & FINE_S1_MASK) ||
@@ -321,18 +321,20 @@ namespace agcplusplus::block2 {
         const double v_tma_clamped = std::clamp(v_tma, -0.105, 0.105);    // 0.105 volts is enough to drive the gimbal torque amplifier at its max
 
         if (std::abs(v_tma_clamped) > 1e-3) {
-            const double theta_degrees = theta * RAD_TO_DEG;
-            theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_tma_clamped) ? -1.0 : 1.0);
-            if (theta < 0.0)
-                theta = (360.0 * DEG_TO_RAD) + theta;
-            if (theta > (360.0 * DEG_TO_RAD))
-                theta = theta - (360.0 * DEG_TO_RAD);
+            const double theta_degrees = *theta * RAD_TO_DEG;
+            *theta += (TWENTY_ARCSECONDS * 8.0) * DEG_TO_RAD * (std::signbit(v_tma_clamped) ? -1.0 : 1.0);
+            if (*theta < 0.0)
+                *theta = (360.0 * DEG_TO_RAD) + *theta;
+            if (*theta > (360.0 * DEG_TO_RAD))
+                *theta = *theta - (360.0 * DEG_TO_RAD);
         }
     }
 
     // Fine Align/pulse torque
-    void CduChannel::update_fine_align() {
-
+    void CduChannel::update_fine_align(const CDU_COUNT_DIRECTION direction) {
+        if (direction != NONE) {
+            *theta += GYRO_PULSE_AMOUNT * ((direction == DOWN) ? -1.0 : 1.0) * DEG_TO_RAD;
+        }
     }
 
 
@@ -360,11 +362,13 @@ namespace agcplusplus::block2 {
         const bool squarewave_25_6_kpps = (cur_state & 1);
         const bool squarewave_12_8_kpps = (cur_state & 2);
         const bool squarewave_6_4_kpps = (cur_state & 4);
+        const bool squarewave_3_2_kpps = (cur_state & 8);
         const bool pulse_phase1 = (!squarewave_25_6_kpps && !squarewave_12_8_kpps) && (prev_state != cur_state);
         const bool pulse_phase2 = (squarewave_25_6_kpps && !squarewave_12_8_kpps) && (prev_state != cur_state);
         const bool pulse_phase3 = (!squarewave_25_6_kpps && squarewave_12_8_kpps) && (prev_state != cur_state);
         const bool pulse_phase4 = (squarewave_25_6_kpps && squarewave_12_8_kpps) && (prev_state != cur_state);
         const bool pulse_phase4_slow = (squarewave_25_6_kpps && squarewave_12_8_kpps && squarewave_6_4_kpps) && ((cur_state & 1) ^ (prev_state & 1));
+        const bool fine_align_clock = (squarewave_25_6_kpps && squarewave_12_8_kpps && squarewave_6_4_kpps && squarewave_3_2_kpps) && (prev_state != cur_state);
 
         if (pulse_phase1) {
             //Agc::log_stream << "phase1" << std::endl;
@@ -388,7 +392,7 @@ namespace agcplusplus::block2 {
 
             // Pulse at 12.8 kpps if not in coarse align.
             for (auto& channel : channels) {
-                const double theta_degrees = channel.theta * RAD_TO_DEG;
+                const double theta_degrees = *(channel.theta) * RAD_TO_DEG;
                 const double psi_degrees = channel.read_counter * TWENTY_ARCSECONDS;
                 channel.log_csv << theta_degrees << ',';
                 channel.log_csv << psi_degrees << ',';
@@ -401,7 +405,6 @@ namespace agcplusplus::block2 {
                 if (!channel.coarse_align) {
                     channel.update_read_counter();
                     channel.update_error_counter();
-                    channel.update_fine_align();
                 }
             }
         }
@@ -416,6 +419,10 @@ namespace agcplusplus::block2 {
                     channel.update_error_counter();
                     channel.update_coarse_align();
                 }
+            }
+
+            if (gyro_select > 0) {
+                channels[gyro_select - 1].update_fine_align(gyro_pulse_direction);
             }
         }
     }
@@ -496,23 +503,12 @@ namespace agcplusplus::block2 {
         Agc::log_stream << "Gyro torque enable = " << state << std::endl;
     }
 
-    void Cdu::set_iss_gyro_select_x(bool state) {
-        channels[0].gyro_torque_set = state;
-        Agc::log_stream << "Gyro select X = " << state << std::endl;
+    void Cdu::set_iss_gyro_select(const int gyro_index) {
+        Agc::log_stream << "Gyro select = " << gyro_index - 1 << std::endl;
+        gyro_select = gyro_index;
     }
 
-    void Cdu::set_iss_gyro_select_y(bool state) {
-        channels[1].gyro_torque_set = state;
-        Agc::log_stream << "Gyro select Y = " << state << std::endl;
-    }
-
-    void Cdu::set_iss_gyro_select_z(bool state) {
-        channels[2].gyro_torque_set = state;
-        Agc::log_stream << "Gyro select Z = " << state << std::endl;
-    }
-
-    void Cdu::set_iss_gyro_activity(bool state) {
-        gyro_torque_activity = state;
+    void Cdu::set_iss_gyro_activity(bool state) const {
         Agc::log_stream << "Gyro activity = " << state << std::endl;
     }
 
@@ -527,5 +523,9 @@ namespace agcplusplus::block2 {
 
     void Cdu::count_channel_error_counter(const size_t channel_index, const CDU_COUNT_DIRECTION direction) {
         channels[channel_index].error_counter_direction = direction;
+    }
+
+    void Cdu::gyro_set_direction(const CDU_COUNT_DIRECTION direction) {
+        gyro_pulse_direction = direction;
     }
 }
