@@ -349,13 +349,13 @@ namespace agcplusplus::block2 {
         ++cur_state;
 
         //HACK: Lightning strike at 45 seconds, set read counter bit 15
-        if (cur_state == 51200 * 60) {
+        /*if (cur_state == 51200 * 60) {
             std::cerr << "LIGHTNING STRIKE!" << std::endl;
 
             for (size_t c = 0; c < 3; ++c) {
                 channels[c].read_counter |= B15;
             }
-        }
+        }*/
 
         const bool squarewave_25_6_kpps = (cur_state & 1);
         const bool squarewave_12_8_kpps = (cur_state & 2);
