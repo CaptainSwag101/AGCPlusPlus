@@ -6,9 +6,9 @@
 #include "agc.hpp"
 
 namespace agcplusplus::block2 {
-    CduChannel::CduChannel(const std::string& name, const double initial_theta) {
+    CduChannel::CduChannel(const std::string& name, const std::shared_ptr<double>& initial_theta) {
         channel_name = name;
-        theta = std::make_unique<double>(initial_theta);
+        theta = initial_theta;
         log_csv = std::ofstream("log_" + name + ".csv");
         log_csv << "Theta,Psi,CoarseError,FineError,ErrorCounter,RC_Count,EC_Count\n";
 
@@ -312,7 +312,7 @@ namespace agcplusplus::block2 {
     }
 
     // Coarse Align and DAC
-    void CduChannel::update_coarse_align() {
+    void CduChannel::update_coarse_align() const {
         // DAC and coarse align mixing amplifier
         const double v_dac = error_counter * 0.0132;    // 13.2 mV rms per bit
         const double v_dac_clamped = std::clamp(v_dac, -1.0, 1.0);  // Diode limited to 1.0 volts?
@@ -330,14 +330,11 @@ namespace agcplusplus::block2 {
         }
     }
 
-    // Fine Align/pulse torque
-    void CduChannel::update_fine_align(const CDU_COUNT_DIRECTION direction) {
-        if (direction != NONE) {
-            *theta += GYRO_PULSE_AMOUNT * ((direction == DOWN) ? -1.0 : 1.0) * DEG_TO_RAD;
-        }
+
+
+    void Cdu::add_channel(const std::string& name, const std::shared_ptr<double> &initial_theta) {
+        channels.emplace_back(name, initial_theta);
     }
-
-
 
     void Cdu::tick_cmc() {
         // If our ISS timing thread hasn't been created yet, do so.
@@ -350,6 +347,7 @@ namespace agcplusplus::block2 {
         prev_state = cur_state;
         ++cur_state;
 
+
         //HACK: Lightning strike at 45 seconds, set read counter bit 15
         /*if (cur_state == 51200 * 60) {
             std::cerr << "LIGHTNING STRIKE!" << std::endl;
@@ -359,16 +357,15 @@ namespace agcplusplus::block2 {
             }
         }*/
 
+
         const bool squarewave_25_6_kpps = (cur_state & 1);
         const bool squarewave_12_8_kpps = (cur_state & 2);
         const bool squarewave_6_4_kpps = (cur_state & 4);
-        const bool squarewave_3_2_kpps = (cur_state & 8);
         const bool pulse_phase1 = (!squarewave_25_6_kpps && !squarewave_12_8_kpps) && (prev_state != cur_state);
         const bool pulse_phase2 = (squarewave_25_6_kpps && !squarewave_12_8_kpps) && (prev_state != cur_state);
         const bool pulse_phase3 = (!squarewave_25_6_kpps && squarewave_12_8_kpps) && (prev_state != cur_state);
         const bool pulse_phase4 = (squarewave_25_6_kpps && squarewave_12_8_kpps) && (prev_state != cur_state);
         const bool pulse_phase4_slow = (squarewave_25_6_kpps && squarewave_12_8_kpps && squarewave_6_4_kpps) && ((cur_state & 1) ^ (prev_state & 1));
-        const bool fine_align_clock = (squarewave_25_6_kpps && squarewave_12_8_kpps && squarewave_6_4_kpps && squarewave_3_2_kpps) && (prev_state != cur_state);
 
         if (pulse_phase1) {
             //Agc::log_stream << "phase1" << std::endl;
@@ -419,10 +416,6 @@ namespace agcplusplus::block2 {
                     channel.update_error_counter();
                     channel.update_coarse_align();
                 }
-            }
-
-            if (gyro_select > 0) {
-                channels[gyro_select - 1].update_fine_align(gyro_pulse_direction);
             }
         }
     }
@@ -498,20 +491,6 @@ namespace agcplusplus::block2 {
             Agc::log_stream << "ISS CDUs zeroed!" << std::endl;
     }
 
-    void Cdu::set_iss_gyro_torque_enable(bool state) {
-        gyro_torque_enable = state;
-        Agc::log_stream << "Gyro torque enable = " << state << std::endl;
-    }
-
-    void Cdu::set_iss_gyro_select(const int gyro_index) {
-        Agc::log_stream << "Gyro select = " << gyro_index - 1 << std::endl;
-        gyro_select = gyro_index;
-    }
-
-    void Cdu::set_iss_gyro_activity(bool state) const {
-        Agc::log_stream << "Gyro activity = " << state << std::endl;
-    }
-
     void Cdu::set_oss_cdu_zero(const bool state) {
         for (int c = 3; c < channels.size(); ++c) {
             auto& channel = channels[c];
@@ -523,9 +502,5 @@ namespace agcplusplus::block2 {
 
     void Cdu::count_channel_error_counter(const size_t channel_index, const CDU_COUNT_DIRECTION direction) {
         channels[channel_index].error_counter_direction = direction;
-    }
-
-    void Cdu::gyro_set_direction(const CDU_COUNT_DIRECTION direction) {
-        gyro_pulse_direction = direction;
     }
 }

@@ -1,17 +1,21 @@
 #include "agc.hpp"
 
 namespace agcplusplus::block2 {
-    Cpu Agc::cpu;
-    Memory Agc::memory;
-    Scaler Agc::scaler;
-    Timer Agc::timer;
-    Cdu Agc::cdu;
-    InitArguments Agc::config;
-    std::ofstream Agc::log_stream;
+Cpu Agc::cpu;
+Memory Agc::memory;
+Scaler Agc::scaler;
+Timer Agc::timer;
+Cdu Agc::cdu;
+Imu Agc::imu;
+InitArguments Agc::config;
+std::ofstream Agc::log_stream;
 
 Agc::Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args) {
     memory = Memory(MemoryInitState::BitsClear);
     config = init_args;
+    cdu.add_channel("IMU_X", imu.theta_x);
+    cdu.add_channel("IMU_Y", imu.theta_y);
+    cdu.add_channel("IMU_Z", imu.theta_z);
 
     // Set up log output stream.
     log_stream.open("AGCPlusPlus.log");

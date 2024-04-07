@@ -2,6 +2,7 @@
 
 #include "cpu.hpp"
 #include "cdu.hpp"
+#include "imu.hpp"
 #include "block2defs.hpp"
 #include "memory.hpp"
 #include "scaler.hpp"
@@ -18,6 +19,7 @@ public:
     static Scaler scaler;
     static Timer timer;
     static Cdu cdu;
+    static Imu imu;
     static InitArguments config;
     static std::ofstream log_stream;
 

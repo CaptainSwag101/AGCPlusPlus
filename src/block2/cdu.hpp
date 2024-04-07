@@ -1,15 +1,15 @@
 #pragma once
 
-#include <array>
 #include <cmath>
 #include <cstdint>
 #include <fstream>
+#include <memory>
 #include <thread>
+#include <vector>
 
 namespace agcplusplus::block2 {
     // Angle-related constants.
     constexpr static double TWENTY_ARCSECONDS = 360.0 / std::pow(2, 16);
-    constexpr static double GYRO_PULSE_AMOUNT = 360.0 / std::pow(2, 21);    // 0.617981 arc-seconds per pulse
     constexpr static double DEG_TO_RAD = M_PI / 180.0;
     constexpr static double RAD_TO_DEG = 180.0 / M_PI;
 
@@ -162,7 +162,7 @@ namespace agcplusplus::block2 {
 
     class CduChannel {
     public:
-        std::unique_ptr<double> theta;  // Stored as radians
+        std::shared_ptr<double> theta;  // Stored as radians
         uint16_t read_counter = static_cast<uint16_t>(0 / TWENTY_ARCSECONDS);   // Multiplied by 20 arc-seconds to get degrees
         int16_t error_counter = 0;
         double prev_coarse_error = 0.0;
@@ -178,14 +178,13 @@ namespace agcplusplus::block2 {
         COUNT_SPEED count_speed = HIGH;
         CDU_COUNT_DIRECTION error_counter_direction = NONE;
 
-        explicit CduChannel(const std::string& name, double initial_theta);
+        explicit CduChannel(const std::string& name, const std::shared_ptr<double>& initial_theta);
         [[nodiscard]] double get_coarse_error() const;
         [[nodiscard]] double get_fine_error(double msa_gain) const;
         void refresh_state();
         void update_read_counter();
         void update_error_counter();
-        void update_coarse_align();
-        void update_fine_align(CDU_COUNT_DIRECTION direction);
+        void update_coarse_align() const;
 
     private:
         int _channel_index = 0;
@@ -198,25 +197,19 @@ namespace agcplusplus::block2 {
         bool iss_phase1_state = false;
         bool prev_iss_phase1_state = iss_phase1_state;
 
+        void add_channel(const std::string& name, const std::shared_ptr<double>& initial_theta);
         void tick_cmc();
         [[noreturn]] void tick_iss();
         void set_iss_coarse_align(bool state);
         void set_iss_error_counter_enable(bool state);
         void set_iss_cdu_zero(bool state);
-        void set_iss_gyro_torque_enable(bool state);
-        void set_iss_gyro_select(int gyro_index);
-        void set_iss_gyro_activity(bool state) const;
         void set_oss_coarse_align(bool state);
         void set_oss_error_counter_enable(bool state);
         void set_oss_cdu_zero(bool state);
         void count_channel_error_counter(size_t channel_index, CDU_COUNT_DIRECTION direction);
-        void gyro_set_direction(CDU_COUNT_DIRECTION direction);
 
     private:
-        std::array<CduChannel, 3> channels{CduChannel("IMU_X", 0 * DEG_TO_RAD), CduChannel("IMU_Y", 0.0 * DEG_TO_RAD), CduChannel("IMU_Z", 0.0)};
+        std::vector<CduChannel> channels{};
         std::thread iss_timing_thread;
-        bool gyro_torque_enable = false;
-        CDU_COUNT_DIRECTION gyro_pulse_direction = NONE;
-        int gyro_select = -1;
     };
 }
