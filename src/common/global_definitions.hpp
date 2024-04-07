@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstdint>
 
 namespace agcplusplus {
@@ -40,6 +41,11 @@ constexpr word BITMASK_16 = (1 << 15);
 constexpr word BITMASK_11_14 = (BITMASK_11 | BITMASK_12 | BITMASK_13 | BITMASK_14);
 constexpr word BITMASK_13_16 = (BITMASK_13 | BITMASK_14 | BITMASK_15 | BITMASK_16);
 constexpr uint64_t BITMASK_17 = (1 << 16);
+
+// Angle-related constants.
+constexpr double TWENTY_ARCSECONDS = 360.0 / std::pow(2, 16);
+constexpr double DEG_TO_RAD = M_PI / 180.0;
+constexpr double RAD_TO_DEG = 180.0 / M_PI;
 
 struct InitArguments {
     bool log_mct;

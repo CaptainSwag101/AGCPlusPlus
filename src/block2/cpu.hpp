@@ -1,10 +1,10 @@
+#pragma once
+
 #include <functional>
 #include <map>
 #include <memory>
 #include "block2defs.hpp"
 #include "memory.hpp"
-
-#pragma once
 
 namespace agcplusplus::block2 {
 
@@ -81,7 +81,6 @@ public:
     // I/O
     word read_io_channel(word address);
     void write_io_channel(word address, word data);
-    std::map<int, io_channel> io_channels{};
 
     // Internal CPU data
     word write_bus{}, dv_stage{};
@@ -97,5 +96,7 @@ public:
 private:
     void gojam();
     bool should_gojam{};
+
+    std::map<int, io_channel> io_channels{};
 };
 }

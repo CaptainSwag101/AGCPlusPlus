@@ -53,7 +53,7 @@ static void g2ls(Cpu& cpu) {
 }
 
 static void krpt(Cpu& cpu) {
-    word rupt_index = (cpu.s - 04000) / 4;
+    const word rupt_index = (cpu.s - 04000) / 4;
     cpu.interrupts[rupt_index] = false;
     cpu.iip = true;
 }
@@ -88,7 +88,7 @@ static void mout(Cpu& cpu) {
             break;
         }
         case COUNTER_GYROD: {
-            Agc::log_stream << "GYROD MOUT" << std::endl;
+            //Agc::log_stream << "GYROD MOUT" << std::endl;
             Agc::imu.gyro_pulse();
             break;
         }
@@ -138,7 +138,7 @@ static void pout(Cpu& cpu) {
             break;
         }
         case COUNTER_GYROD: {
-            Agc::log_stream << "GYROD POUT" << std::endl;
+            //Agc::log_stream << "GYROD POUT" << std::endl;
             Agc::imu.gyro_pulse();
             break;
         }
@@ -340,15 +340,15 @@ static void tmz(Cpu& cpu) {
 
 static void tov(Cpu& cpu) {
     switch ((cpu.write_bus & BITMASK_15_16) >> 14) {
-    case 0b01:
-        cpu.br = 0b01;
-        break;
-    case 0b10:
-        cpu.br = 0b10;
-        break;
-    default:
-        cpu.br = 0b00;
-        break;
+        case 0b01:
+            cpu.br = 0b01;
+            break;
+        case 0b10:
+            cpu.br = 0b10;
+            break;
+        default:
+            cpu.br = 0b00;
+            break;
     }
 }
 
@@ -394,7 +394,7 @@ static void wals(Cpu& cpu) {
     }
     cpu.a = a_temp;
 
-    word l_temp = ((cpu.write_bus & BITMASK_1_2) << 12);
+    const word l_temp = ((cpu.write_bus & BITMASK_1_2) << 12);
     cpu.l &= ~BITMASK_13_14;
     cpu.l |= l_temp;
 }
@@ -404,7 +404,7 @@ static void wb(Cpu& cpu) {
 }
 
 static void wch(Cpu& cpu) {
-    word s_masked = (cpu.s & 077);
+    const word s_masked = (cpu.s & 077);
     if (s_masked == 1) {
         wl(cpu);
     } else if (s_masked == 2) {
@@ -628,20 +628,19 @@ static void zout(Cpu& cpu) {
             break;
         }
         case COUNTER_CDUXD: {
-            cpu.io_channels[014].write(cpu.io_channels[014].read() & ~BITMASK_15);
+            cpu.write_io_channel(014, cpu.read_io_channel(014) & ~BITMASK_15);
             break;
         }
         case COUNTER_CDUYD: {
-            cpu.io_channels[014].write(cpu.io_channels[014].read() & ~BITMASK_14);
+            cpu.write_io_channel(014, cpu.read_io_channel(014) & ~BITMASK_14);
             break;
         }
         case COUNTER_CDUZD: {
-            cpu.io_channels[014].write(cpu.io_channels[014].read() & ~BITMASK_13);
+            cpu.write_io_channel(014, cpu.read_io_channel(014) & ~BITMASK_13);
             break;
         }
         case COUNTER_GYROD: {
-            Agc::log_stream << "GYROD ZOUT" << std::endl;
-            //Agc::imu.gyro_pulse();
+            //Agc::log_stream << "GYROD ZOUT" << std::endl;
             break;
         }
     }
