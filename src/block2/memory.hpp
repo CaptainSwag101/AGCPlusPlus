@@ -1,11 +1,7 @@
-#include <array>
-#include <chrono>
-#include <cstdint>
-#include <iostream>
-#include <random>
-#include "block2defs.hpp"
-
 #pragma once
+
+#include <array>
+#include "block2defs.hpp"
 
 namespace agcplusplus::block2 {
 enum class MemoryInitState {
@@ -23,9 +19,6 @@ public:
     word read_erasable_word(word address);
     void write_fixed_word(word address, word data);
     void write_erasable_word(word address, word data);
-
-    uint64_t random_seed;
-    std::minstd_rand rand_gen;
 
 private:
     std::array<word, SIZE_FIXED_MEM> fixed{};
