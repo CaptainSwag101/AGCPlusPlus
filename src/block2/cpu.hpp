@@ -3,6 +3,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <string>
 #include "block2defs.hpp"
 #include "memory.hpp"
 

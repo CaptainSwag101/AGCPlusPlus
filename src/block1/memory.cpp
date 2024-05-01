@@ -59,7 +59,7 @@ namespace agcplusplus::block1 {
         }
     }
 
-    void Memory::assign_fixed_memory(std::vector<word> buffer) {
+    void Memory::assign_fixed_memory(const std::vector<word>& buffer) {
         for (int i = 0; i < std::min<size_t>(buffer.size(), fixed.size()); ++i) {
             fixed[i] = buffer[i];
         }

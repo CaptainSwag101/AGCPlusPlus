@@ -13,8 +13,8 @@ namespace agcplusplus::block1 {
     InitArguments Agc::configuration;
     std::ofstream Agc::log_stream;
 
-    Agc::Agc(std::vector<word> rope_buffer, InitArguments init_args) {
-        memory.assign_fixed_memory(std::move(rope_buffer));
+    Agc::Agc(const std::vector<word>& rope_buffer, InitArguments init_args) {
+        memory.assign_fixed_memory(rope_buffer);
         configuration = init_args;
 
         // Set up log output stream.

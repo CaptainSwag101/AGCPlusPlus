@@ -21,7 +21,7 @@ namespace agcplusplus::block1 {
         static InitArguments configuration;
         static std::ofstream log_stream;
 
-        Agc(std::vector<word> rope_buffer, InitArguments init_args);
+        Agc(const std::vector<word>& rope_buffer, InitArguments init_args);
         [[noreturn]] void run();
 
         [[noreturn]] void accept_dsky_connections();
