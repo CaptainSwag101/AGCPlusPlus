@@ -23,7 +23,7 @@ public:
     static InitArguments config;
     static std::ofstream log_stream;
 
-    Agc(const std::vector<word>& rope, const std::map<word, word>& padload, InitArguments init_args);
+    Agc(const std::vector<word>& rope, const std::vector<word>& coredump, InitArguments init_args);
     void run();
 };
 }

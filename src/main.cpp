@@ -97,32 +97,33 @@ int main(int argc, char* argv[]) {
     in_rope.close();
 
 
-    // Create a blank pad-load placeholder
-    std::map<word, word> padload{};
+    // Create a blank core-dump vector
+    std::vector<word> coredump{};
 
-
-    // Get the padload file path from our rope name
-    auto padload_string = mainArgs.get<std::string>("rope-file");
-    std::filesystem::path padload_path = padload_string;
-    padload_path.replace_extension("pad");
-    std::ifstream in_padload(padload_path, std::ios::in | std::ios::binary);
+    // Get the core-dump file path from our rope name
+    auto coredump_string = mainArgs.get<std::string>("rope-file");
+    std::filesystem::path coredump_path = coredump_string;
+    coredump_path.replace_extension("core");
+    auto in_coredump = std::fopen(coredump_path.c_str(), "r");
 
     // Verify we can open the pad file
-    if (in_padload.is_open()) {
-        // Load padload file into our map
-        std::cout << "Reading padload data from " << padload_path << std::endl;
-        while (!in_padload.eof()) {
-            word addr = 0;
-            word data = 0;
-            in_padload.read(reinterpret_cast<char*>(&addr), 2);
-            //word addr_swapped = swap_endian<word>(addr);
-            in_padload.read(reinterpret_cast<char*>(&data), 2);
-            //word data_swapped = swap_endian<word>(data);
-            if (addr == 0) continue;    // Skip any empty entries
-            padload.emplace(addr, data);
-            //std::cout << std::oct << "Addr: " << addr << " Data: " << data << std::dec << std::endl;
+    if (in_coredump) {
+        char line[256];
+        char *junk;
+        word count = 0;
+
+        while (fgets(line, sizeof(line), in_coredump)) {
+            if (count >= 512) {
+                word data = (word)strtol(line, &junk, 8);
+                data = ((data << 1) & 0100000) | data;
+                coredump.push_back(data);
+            }
+            count++;
+            if (count >= 2048 + 512) {
+                break;
+            }
         }
-        in_padload.close();
+        fclose(in_coredump);
     }
 
     // Load data and prepare computer based on the machine type selected
@@ -143,7 +144,7 @@ int main(int argc, char* argv[]) {
         }
 
         // Initialize the Block II computer
-        block2::Agc computer(rope_buffer, padload, init_args);
+        block2::Agc computer(rope_buffer, coredump, init_args);
         computer.run();
     }
 
