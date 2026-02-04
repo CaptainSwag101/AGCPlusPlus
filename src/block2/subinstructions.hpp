@@ -33,6 +33,8 @@ void dxch1(Cpu& cpu);
 void goj1(Cpu& cpu);
 void incr0(Cpu& cpu);
 void lxch0(Cpu& cpu);
+void mcdu(Cpu& cpu);
+void minc(Cpu& cpu);
 void mp0(Cpu& cpu);
 void mp1(Cpu& cpu);
 void mp3(Cpu& cpu);
@@ -42,6 +44,7 @@ void ndx0(Cpu& cpu);
 void ndx1(Cpu& cpu);
 void ndxx0(Cpu& cpu);
 void ndxx1(Cpu& cpu);
+void pcdu(Cpu& cpu);
 void pinc(Cpu& cpu);
 void qxch0(Cpu& cpu);
 void rand0(Cpu& cpu);
@@ -129,6 +132,13 @@ const static subinstruction RUPT_SUBINST_RUPT0
 
 const static subinstruction COUNT_SUBINST_PINC
     {0, false, 000, 000, "PINC", pinc};
+const static subinstruction COUNT_SUBINST_PCDU
+    {0, false, 000, 000, "PCDU", pcdu};
+
+const static subinstruction COUNT_SUBINST_MINC
+    {0, false, 000, 000, "MINC", minc};
+const static subinstruction COUNT_SUBINST_MCDU
+    {0, false, 000, 000, "MCDU", mcdu};
 
 const static subinstruction COUNT_SUBINST_DINC
     {0, false, 000, 000, "DINC", dinc};

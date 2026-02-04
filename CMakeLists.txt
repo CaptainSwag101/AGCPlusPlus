@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Define the project and version
-project(AGCPlusPlus VERSION 0.5)
+project(AGCPlusPlus VERSION 0.6)
 
 # Let's try to take advantage of the latest C++ standards
 set(CMAKE_CXX_STANDARD 17)
@@ -34,7 +34,9 @@ set(SOURCES src/main.cpp
         src/block2/subinstructions.hpp src/block2/subinstructions.cpp
         src/block2/timer.hpp src/block2/timer.cpp
         src/block2/scaler.hpp src/block2/scaler.cpp
-        )
+        src/block2/cdu.hpp src/block2/cdu.cpp
+        src/block2/imu.hpp src/block2/imu.cpp
+)
 
 # fetch latest argparse
 include(FetchContent)
@@ -46,7 +48,7 @@ FetchContent_MakeAvailable(argparse)
 FetchContent_Declare(
         sockpp
         GIT_REPOSITORY https://github.com/fpagliughi/sockpp.git
-        GIT_TAG v0.8.2
+        GIT_TAG v1.0.0
 )
 FetchContent_MakeAvailable(sockpp)
 

@@ -1406,6 +1406,73 @@ void incr0(Cpu& cpu) {
     }
 }
 
+void mcdu(Cpu& cpu) {
+    switch (cpu.timepulse) {
+        case 1:
+            rsct(cpu);
+            ws(cpu);
+            break;
+        case 2:
+            rsc(cpu);
+            wg(cpu);
+            break;
+        case 5:
+            rg(cpu);
+            wy(cpu);
+            tsgn(cpu);
+            tmz(cpu);
+            tpzg(cpu);
+            break;
+        case 6:
+            monex(cpu);
+            ci(cpu);
+            break;
+        case 7:
+            rus(cpu);
+            wsc(cpu);
+            wg(cpu);
+            wovr(cpu);
+            break;
+        case 8:
+            rb(cpu);
+            ws(cpu);
+            break;
+    }
+}
+
+void minc(Cpu& cpu) {
+    switch (cpu.timepulse) {
+        case 1:
+            rsct(cpu);
+            ws(cpu);
+            break;
+        case 2:
+            rsc(cpu);
+            wg(cpu);
+            break;
+        case 5:
+            rg(cpu);
+            wy(cpu);
+            tsgn(cpu);
+            tmz(cpu);
+            tpzg(cpu);
+            break;
+        case 6:
+            monex(cpu);
+            break;
+        case 7:
+            ru(cpu);
+            wsc(cpu);
+            wg(cpu);
+            wovr(cpu);
+            break;
+        case 8:
+            rb(cpu);
+            ws(cpu);
+            break;
+    }
+}
+
 void mp0(Cpu& cpu) {
     switch (cpu.timepulse) {
     case 2:
@@ -1825,6 +1892,39 @@ void ndxx1(Cpu& cpu) {
         wb(cpu);
         ext(cpu);
         break;
+    }
+}
+
+void pcdu(Cpu& cpu) {
+    switch (cpu.timepulse) {
+        case 1:
+            rsct(cpu);
+            ws(cpu);
+            break;
+        case 2:
+            rsc(cpu);
+            wg(cpu);
+            break;
+        case 5:
+            rg(cpu);
+            wy(cpu);
+            tsgn(cpu);
+            tmz(cpu);
+            tpzg(cpu);
+            break;
+        case 6:
+            ci(cpu);
+            break;
+        case 7:
+            rus(cpu);
+            wsc(cpu);
+            wg(cpu);
+            wovr(cpu);
+            break;
+        case 8:
+            rb(cpu);
+            ws(cpu);
+            break;
     }
 }
 

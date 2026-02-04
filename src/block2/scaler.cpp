@@ -16,7 +16,8 @@ void Scaler::tick() {
     prev_state = cur_state;
     ++cur_state;
 
-    //bool F01B = (((cur_state & 1) ^ (prev_state & 1)) && (cur_state & 1) != 0);
+    bool F01A = (((cur_state & 1) ^ (prev_state & 1)) && (cur_state & 1) == 0);
+    bool F05A = (((cur_state & BITMASK_5) ^ (prev_state & BITMASK_5)) && (cur_state & BITMASK_5) == 0);
     bool F06B = (((cur_state & BITMASK_6) ^ (prev_state & BITMASK_6)) && (cur_state & BITMASK_6) != 0);
     bool F09B = (((cur_state & BITMASK_9) ^ (prev_state & BITMASK_9)) && (cur_state & BITMASK_9) != 0);
     bool F10A = (((cur_state & BITMASK_10) ^ (prev_state & BITMASK_10)) && (cur_state & BITMASK_10) == 0);
@@ -31,6 +32,41 @@ void Scaler::tick() {
     bool FS17 = ((cur_state & BITMASK_17) != 0);
     bool F14H = (F12B && FS13 && !FS14);    // Used for RUPT lock check
 
+    // Send 51.2 kpps tick rate to CDU
+    if (F01A) {
+        // Only send pulses to the CDU if CDU ZERO discrete is not present for that channel group
+        // For ISS channels, AGC channel 12 bit 5. For OSS/LR/RR, channel 12 bit 1.
+        Agc::cdu.tick_cmc();
+    }
+
+    // Process CDU commands from AGC, if their corresponding channel bit enables them.
+    if (F05A) {
+        const word chan14 = Agc::cpu.read_io_channel(014);
+        if ((chan14 & BITMASK_10) != 0) {
+            Agc::cpu.counters[COUNTER_GYROD] = COUNT_DIRECTION_DOWN;
+        }
+
+        if ((chan14 & BITMASK_15) != 0) {
+            Agc::cpu.counters[COUNTER_CDUXD] = COUNT_DIRECTION_DOWN;
+        }
+
+        if ((chan14 & BITMASK_14) != 0) {
+            Agc::cpu.counters[COUNTER_CDUYD] = COUNT_DIRECTION_DOWN;
+        }
+
+        if ((chan14 & BITMASK_13) != 0) {
+            Agc::cpu.counters[COUNTER_CDUZD] = COUNT_DIRECTION_DOWN;
+        }
+
+        if ((chan14 & BITMASK_12) != 0) {
+            Agc::cpu.counters[COUNTER_TRUND] = COUNT_DIRECTION_DOWN;
+        }
+
+        if ((chan14 & BITMASK_11) != 0) {
+            Agc::cpu.counters[COUNTER_SHAFTD] = COUNT_DIRECTION_DOWN;
+        }
+    }
+
     // Process timer counts
     if (F06B) {
         // TIME6 only counts if the top bit of I/O channel 13 is set
@@ -38,14 +74,14 @@ void Scaler::tick() {
         bool time6_enabled = ((check & BITMASK_16) != 0);   // Is bit 16 set?
         if (time6_enabled) {
             Agc::cpu.counters[COUNTER_TIME6] |= COUNT_DIRECTION_DOWN;
-            //std::cout << "TIME6 decrement" << std::endl;
+            //Agc::log_stream << "TIME6 decrement" << std::endl;
         }
     }
 
     if (F09B) {
         if ((cur_state & BITMASK_10) == 0) {    // if not FS10
             Agc::cpu.counters[COUNTER_TIME4] |= COUNT_DIRECTION_UP;
-            //std::cout << "TIME4 increment" << std::endl;
+            //Agc::log_stream << "TIME4 increment" << std::endl;
         }
 
         // Generate KEYRUPT1, KEYRUPT2, or MARKRUPT if keys are pending
@@ -71,13 +107,13 @@ void Scaler::tick() {
 
     if (F10A) {
          Agc::cpu.counters[COUNTER_TIME5] |= COUNT_DIRECTION_UP;
-         //std::cout << "TIME5 increment" << std::endl;
+         //Agc::log_stream << "TIME5 increment" << std::endl;
 
         // Start radar cycle if enabled
 
         // Trigger restart if TC TRAP flip flop is set
         if ((!tc_started || !tc_ended) && !Agc::config.ignore_alarms) {
-            std::cout << "HARDWARE ALARM: TC TRAP" << std::endl;
+            Agc::log_stream << "HARDWARE ALARM: TC TRAP" << std::endl;
             Agc::cpu.write_io_channel(077, BITMASK_3);
             Agc::cpu.queue_gojam();
         }
@@ -86,7 +122,7 @@ void Scaler::tick() {
     if (F10B) {
         Agc::cpu.counters[COUNTER_TIME1] |= COUNT_DIRECTION_UP;
         Agc::cpu.counters[COUNTER_TIME3] |= COUNT_DIRECTION_UP;
-        //std::cout << "TIME1+3 increment" << std::endl;
+        //Agc::log_stream << "TIME1+3 increment" << std::endl;
 
         tc_started = false;
         tc_ended = false;
@@ -99,7 +135,7 @@ void Scaler::tick() {
 
     if (F17A) {
         if (!Agc::cpu.night_watchman && !Agc::config.ignore_alarms) {
-            std::cout << "HARDWARE ALARM: NIGHT WATCHMAN" << std::endl;
+            Agc::log_stream << "HARDWARE ALARM: NIGHT WATCHMAN" << std::endl;
             Agc::cpu.write_io_channel(077, BITMASK_5);
             Agc::cpu.queue_gojam();
         }
@@ -118,7 +154,7 @@ void Scaler::tick() {
     if (F14H) {
         // If an old interrupt is still going or a new one hasn't started, alarm
         if (!interrupt_started && !interrupt_ended && !Agc::config.ignore_alarms) {
-            std::cout << "HARDWARE ALARM: RUPT LOCK" << std::endl;
+            Agc::log_stream << "HARDWARE ALARM: RUPT LOCK" << std::endl;
             Agc::cpu.write_io_channel(077, BITMASK_4);
             Agc::cpu.queue_gojam();
         }

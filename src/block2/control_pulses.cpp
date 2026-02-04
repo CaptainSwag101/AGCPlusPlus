@@ -1,5 +1,7 @@
 #include "control_pulses.hpp"
 
+#include "agc.hpp"
+
 namespace agcplusplus::block2 {
 static void _1xp10(Cpu& cpu) {
     cpu.g = 0;
@@ -51,7 +53,7 @@ static void g2ls(Cpu& cpu) {
 }
 
 static void krpt(Cpu& cpu) {
-    word rupt_index = (cpu.s - 04000) / 4;
+    const word rupt_index = (cpu.s - 04000) / 4;
     cpu.interrupts[rupt_index] = false;
     cpu.iip = true;
 }
@@ -72,7 +74,25 @@ static void monex(Cpu& cpu) {
 }
 
 static void mout(Cpu& cpu) {
-    // TODO: Implement this
+    switch (cpu.s - 024) {
+        case COUNTER_CDUXD: {
+            Agc::cdu.count_channel_error_counter(0, DOWN);
+            break;
+        }
+        case COUNTER_CDUYD: {
+            Agc::cdu.count_channel_error_counter(1, DOWN);
+            break;
+        }
+        case COUNTER_CDUZD: {
+            Agc::cdu.count_channel_error_counter(2, DOWN);
+            break;
+        }
+        case COUNTER_GYROD: {
+            //Agc::log_stream << "GYROD MOUT" << std::endl;
+            Agc::imu.gyro_pulse();
+            break;
+        }
+    }
 }
 
 static void neacof(Cpu& cpu) {
@@ -87,11 +107,6 @@ static void neacon(Cpu& cpu) {
 
 static void nisq(Cpu& cpu) {
     cpu.fetch_next_instruction = true;
-    // TODO: This simply allows interrupts (if not inhibited) to occur
-    // between whole instructions that would otherwise be prevented
-    // between subinstructions of the same operation, i.e. between MP1 and MP3.
-    //cpu.permit_interrupts = true;
-    // TODO: Permit increments from counters when implemented
 }
 
 static void pifl(Cpu& cpu) {
@@ -109,7 +124,25 @@ static void ponex(Cpu& cpu) {
 }
 
 static void pout(Cpu& cpu) {
-    // TODO: Implement this
+    switch (cpu.s - 024) {
+        case COUNTER_CDUXD: {
+            Agc::cdu.count_channel_error_counter(0, UP);
+            break;
+        }
+        case COUNTER_CDUYD: {
+            Agc::cdu.count_channel_error_counter(1, UP);
+            break;
+        }
+        case COUNTER_CDUZD: {
+            Agc::cdu.count_channel_error_counter(2, UP);
+            break;
+        }
+        case COUNTER_GYROD: {
+            //Agc::log_stream << "GYROD POUT" << std::endl;
+            Agc::imu.gyro_pulse();
+            break;
+        }
+    }
 }
 
 static void ptwox(Cpu& cpu) {
@@ -187,6 +220,7 @@ static void rch(Cpu& cpu) {
     } else {
         cpu.write_bus |= cpu.read_io_channel(cpu.s & 077);
     }
+    cpu.channel_access = true;
 }
 
 static void rg(Cpu& cpu) {
@@ -245,7 +279,7 @@ static void rsc(Cpu& cpu) {
 }
 
 static void rsct(Cpu& cpu) {
-    for (word c = 0; c < 20; ++c) {
+    for (auto c = 0; c < cpu.counters.size(); ++c) {
         if (cpu.counters[c] != COUNT_DIRECTION_NONE) {
             cpu.write_bus |= c + 024;
             // Reset the counter request
@@ -306,15 +340,15 @@ static void tmz(Cpu& cpu) {
 
 static void tov(Cpu& cpu) {
     switch ((cpu.write_bus & BITMASK_15_16) >> 14) {
-    case 0b01:
-        cpu.br = 0b01;
-        break;
-    case 0b10:
-        cpu.br = 0b10;
-        break;
-    default:
-        cpu.br = 0b00;
-        break;
+        case 0b01:
+            cpu.br = 0b01;
+            break;
+        case 0b10:
+            cpu.br = 0b10;
+            break;
+        default:
+            cpu.br = 0b00;
+            break;
     }
 }
 
@@ -360,7 +394,7 @@ static void wals(Cpu& cpu) {
     }
     cpu.a = a_temp;
 
-    word l_temp = ((cpu.write_bus & BITMASK_1_2) << 12);
+    const word l_temp = ((cpu.write_bus & BITMASK_1_2) << 12);
     cpu.l &= ~BITMASK_13_14;
     cpu.l |= l_temp;
 }
@@ -370,7 +404,7 @@ static void wb(Cpu& cpu) {
 }
 
 static void wch(Cpu& cpu) {
-    word s_masked = (cpu.s & 077);
+    const word s_masked = (cpu.s & 077);
     if (s_masked == 1) {
         wl(cpu);
     } else if (s_masked == 2) {
@@ -380,12 +414,13 @@ static void wch(Cpu& cpu) {
         temp |= (cpu.write_bus & BITMASK_16) >> 1;  // Bit 16 into bit 15
         cpu.write_io_channel(s_masked, temp);
     }
+    cpu.channel_access = true;
 }
 
 static void wg(Cpu& cpu) {
     word temp = cpu.write_bus;
 
-    word s_correct = (cpu.s_temp > 0) ? cpu.s_temp : cpu.s;
+    word s_correct = (cpu.s_writeback > 0) ? cpu.s_writeback : cpu.s;
 
     if (s_correct >= 020 && s_correct <= 023) {
         switch (s_correct) {
@@ -584,13 +619,30 @@ static void zip(Cpu& cpu) {
 
 static void zout(Cpu& cpu) {
     switch (cpu.s - 024) {
-        case COUNTER_TIME6:
+        case COUNTER_TIME6: {
             // Clear bit 16 of I/O channel 13
             word temp = cpu.read_io_channel(013);
             temp &= ~BITMASK_16;
             cpu.write_io_channel(013, temp);
             cpu.interrupts[RUPT_T6RUPT] = true;
             break;
+        }
+        case COUNTER_CDUXD: {
+            cpu.write_io_channel(014, cpu.read_io_channel(014) & ~BITMASK_15);
+            break;
+        }
+        case COUNTER_CDUYD: {
+            cpu.write_io_channel(014, cpu.read_io_channel(014) & ~BITMASK_14);
+            break;
+        }
+        case COUNTER_CDUZD: {
+            cpu.write_io_channel(014, cpu.read_io_channel(014) & ~BITMASK_13);
+            break;
+        }
+        case COUNTER_GYROD: {
+            //Agc::log_stream << "GYROD ZOUT" << std::endl;
+            break;
+        }
     }
 }
 }

@@ -1,32 +1,27 @@
 #include "memory.hpp"
 
-namespace agcplusplus::block2 {
-Memory::Memory(MemoryInitState initState) {
-    // Seed the RNG
-    random_seed = std::chrono::system_clock::now().time_since_epoch().count();
-    rand_gen = std::minstd_rand(random_seed);
+#include <chrono>
+#include <random>
 
+namespace agcplusplus::block2 {
+Memory::Memory(const MemoryInitState initState) {
     // Populate erasable memory with desired data pattern
-    for (uint64_t i = 0; i < SIZE_ERASABLE_MEM; ++i) {
-        if (initState == MemoryInitState::BitsClear) {
-            erasable[i] = 0;
-        } else if (initState == MemoryInitState::BitsSet) {
-            erasable[i] = 0177777;
-        } else {
+    if (initState == MemoryInitState::BitsClear) {
+        erasable.fill(0);
+    } else if (initState == MemoryInitState::BitsSet) {
+        erasable.fill(0177777);
+    } else {
+        // Seed the RNG
+        const auto seconds_since_epoch = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
+        const uint64_t random_seed = seconds_since_epoch.count();
+        auto rand_gen = std::minstd_rand(random_seed);
+        for (uint64_t i = 0; i < SIZE_ERASABLE_MEM; ++i) {
             erasable[i] = static_cast<word>(rand_gen());
         }
     }
 
-    // Populate fixed memory with desired data pattern
-    for (uint64_t i = 0; i < SIZE_FIXED_MEM; ++i) {
-        if (initState == MemoryInitState::BitsClear) {
-            fixed[i] = 0;
-        } else if (initState == MemoryInitState::BitsSet) {
-            fixed[i] = 0177777;
-        } else {
-            fixed[i] = static_cast<word>(rand_gen());
-        }
-    }
+    // Always fill fixed memory's empty space with zero.
+    fixed.fill(0);
 }
 
 word Memory::read_erasable_word(word address) {

@@ -1,6 +1,7 @@
 #include "cpu.hpp"
 #include "subinstructions.hpp"
 #include "agc.hpp"
+#include <iomanip>
 
 namespace agcplusplus::block2 {
     void Cpu::start() {
@@ -18,10 +19,10 @@ namespace agcplusplus::block2 {
 
         // Assign workaround values for I/O channels 30-33,
         // which have an inverted state
-        io_channels[030] = 0037777; // Set top bits low to remove TEMP light
-        io_channels[031] = 0177777;
-        io_channels[032] = 0177777;
-        io_channels[033] = 0177777;
+        io_channels[030].write(~0040400); // Set TEMP IN LIMITS and IMU OPERATE
+        io_channels[031].write(~0000000);
+        io_channels[032].write(~0000000);
+        io_channels[033].write(~0000000);
 
         // GOJAM to initialize state
         gojam();
@@ -47,16 +48,16 @@ namespace agcplusplus::block2 {
         should_gojam = false;
 
         // Clear channels 5, 6, 10-14, 34, 35, and 33 bit 11
-        io_channels[005] = 0;
-        io_channels[006] = 0;
-        io_channels[010] = 0;
-        io_channels[011] = 0;
-        io_channels[012] = 0;
-        io_channels[013] = 0;
-        io_channels[014] = 0;
-        io_channels[034] = 0;
-        io_channels[035] = 0;
-        io_channels[033] = io_channels[033] & ~BITMASK_11;
+        io_channels[005].write(0);
+        io_channels[006].write(0);
+        io_channels[010].write(0);
+        io_channels[011].write(0);
+        io_channels[012].write(0);
+        io_channels[013].write(0);
+        io_channels[014].write(0);
+        io_channels[034].write(0);
+        io_channels[035].write(0);
+        io_channels[033].write(io_channels[033].read() & ~BITMASK_11);
 
         // Clear all pending RUPTs
         for (bool &i : interrupts) {
@@ -75,7 +76,7 @@ namespace agcplusplus::block2 {
         mcro = false;
 
         // HACK: Reset I/O channel 33 to inverted state
-        io_channels[033] = 0177777;
+        io_channels[033].write(~0000000);
 
         // Before pulse 1, check for GOJAM and do INKBT1
         if (timepulse == 1) {
@@ -86,19 +87,47 @@ namespace agcplusplus::block2 {
 
             // Service INKL
             if (inkl) {
-                for (int c = 0; c < 20; ++c) {
-                    if (counters[c] & COUNT_DIRECTION_UP) {
-                        if (c >= COUNTER_TIME2 && c <= COUNTER_TIME5) {
-                            current_subinstruction = COUNT_SUBINST_PINC;
-                            break;
-                        }
-                    } else if (counters[c] & COUNT_DIRECTION_DOWN) {
-                        if (c == COUNTER_TIME6) {
-                            current_subinstruction = COUNT_SUBINST_DINC;
-                            break;
-                        }
-                    }
+                for (int c = 0; c < counters.size(); ++c) {
+                    const word direction = counters[c];
 
+                    if (direction != COUNT_DIRECTION_NONE) {
+                        switch (COUNTER_INSTRUCTION_TYPES.at(c)) {
+                            case PINC: {
+                                current_subinstruction = COUNT_SUBINST_PINC;
+                                break;
+                            }
+                            case PINC_MINC: {
+                                if (direction == COUNT_DIRECTION_UP)
+                                    current_subinstruction = COUNT_SUBINST_PINC;
+                                else
+                                    current_subinstruction = COUNT_SUBINST_MINC;
+                                break;
+                            }
+                            case DINC: {
+                                current_subinstruction = COUNT_SUBINST_DINC;
+                                break;
+                            }
+                            case PCDU_MCDU: {
+                                if (direction == COUNT_DIRECTION_UP)
+                                    current_subinstruction = COUNT_SUBINST_PCDU;
+                                else
+                                    current_subinstruction = COUNT_SUBINST_MCDU;
+                                break;
+                            }
+                            case SHINC: {
+                                //current_subinstruction = COUNT_SUBINST_SHINC;
+                                break;
+                            }
+                            case SHINC_SHANC: {
+                                /*if (direction == COUNT_DIRECTION_UP)
+                                    current_subinstruction = COUNT_SUBINST_SHINC;
+                                else
+                                    current_subinstruction = COUNT_SUBINST_SHANC;*/
+                                break;
+                            }
+                        }
+                        break;
+                    }
                 }
             }
 
@@ -117,16 +146,30 @@ namespace agcplusplus::block2 {
         if (timepulse == 5) {
             // Determine whether we are targeting fixed or erasable memory
             if (s <= MEM_ERASABLE_END) {    // Erasable memory
-                if (s >= 010) {
-                    s_temp = s; // Preserve S in case it's changed before the writeback
-                    word erasable_addr = get_erasable_absolute_addr();
+                if (s >= 010 && !channel_access) {  // Don't perform an erasable cycle during I/O
+                    s_writeback = s; // Preserve S in case it's changed before the writeback
+                    const word erasable_addr = get_erasable_absolute_addr(s, eb);
                     g = Agc::memory.read_erasable_word(erasable_addr);
+
+                    // If address being read/written is 67, signal the night watchman
+                    if (erasable_addr == 067) {
+                        night_watchman = true;
+                    }
+
+                    if (Agc::config.log_memory) {
+                        Agc::log_stream << std::oct;
+                        Agc::log_stream << "Read from erasable memory ";
+                        Agc::log_stream << std::setw(2) << eb << ",";
+                        Agc::log_stream << std::setw(4) << erasable_addr << ": ";
+                        Agc::log_stream << std::setw(6) << g << std::endl;
+                        Agc::log_stream << std::dec;
+                    }
                 }
             } else {    // Fixed memory
                 // Don't read from fixed memory during division steps 3, 7, 6, or 4.
                 // Based on SBF being inhibited by hardware logic during those phases.
                 if (!dv || st < 3) {
-                    word fixed_addr = get_fixed_absolute_addr();
+                    const word fixed_addr = get_fixed_absolute_addr(s, fb, fext);
                     // Check parity by reading raw value
                     // Adapted from http://graphics.stanford.edu/~seander/bithacks.html#ParityMultiply
                     word v = Agc::memory.read_fixed_word(fixed_addr, true);
@@ -134,23 +177,43 @@ namespace agcplusplus::block2 {
                     v ^= v >> 2;
                     v = (v & 0x1111) * 0x1111;
                     if ((((v >> 12) & 1) == 0) && !Agc::config.ignore_alarms) {    // Invalid parity
-                        std::cout << "HARDWARE ALARM: FIXED MEMORY PARITY FAIL" << std::endl;
+                        Agc::log_stream << "HARDWARE ALARM: FIXED MEMORY PARITY FAIL" << std::endl;
                         write_io_channel(077, 1);
                         queue_gojam();
                     }
                     g = Agc::memory.read_fixed_word(fixed_addr);
+
+                    if (Agc::config.log_memory) {
+                        Agc::log_stream << std::oct;
+                        Agc::log_stream << "Read from fixed memory ";
+                        Agc::log_stream << std::setw(2) << fb << ",";
+                        Agc::log_stream << std::setw(4) << fixed_addr << ": ";
+                        Agc::log_stream << std::setw(6) << g << std::endl;
+                        Agc::log_stream << std::dec;
+                    }
                 }
             }
         }
 
         // Memory writebacks are done before T10 if we performed an erasable read
-        if (timepulse == 10 && s_temp > 0) {
-            // Preserve S but replace it so we can use get_erasable_absolute_addr()
-            word s_temp2 = s;
-            s = s_temp;
-            Agc::memory.write_erasable_word(get_erasable_absolute_addr(), g);
-            s = s_temp2;    // Restore S now that we've properly calculated the erasable address
-            s_temp = 0;
+        if (timepulse == 10 && s_writeback != 0) {
+            const word erasable_addr = get_erasable_absolute_addr(s_writeback, eb);
+            Agc::memory.write_erasable_word(erasable_addr, g);
+            s_writeback = 0;
+
+            // If address being read/written is 67, signal the night watchman
+            if (erasable_addr == 067) {
+                night_watchman = true;
+            }
+
+            if (Agc::config.log_memory) {
+                Agc::log_stream << std::oct;
+                Agc::log_stream << "Write to erasable memory ";
+                Agc::log_stream << std::setw(2) << eb << ",";
+                Agc::log_stream << std::setw(4) << erasable_addr << ": ";
+                Agc::log_stream << std::setw(6) << g << std::endl;
+                Agc::log_stream << std::dec;
+            }
         }
     }
 
@@ -162,7 +225,7 @@ namespace agcplusplus::block2 {
     void Cpu::process_after_timepulse() {
         // Print CPU state information before we clear the write bus
         if ((Agc::config.log_mct && timepulse == 12) || Agc::config.log_timepulse) {
-            print_state_info(std::cout);
+            print_state_info(Agc::log_stream);
         }
 
         // Clear the write bus after every timepulse
@@ -173,21 +236,26 @@ namespace agcplusplus::block2 {
             // Push stage to its next pending value
             st = st_next;
             st_next = 0;
+            inkl = false;
 
             if (fetch_next_instruction) {
+                // I/O channel access is done, if it was performed.
+                channel_access = false;
+
                 // Check for pending counter requests
-                inkl = false;
-                for (const word& counter : counters) {
-                    if (counter != COUNT_DIRECTION_NONE && !pseudo && !Agc::config.ignore_counters) {
-                        inkl = true;
-                        break;
+                if (!pseudo && !Agc::config.ignore_counters) {
+                    for (const word counter : counters) {
+                        if (counter != COUNT_DIRECTION_NONE) {
+                            inkl = true;
+                            break;
+                        }
                     }
                 }
 
                 // Check for pending interrupts
                 bool rupt_pending = false;
                 for (const bool& interrupt : interrupts) {
-                    if (interrupt) {
+                    if (interrupt && !inkl) {
                         rupt_pending = true;
                         break;
                     }
@@ -219,8 +287,8 @@ namespace agcplusplus::block2 {
 
 
             if (!found_implemented_subinstruction) {
-                std::cout << "Unimplemented subinstruction, replacing with STD2." << std::endl;
-                print_state_info(std::cout);
+                Agc::log_stream << "Unimplemented subinstruction, replacing with STD2." << std::endl;
+                print_state_info(Agc::log_stream);
 
                 subinstruction std2 = subinstruction_list[0];
                 current_subinstruction = std2;
@@ -269,6 +337,18 @@ namespace agcplusplus::block2 {
         output << " Y = " << std::setw(6) << y;
         output << " U = " << std::setw(6) << u;
         output << " WL = " << std::setw(6) << write_bus;
+        output << '\n';
+
+        output << " INKL = " << (word)inkl;
+        output << " IIP = " << (word)iip;
+        word highest_priority_counter = -1;
+        for (int i = 0; i < counters.size(); ++i) {
+            if (counters[i] != COUNT_DIRECTION_NONE) {
+                highest_priority_counter = i;
+                break;
+            }
+        }
+        output << " Counter = " << highest_priority_counter;
         output << std::endl;
 
         std::dec(output);
@@ -297,38 +377,33 @@ namespace agcplusplus::block2 {
         fb = bb & BITMASK_11_15;
     }
 
-    word Cpu::get_erasable_absolute_addr() {
+    word Cpu::get_erasable_absolute_addr(const word address, const word bank) {
         word abs_addr;
 
-        if (s >= MEM_ERASABLE_BANKED_START && s <= MEM_ERASABLE_BANKED_END) {
-            abs_addr = s & 0377;
-            abs_addr |= eb;
+        if (address >= MEM_ERASABLE_BANKED_START && address <= MEM_ERASABLE_BANKED_END) {
+            abs_addr = address & 0377;
+            abs_addr |= bank;
         } else {
-            abs_addr = s;
-        }
-
-        // If address being read/written is 67, signal the night watchman
-        if (abs_addr == 067) {
-            night_watchman = true;
+            abs_addr = address;
         }
 
         return abs_addr;
     }
 
-    word Cpu::get_fixed_absolute_addr() const {
+    word Cpu::get_fixed_absolute_addr(const word address, const word bank, const word superbank) {
         word abs_addr;
 
-        if (s >= MEM_FIXED_BANKED_START && s <= MEM_FIXED_BANKED_END) {
-            abs_addr = s & 01777;
+        if (address >= MEM_FIXED_BANKED_START && address <= MEM_FIXED_BANKED_END) {
+            abs_addr = address & 01777;
             // Check if we're superbanking
-            if (((fext >> 4) >= 4) && (fb >= 060000)) { // Yes, superbank
-                abs_addr |= (fb & 0016000); // Mask out the top two bits of FB
-                abs_addr |= (fext << 9);    // Put FEXT's three bits over the top two bits and extend
+            if (((superbank >> 4) >= 4) && (bank >= 060000)) { // Yes, superbank
+                abs_addr |= (bank & 0016000); // Mask out the top two bits of FB
+                abs_addr |= (superbank << 9);    // Put FEXT's three bits over the top two bits and extend
             } else {    // No, not superbank
-                abs_addr |= fb;
+                abs_addr |= bank;
             }
         } else {
-            abs_addr = s;
+            abs_addr = address;
         }
 
         return abs_addr;
@@ -348,7 +423,7 @@ namespace agcplusplus::block2 {
             result = fext;
             break;
         default:
-            result = io_channels[address] & ~BITMASK_16;    // Mask out bit 16, since erasable words are only 15 bits wide
+            result = (io_channels[address].read() & ~BITMASK_16);   // Mask out bit 16, since erasable words are only 15 bits wide
             result |= ((result & BITMASK_15) << 1);   // Copy bit 15 into bit 16
             break;
         }
@@ -366,14 +441,47 @@ namespace agcplusplus::block2 {
             break;
         case 7:
             fext = (data & 0160);
-            //std::cout << "FEXT changed to " << (word)(fext >> 4) << std::endl;
+            //Agc::log_stream << "FEXT changed to " << (word)(fext >> 4) << std::endl;
             // Fall through
         default:
             word temp = data & ~BITMASK_15; // Mask out bit 15
             temp |= ((temp & BITMASK_16) >> 1); // Copy bit 16 into bit 15
             temp &= ~BITMASK_16;    // Mask out bit 16 since erasable words are only 15 bits wide
-            io_channels[address] = temp;
+            io_channels[address].write(temp);
             break;
+        }
+
+        // Special-case logic for important channels
+        if (address == 012) {
+            auto const& chan12 = io_channels[012];
+            // Channel 12 bit 1 = OSS CDU ZERO discrete
+            if (chan12.were_bits_changed(BITMASK_1))
+                Agc::cdu.set_oss_cdu_zero(chan12.are_bits_set(BITMASK_1));
+            // Channel 12 bit 2 = OSS error counter enable
+            if (chan12.were_bits_changed(BITMASK_2))
+                Agc::cdu.set_oss_error_counter_enable(chan12.are_bits_set(BITMASK_2));
+            // Channel 12 bit 4 = ISS coarse align
+            if (chan12.were_bits_changed(BITMASK_4))
+                Agc::cdu.set_iss_coarse_align(chan12.are_bits_set(BITMASK_4));
+            // Channel 12 bit 5 = ISS CDU ZERO discrete
+            if (chan12.were_bits_changed(BITMASK_5))
+                Agc::cdu.set_iss_cdu_zero(chan12.are_bits_set(BITMASK_5));
+            // Channel 12 bit 6 = ISS error counter enable
+            if (chan12.were_bits_changed(BITMASK_6))
+                Agc::cdu.set_iss_error_counter_enable(chan12.are_bits_set(BITMASK_6));
+        } else if (address == 014) {
+            auto const& chan14 = io_channels[014];
+            // Channel 14 bit 6, gyro torque enable
+            if (chan14.were_bits_changed(BITMASK_6))
+                Agc::imu.set_gyro_torque_enable(chan14.are_bits_set(BITMASK_6));
+            // Gyro selection logic
+            if (chan14.were_bits_changed(BITMASK_7) || chan14.were_bits_changed(BITMASK_8) || chan14.were_bits_changed(BITMASK_9)) {
+                const int gyro = (chan14.read() >> 6) & 7;
+                Agc::imu.set_gyro_select(gyro);
+            }
+            // Channel 14 bit 10, gyro activity
+            if (chan14.were_bits_changed(BITMASK_10))
+                Agc::log_stream << "Gyro Activity = " << chan14.are_bits_set(BITMASK_10) << std::endl;
         }
     }
 }

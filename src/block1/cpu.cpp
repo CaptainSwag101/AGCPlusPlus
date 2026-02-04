@@ -79,7 +79,7 @@ namespace agcplusplus::block1 {
 
     void Cpu::process_after_timepulse() {
         if ((Agc::configuration.log_mct && timepulse == 12) || Agc::configuration.log_timepulse) {
-            print_state_info(std::cout);
+            print_state_info(Agc::log_stream);
         }
 
         // Reset write bus
@@ -107,7 +107,7 @@ namespace agcplusplus::block1 {
             // Inhibit memory access when performing MP1, DV1.
             if (extend && st == 1 && (sq == 011 || sq == 012)) {
                 if (Agc::configuration.log_memory)
-                    std::cout << "Inhibited memory write due to MP1 or DV1" << std::endl;
+                    Agc::log_stream << "Inhibited memory write due to MP1 or DV1" << std::endl;
             } else {
                 Agc::memory.write(s, g);
             }
@@ -174,7 +174,7 @@ namespace agcplusplus::block1 {
             // Force STD2 on unimplemented subinstruction
             if (!found_good_subinstruction) {
                 current_subinstruction = subinstruction_data[0];
-                std::cout << "Replacing unknown subinstruction at " << std::oct << bank << "," << (z - 1) << std::dec << " with STD2" << std::endl;
+                Agc::log_stream << "Replacing unknown subinstruction at " << std::oct << bank << "," << (z - 1) << std::dec << " with STD2" << std::endl;
             }
         }
 

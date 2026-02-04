@@ -145,8 +145,8 @@ namespace agcplusplus::block1 {
             case 6:
             case 7:
                 if (Agc::configuration.log_memory) {
-                    std::cout << "Read from input channel: " << std::oct << std::setw(4) << (cpu.s - 4);
-                    std::cout << ": " << std::setw(6) << cpu.in[cpu.s - 4] << std::dec << std::endl;
+                    Agc::log_stream << "Read from input channel: " << std::oct << std::setw(4) << (cpu.s - 4);
+                    Agc::log_stream << ": " << std::setw(6) << cpu.in[cpu.s - 4] << std::dec << std::endl;
                 }
                 cpu.write_bus |= cpu.in[cpu.s - 4];
                 break;
@@ -156,8 +156,8 @@ namespace agcplusplus::block1 {
             case 013:
             case 014:
                 if (Agc::configuration.log_memory) {
-                    std::cout << "Read from output channel: " << std::oct << std::setw(4) << (cpu.s - 010);
-                    std::cout << ": " << std::setw(6) << cpu.out[cpu.s - 010] << std::dec << std::endl;
+                    Agc::log_stream << "Read from output channel: " << std::oct << std::setw(4) << (cpu.s - 010);
+                    Agc::log_stream << ": " << std::setw(6) << cpu.out[cpu.s - 010] << std::dec << std::endl;
                 }
                 cpu.write_bus |= cpu.out[cpu.s - 010];
                 break;
@@ -341,9 +341,11 @@ namespace agcplusplus::block1 {
                     break;
                 case COUNTER_TIME3:
                     cpu.interrupts[RUPT_T3RUPT] = true;
+                    std::cout << "T3RUPT triggered due to overflow" << std::endl;
                     break;
                 case COUNTER_TIME4:
                     cpu.interrupts[RUPT_T4RUPT] = true;
+                    std::cout << "T4RUPT triggered due to overflow" << std::endl;
                     break;
             }
         }
@@ -387,7 +389,7 @@ namespace agcplusplus::block1 {
             case 6:
             case 7:
                 if (Agc::configuration.log_memory) {
-                    std::cout << "Clearing input channel: " << std::oct << std::setw(4) << (cpu.s - 4) << std::endl;
+                    Agc::log_stream << "Clearing input channel: " << std::oct << std::setw(4) << (cpu.s - 4) << std::endl;
                 }
                 cpu.in[cpu.s - 4] = 0;
                 break;
@@ -397,8 +399,8 @@ namespace agcplusplus::block1 {
             case 013:
             case 014:
                 if (Agc::configuration.log_memory) {
-                    std::cout << "Write to output channel: " << std::oct << std::setw(4) << (cpu.s - 010);
-                    std::cout << ": " << std::setw(6) << cpu.write_bus << std::dec << std::endl;
+                    Agc::log_stream << "Write to output channel: " << std::oct << std::setw(4) << (cpu.s - 010);
+                    Agc::log_stream << ": " << std::setw(6) << cpu.write_bus << std::dec << std::endl;
                 }
                 cpu.out[cpu.s - 010] = cpu.write_bus;
                 break;
